@@ -9,13 +9,9 @@ import epicscorelibs.path.cothread  # noqa
 from cothread.catools import ca_nothing, caget
 from softioc import builder, softioc
 
-from atip import __version__
-
-from . import atip_server
+from virtac import __version__, atip_server
 
 LOG_FORMAT = "%(asctime)s %(message)s"
-
-
 DATADIR = Path(__file__).absolute().parent / "data"
 
 
@@ -131,3 +127,7 @@ def main():
         server.setup_tune_feedback()
     context = globals() | {"server": server}
     softioc.interactive_ioc(context)
+
+
+if __name__ == "__main__":
+    main()

@@ -2,6 +2,13 @@
 See README.rst & FEEDBACK_SYSTEMS.rst for more information.
 """
 
-from . import atip_ioc_entry, atip_server, create_csv, masks, mirror_objects
+from . import atip_server, create_csv, masks, mirror_objects
+from ._version import __version__
 
-__all__ = ["atip_ioc_entry", "atip_server", "create_csv", "masks", "mirror_objects"]
+__all__ = [
+    "__version__",
+    "atip_server",
+    "create_csv",
+    "masks",
+    "mirror_objects",
+]
