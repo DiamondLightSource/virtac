@@ -3,7 +3,7 @@ requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "atip"
+name = "virtac"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apache Software License",
@@ -16,7 +16,6 @@ dependencies = [
     "numpy",
     "scipy",
     "pytac>=0.3.0",
-    "accelerator-toolbox (>=0.2.0,<0.7.1)",
     "cothread",
     "softioc",
     "atip",
@@ -61,7 +60,7 @@ email = "philip.smith@diamond.ac.uk"
 name = "Phil Smith"
 
 [tool.setuptools_scm]
-version_file = "src/atip/_version.py"
+version_file = "src/virtac/_version.py"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
