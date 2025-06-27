@@ -1,9 +1,9 @@
 import subprocess
 import sys
 
-from atip import __version__
+from virtac import __version__
 
 
 def test_cli_version():
-    cmd = [sys.executable, "-m", "atip", "--version"]
+    cmd = [sys.executable, "-m", "virtac", "--version"]
     assert subprocess.check_output(cmd).decode().strip() == __version__
