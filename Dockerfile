@@ -19,5 +19,6 @@ RUN pip install .
 ENV EPICS_CA_SERVER_PORT=8064
 ENV EPICS_CA_REPEATER_PORT=8065
 
-ENTRYPOINT [ "virtac" ]
-CMD ["-v"]
+# change this entrypoint if it is not the same as the repo
+ENTRYPOINT ["virtac"]
+CMD ["--version"]

@@ -8,6 +8,5 @@ Tutorials for installation and typical usage. New users start here.
 
 tutorials/installation
 tutorials/overview
-tutorials/atip_example
 tutorials/virtac_example
 ```

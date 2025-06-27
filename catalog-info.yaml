@@ -1,10 +1,10 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: atip
-  title: atip
-  description: Accelerator Toolbox Interface for Pytac
+  name: virtac
+  title: virtac
+  description: Diamond virtual accelerator
 spec:
-  type: library
+  type: service
   lifecycle: production
   owner: group:default/high-level-apps

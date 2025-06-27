@@ -11,6 +11,8 @@ from softioc import builder, softioc
 
 from virtac import __version__, atip_server
 
+__all__ = ["main"]
+
 LOG_FORMAT = "%(asctime)s %(message)s"
 DATADIR = Path(__file__).absolute().parent / "data"
 

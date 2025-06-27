@@ -3,6 +3,9 @@
 [![PyPI](https://img.shields.io/pypi/v/virtac.svg)](https://pypi.org/project/virtac)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+# virtac
+
+Diamond virtual accelerator
 
 # VIRTAC - Diamond virtual accelerator
 This module contains all of the diamond specific configuration to build the diamond virtual accelerator. We use the python modules pytac and atip to communicate with the EPICS control system and with the accelerator toolbox simulation respectively.
