@@ -46,7 +46,7 @@ dev = [
 ]
 
 [project.scripts]
-virtac = "virtac.atip_ioc_entry:main"
+virtac = "virtac.__main__:main"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/virtac"
