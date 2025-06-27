@@ -11,7 +11,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-description = "Accelerator Toolbox Interface for Pytac"
+description = "Diamond virtual accelerator"
 dependencies = [
     "numpy",
     "scipy",
@@ -19,6 +19,7 @@ dependencies = [
     "accelerator-toolbox (>=0.2.0,<0.7.1)",
     "cothread",
     "softioc",
+    "atip",
 ]
 
 dynamic = ["version"]
@@ -46,11 +47,10 @@ dev = [
 ]
 
 [project.scripts]
-atip = "atip.__main__:main"
 virtac = "virtac.atip_ioc_entry:main"
 
 [project.urls]
-GitHub = "https://github.com/DiamondLightSource/atip"
+GitHub = "https://github.com/DiamondLightSource/virtac"
 
 [[project.authors]] # Further authors may be added by duplicating this section
 email = "tobyn.nicholls@diamond.ac.uk"
