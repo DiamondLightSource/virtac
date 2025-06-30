@@ -3,11 +3,10 @@ import unittest.mock as mock
 from typing import Any
 
 import at
+import atip
 import numpy
 import pytest
 from pytac import cs, load_csv
-
-import atip
 
 # Prevent pytest from catching exceptions when debugging in vscode so that break on
 # exception works correctly (see: https://github.com/pytest-dev/pytest/issues/7409)
