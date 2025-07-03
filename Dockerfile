@@ -5,7 +5,7 @@ FROM python:${PYTHON_VERSION} AS developer
 
 # Add any system dependencies for the developer/build environment here
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    graphviz \
+    graphviz locales\
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /virtac
