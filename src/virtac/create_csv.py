@@ -6,11 +6,10 @@ import argparse
 import csv
 import os
 
+import atip
 import numpy
 import pytac
 from cothread.catools import FORMAT_CTRL, caget
-
-import atip
 
 
 def generate_feedback_pvs(all_elements, lattice):

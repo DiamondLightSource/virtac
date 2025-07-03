@@ -2,7 +2,7 @@
 
 ..
    This page is not included in the TOC tree, but must exist so that the
-   autosummary pages are generated for atip and all its
+   autosummary pages are generated for virtac and all its
    subpackages
 
 API
@@ -13,5 +13,4 @@ API
     :template: custom-module-template.rst
     :recursive:
 
-    atip
     virtac

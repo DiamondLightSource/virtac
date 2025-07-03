@@ -7,7 +7,5 @@ Tutorials for installation and typical usage. New users start here.
 :glob:
 
 tutorials/installation
-tutorials/overview
-tutorials/atip_example
 tutorials/virtac_example
 ```

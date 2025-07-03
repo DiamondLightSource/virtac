@@ -3,7 +3,7 @@ requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "atip"
+name = "virtac"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "License :: OSI Approved :: Apache Software License",
@@ -11,14 +11,14 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
-description = "Accelerator Toolbox Interface for Pytac"
+description = "Diamond virtual accelerator"
 dependencies = [
     "numpy",
     "scipy",
     "pytac>=0.3.0",
-    "accelerator-toolbox (>=0.2.0,<0.7.1)",
     "cothread",
     "softioc",
+    "atip",
 ]
 
 dynamic = ["version"]
@@ -46,11 +46,10 @@ dev = [
 ]
 
 [project.scripts]
-atip = "atip.__main__:main"
-virtac = "virtac.atip_ioc_entry:main"
+virtac = "virtac.__main__:main"
 
 [project.urls]
-GitHub = "https://github.com/DiamondLightSource/atip"
+GitHub = "https://github.com/DiamondLightSource/virtac"
 
 [[project.authors]] # Further authors may be added by duplicating this section
 email = "tobyn.nicholls@diamond.ac.uk"
@@ -61,7 +60,7 @@ email = "philip.smith@diamond.ac.uk"
 name = "Phil Smith"
 
 [tool.setuptools_scm]
-version_file = "src/atip/_version.py"
+version_file = "src/virtac/_version.py"
 
 [tool.mypy]
 ignore_missing_imports = true # Ignore missing stubs in imported modules
@@ -77,7 +76,7 @@ filterwarnings = "error"
 testpaths = "docs src tests"
 
 [tool.coverage.run]
-data_file = "/tmp/atip.coverage"
+data_file = "/tmp/virtac.coverage"
 
 [tool.coverage.paths]
 # Tests are run from installed location, map back to the src directory
@@ -103,7 +102,7 @@ allowlist_externals =
 commands =
     pre-commit: pre-commit run --all-files --show-diff-on-failure {posargs}
     type-checking: mypy src tests {posargs}
-    tests: pytest --cov=atip --cov-report term --cov-report xml:cov.xml {posargs}
+    tests: pytest --cov=virtac --cov-report term --cov-report xml:cov.xml {posargs}
     docs: sphinx-{posargs:build -EW --keep-going} -T docs build/html
 """
 # Add -W flag to sphinx-build if you want to fail on warnings

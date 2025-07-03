@@ -11,15 +11,15 @@ from subprocess import check_output
 
 import requests
 
-import atip
+import virtac
 
 # -- General configuration ------------------------------------------------
 
 # General information about the project.
-project = "atip"
+project = "virtac"
 
 # The full version, including alpha/beta/rc tags.
-release = atip.__version__
+release = virtac.__version__
 
 # The short X.Y version.
 if "+" in release:
@@ -146,7 +146,7 @@ copybutton_prompt_is_regexp = True
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-github_repo = "atip"
+github_repo = "virtac"
 github_user = "DiamondLightSource"
 switcher_json = f"https://{github_user}.github.io/{github_repo}/switcher.json"
 switcher_exists = requests.get(switcher_json).ok

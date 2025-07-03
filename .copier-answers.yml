@@ -5,14 +5,14 @@ author_email: tobyn.nicholls@diamond.ac.uk
 author_name: Tobyn Nicholls
 component_lifecycle: production
 component_owner: group:default/high-level-apps
-component_type: library
-description: Accelerator Toolbox Interface for Pytac
-distribution_name: atip
+component_type: service
+description: Diamond virtual accelerator
+distribution_name: virtac
 docker: true
 docs_type: sphinx
 git_platform: github.com
 github_org: DiamondLightSource
-package_name: atip
+package_name: virtac
 pypi: true
-repo_name: atip
+repo_name: virtac
 type_checker: mypy

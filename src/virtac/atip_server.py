@@ -3,14 +3,13 @@ import logging
 import typing
 from warnings import warn
 
+import atip
 import numpy
 import pytac
 from cothread.catools import camonitor
 from pytac.device import SimpleDevice
 from pytac.exceptions import FieldException, HandleException
 from softioc import builder
-
-import atip
 
 from .masks import caget_mask, callback_offset, callback_set, caput_mask
 from .mirror_objects import collate, refresher, summate, transform
