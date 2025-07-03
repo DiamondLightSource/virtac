@@ -13,6 +13,7 @@ from softioc import builder
 
 from .masks import caget_mask, callback_offset, callback_set, caput_mask
 from .mirror_objects import collate, refresher, summate, transform
+from .pv import PV, DirectPV, DumbPV
 
 
 class VirtacServer:
@@ -184,40 +185,48 @@ class VirtacServer:
                     upper, lower, precision, drive_high, drive_low = limits_dict.get(
                         get_pv, (None, None, None, None, None)
                     )
-                    builder.SetDeviceName(get_pv.split(":", 1)[0])
-                    in_record = builder.aIn(
-                        get_pv.split(":", 1)[1],
-                        LOPR=lower,
-                        HOPR=upper,
-                        PREC=precision,
-                        MDEL="-1",
-                        initial_value=value,
+                    in_pv = DumbPV(get_pv)
+                    in_pv.create_softioc_record(
+                        "ai", lower, upper, precision, drive_high, drive_low, value
                     )
-                    self._in_records[in_record] = ([element.index], field)
+                    # builder.SetDeviceName(get_pv.split(":", 1)[0])
+                    # in_record = builder.aIn(
+                    #     get_pv.split(":", 1)[1],
+                    #     LOPR=lower,
+                    #     HOPR=upper,
+                    #     PREC=precision,
+                    #     MDEL="-1",
+                    #     initial_value=value,
+                    # )
+                    self._in_records[in_pv._record] = ([element.index], field)
 
                     try:
                         set_pv = element.get_pv_name(field, pytac.SP)
                     except HandleException:
-                        self._rb_only_records.append(in_record)
+                        self._rb_only_records.append(in_pv._record)
                     else:
                         upper, lower, precision, drive_high, drive_low = (
                             limits_dict.get(set_pv, (None, None, None, None, None))
                         )
-                        builder.SetDeviceName(set_pv.split(":", 1)[0])
-                        out_record = builder.aOut(
-                            set_pv.split(":", 1)[1],
-                            DRVH=drive_high,
-                            DRVL=drive_low,
-                            LOPR=lower,
-                            HOPR=upper,
-                            PREC=precision,
-                            initial_value=value,
-                            on_update_name=self._on_update,
-                            always_update=True,
+                        out_pv = DirectPV(set_pv, in_pv._record)
+                        out_pv.create_softioc_record(
+                            "ao", lower, upper, precision, drive_high, drive_low, value
                         )
-                        self._out_records[out_record] = in_record
+                        # builder.SetDeviceName(set_pv.split(":", 1)[0])
+                        # out_record = builder.aOut(
+                        #     set_pv.split(":", 1)[1],
+                        #     DRVH=drive_high,
+                        #     DRVL=drive_low,
+                        #     LOPR=lower,
+                        #     HOPR=upper,
+                        #     PREC=precision,
+                        #     initial_value=value,
+                        #     on_update_name=self._on_update,
+                        #     always_update=True,
+                        # )
+                        self._out_records[out_pv._record] = in_pv._record
                         if element.type_.upper() == "BEND" and bend_in_record is None:
-                            bend_in_record = in_record
+                            bend_in_record = in_pv._record
 
         # Now for lattice fields.
         lat_fields = self.lattice.get_fields()
@@ -242,33 +251,34 @@ class VirtacServer:
         )
         print("~*~*Woah, we're halfway there, Wo-oah...*~*~")
 
-    def _on_update(self, value, name):
-        """The callback function passed to out records, it is called after
-        successful record processing has been completed. It updates the out
-        record's corresponding in record with the value that has been set and
-        then sets the value to the Pytac lattice.
+    # Mark for refactor
+    # def _on_update(self, value, name):
+    #     """The callback function passed to out records, it is called after
+    #     successful record processing has been completed. It updates the out
+    #     record's corresponding in record with the value that has been set and
+    #     then sets the value to the Pytac lattice.
 
-        This functions needs to be kept FAST as it can be called rapidly by CA clients.
+    #     This functions needs to be kept FAST as it can be called rapidly by CA clients.
 
-        Args:
-            value (number): The value that has just been set to the record.
-            name (str): The name of record object that has just been set to.
-        """
-        logging.debug("Read value %s on pv %s", value, name)
-        in_record = self._out_records[self._record_names[name]]
-        in_record.set(value)
-        index, field = self._in_records[in_record]
-        if self.tune_feedback_status is True:
-            try:
-                offset_record = self._offset_pvs[name]
-                value += offset_record.get()
-            except KeyError:
-                pass
+    #     Args:
+    #         value (number): The value that has just been set to the record.
+    #         name (str): The name of record object that has just been set to.
+    #     """
+    #     logging.debug("Read value %s on pv %s", value, name)
+    #     in_record = self._out_records[self._record_names[name]]
+    #     in_record.set(value)
+    #     index, field = self._in_records[in_record]
+    #     if self.tune_feedback_status is True:
+    #         try:
+    #             offset_record = self._offset_pvs[name]
+    #             value += offset_record.get()
+    #         except KeyError:
+    #             pass
 
-        for i in index:
-            self.lattice[i - 1].set_value(
-                field, value, units=pytac.ENG, data_source=pytac.SIM
-            )
+    #     for i in index:
+    #         self.lattice[i - 1].set_value(
+    #             field, value, units=pytac.ENG, data_source=pytac.SIM
+    #         )
 
     def _create_bba_records(self, bba_csv):
         """Create all the beam-based-alignment records from the .csv file at the

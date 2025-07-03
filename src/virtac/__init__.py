@@ -6,12 +6,12 @@
     Version number as calculated by https://github.com/pypa/setuptools_scm
 """
 
-from . import atip_server, create_csv, masks, mirror_objects
+from . import create_csv, masks, mirror_objects, virtac_server
 from ._version import __version__
 
 __all__ = [
     "__version__",
-    "atip_server",
+    "virtac_server",
     "create_csv",
     "masks",
     "mirror_objects",
