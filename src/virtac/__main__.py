@@ -9,7 +9,7 @@ import epicscorelibs.path.cothread  # noqa
 from cothread.catools import ca_nothing, caget
 from softioc import builder, softioc
 
-from virtac import __version__, atip_server
+from virtac import __version__, virtac_server
 
 __all__ = ["main"]
 
@@ -78,7 +78,7 @@ def main():
 
     # Create PVs.
     logging.debug("Creating ATIP server")
-    server = atip_server.ATIPServer(
+    server = virtac_server.VirtacServer(
         ring_mode,
         DATADIR / ring_mode / "limits.csv",
         DATADIR / ring_mode / "bba.csv",

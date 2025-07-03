@@ -15,9 +15,9 @@ from .masks import caget_mask, callback_offset, callback_set, caput_mask
 from .mirror_objects import collate, refresher, summate, transform
 
 
-class ATIPServer:
-    """A soft-ioc server allowing ATIP to be interfaced using EPICS, in the
-    same manner as the live machine.
+class VirtacServer:
+    """The soft-ioc server which contains the configuration and PVs for the VIRTAC.
+    It allows ATIP to be interfaced using EPICS, in the same manner as the live machine.
 
     **Attributes**
 
