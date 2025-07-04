@@ -1,19 +1,18 @@
 import logging
-from collections.abc import Callable
-from dataclasses import dataclass
 
 import pytac
-from cothread.catools import caget, camonitor, caput
 from softioc import builder
 
 
 class PV:
-    """Class that stores information about a PV and allows monitoring and writing to a PV \
-        over channel access"""
+    """Class that stores information about a PV and allows monitoring and writing to a
+    PV over channel access"""
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, tune_feedback: bool = False):
         self._pv_name: str = name
-        self._tune_feedback_status: bool
+        self._pytac_elements: list = []
+        self._pytac_field = None
+        self._tune_feedback_status: bool = tune_feedback
         self._timeout: float
 
     def _on_update(self, value, name):
@@ -29,6 +28,12 @@ class PV:
 
     def set_tune_feedback_status(self, status):
         self._tune_feedback_status = status
+
+    def append_pytac_element(self, element):
+        self._pytac_elements.append(element)
+
+    def set_pytac_field(self, field):
+        self._pytac_field = field
 
 
 class DumbPV(PV):
@@ -57,10 +62,11 @@ class DirectPV(PV):
     """When this PV has its value updated, we find its paired PV and update it based
     on simulation data."""
 
-    def __init__(self, name, in_record):
+    def __init__(self, name, in_record: PV):
         super().__init__(name)
         self._record = None
         self._in_record = in_record
+        self._offset_record = None
 
     def _on_update(self, value, name):
         """The callback function passed to out records, it is called after
@@ -75,17 +81,20 @@ class DirectPV(PV):
             name (str): The name of record object that has just been set to.
         """
         logging.debug("Read value %s on pv %s", value, name)
-        self._in_record.set(value)
+        self._in_record._record.set(value)
+
         if self._tune_feedback_status is True:
             try:
-                offset_record = self._offset_pvs[name]
-                value += offset_record.get()
+                value += self.offset_record._record.get()
             except KeyError:
                 pass
 
-        for i in self.index:
-            self.lattice[i - 1].set_value(
-                self.field, value, units=pytac.ENG, data_source=pytac.SIM
+        for element in self._in_record._pytac_elements:
+            element.set_value(
+                self._in_record._pytac_field,
+                value,
+                units=pytac.ENG,
+                data_source=pytac.SIM,
             )
 
     def create_softioc_record(
@@ -104,3 +113,6 @@ class DirectPV(PV):
                 on_update_name=self._on_update,
                 always_update=True,
             )
+
+    def attach_offset_record(self, offset_record: PV):
+        self._offset_record = offset_record
