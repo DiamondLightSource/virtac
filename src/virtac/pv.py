@@ -35,17 +35,16 @@ class PV:
     def set_pytac_field(self, field):
         self._pytac_field = field
 
-
-class DumbPV(PV):
-    """Stores a passive softioc record which can be updated, but does nothing
-    when it is updated, other than update its own value."""
-
-    def __init__(self, name: str):
-        super().__init__(name)
-        self._record = None
-
     def create_softioc_record(
-        self, type, lower, upper, precision, drive_high, drive_low, initial_value
+        self,
+        type,
+        lower,
+        upper,
+        precision,
+        drive_high,
+        drive_low,
+        initial_value,
+        always_update=True,
     ):
         if type == "ai":
             self._record = builder.aIn(
@@ -56,6 +55,36 @@ class DumbPV(PV):
                 MDEL="-1",
                 initial_value=initial_value,
             )
+        elif type == "ao":
+            self._record = builder.aOut(
+                self._pv_name,
+                PREC=precision,
+                LOPR=lower,
+                DRVH=drive_high,
+                DRVL=drive_low,
+                HOPR=upper,
+                MDEL="-1",
+                initial_value=initial_value,
+                on_update_name=self._on_update,
+                always_update=always_update,
+            )
+        elif type == "wfm":
+            self._record = builder.WaveformOut(
+                self._pv_name,
+                initial_value=initial_value,
+                always_update=True,
+            )
+        else:
+            raise ValueError(f"Failed to create PV with record type: {type}")
+
+
+class DumbPV(PV):
+    """Stores a passive softioc record which can be updated, but does nothing
+    when it is updated, other than update its own value."""
+
+    def __init__(self, name: str):
+        super().__init__(name)
+        self._record = None
 
 
 class DirectPV(PV):
@@ -95,23 +124,6 @@ class DirectPV(PV):
                 value,
                 units=pytac.ENG,
                 data_source=pytac.SIM,
-            )
-
-    def create_softioc_record(
-        self, type, lower, upper, precision, drive_high, drive_low, initial_value
-    ):
-        if type == "ao":
-            self._record = builder.aOut(
-                self._pv_name,
-                PREC=precision,
-                LOPR=lower,
-                DRVH=drive_high,
-                DRVL=drive_low,
-                HOPR=upper,
-                MDEL="-1",
-                initial_value=initial_value,
-                on_update_name=self._on_update,
-                always_update=True,
             )
 
     def attach_offset_record(self, offset_record: PV):
