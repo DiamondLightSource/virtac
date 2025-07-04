@@ -297,8 +297,9 @@ class VirtacServer:
             ] = {}
             for line in csv_reader:
                 val: typing.Any = 0
-                prefix, suffix = line["pv"].split(":", 1)
-                builder.SetDeviceName(prefix)
+                name = line["pv"]
+                # prefix, suffix = line["pv"].split(":", 1)
+                # builder.SetDeviceName(prefix)
                 try:
                     # Waveform records may have values stored as a list such as: [5 1 3]
                     # Here we convert that into a numpy array for initialising the
@@ -313,28 +314,14 @@ class VirtacServer:
                         f"{line['value']}"
                     ) from exc
                 else:
-                    if line["record_type"] == "ai":
-                        record = builder.aIn(suffix, initial_value=val, MDEL="-1")
-                        records[(int(line["index"]), line["field"])] = record
-                    elif line["record_type"] == "ao":
-                        record = builder.aOut(
-                            suffix, initial_value=val, always_update=True
-                        )
-                        records[(int(line["index"]), line["field"])] = record
-                    elif line["record_type"] == "wfm":
-                        record = builder.WaveformOut(
-                            suffix,
-                            # We remove the [] around the string
-                            initial_value=val,
-                            always_update=True,
-                        )
-                        records[(int(line["index"]), line["field"])] = record
-                    else:
-                        raise ValueError(
-                            f"Failed to create PV from csv file line num "
-                            f"{csv_reader.line_num} invalid record_type: "
-                            f"{line['record_type']}"
-                        )
+                    pv = DumbPV(name)
+                    # TODO: Add some checks of csv data here?
+                    pv.create_softioc_record(
+                        line["record_type"], None, None, None, None, None, val
+                    )
+                    pv.set_pytac_field(line["field"])
+                    pv.append_pytac_element(line["index"])
+                    records[pv._pytac_elements[0], pv._pytac_field] = pv._record
         return records
 
     def _create_mirror_records(self, mirror_csv):
@@ -500,6 +487,7 @@ class VirtacServer:
         self.tune_feedback_status = False
         self._pv_monitoring = False
 
+    # refactor, these can just be out records and this can be removed.
     def set_feedback_record(self, index, field, value):
         """Set a value to the feedback in records.
 
