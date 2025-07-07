@@ -32,6 +32,9 @@ class PV:
     def set_tune_feedback_status(self, status):
         self._tune_feedback_status = status
 
+    def get_pytac_data(self):
+        return self._pytac_elements, self._pytac_field
+
     def append_pytac_element(self, element):
         self._pytac_elements.append(element)
 

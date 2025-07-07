@@ -93,15 +93,16 @@ class VirtacServer:
         self.tune_feedback_status = False
         self._pv_monitoring = False
         self._tune_fb_csv_path = tune_csv
-        self._in_records = {}
-        self._out_records = {}
-        self._rb_only_records = []
-        self._bba_records = {}
-        self._feedback_records = {}
-        self._mirrored_records = {}
-        self._monitored_pvs = {}
-        self._offset_pvs = {}
-        self._record_names = {}
+        self._pv_dict = {}
+        # self._in_records = {}
+        # self._out_records = {}
+        # self._rb_only_records = []
+        # self._bba_records = {}
+        # self._feedback_records = {}
+        # self._mirrored_records = {}
+        # self._monitored_pvs = {}
+        # self._offset_pvs = {}
+        # self._record_names = {}
         print("Starting record creation.")
         self._create_records(limits_csv, disable_emittance)
         if bba_csv is not None:
@@ -110,11 +111,12 @@ class VirtacServer:
             self._create_feedback_records(feedback_csv, disable_emittance)
         if mirror_csv is not None:
             self._create_mirror_records(mirror_csv)
-        print(f"Finished creating all {len(self._record_names)} records.")
+        print(f"Finished creating all {len(self._pv_dict)} records.")
+        # print(f"Finished creating all {len(self._record_names)} records.")
 
-    def _update_record_names(self, records):
-        """Updates _record_names using the supplied list of softioc record objects."""
-        self._record_names |= {record.name: record for record in list(records)}
+    # def _update_record_names(self, records):
+    #     """Updates _record_names using the supplied list of softioc record objects."""
+    #     self._record_names |= {record.name: record for record in list(records)}
 
     def update_pvs(self):
         """The callback function passed to ATSimulator during lattice creation,
@@ -123,21 +125,13 @@ class VirtacServer:
         with the latest values from the simulator.
         """
         logging.debug("Updating output PVs")
-        for rb_record in self._rb_only_records:
-            indexes, field = self._in_records[rb_record]
+        for pv in self._pv_dict.items():
+            indexes, field = pv.getPytacData()
             # indexes is a list of element indexes associated with the pv
             # index 0 is the lattice itself rather than an element
             for index in indexes:
-                if index == 0:
-                    value = self.lattice.get_value(
-                        field, units=pytac.ENG, data_source=pytac.SIM
-                    )
-                    rb_record.set(value)
-                else:
-                    value = self.lattice[index - 1].get_value(
-                        field, units=pytac.ENG, data_source=pytac.SIM
-                    )
-                    rb_record.set(value)
+                value = index.get_value(field, units=pytac.ENG, data_source=pytac.SIM)
+                pv.set(value)
 
     def _create_records(self, limits_csv, disable_emittance):
         """Create all the standard records from both lattice and element Pytac
@@ -175,39 +169,42 @@ class VirtacServer:
             # we have another bend element, then just register this element with the
             # existing pv. Otherwise create a new PV for the element
             if element.type_.upper() == "BEND" and bend_in_record is not None:
-                self._in_records[bend_in_record._record][0].append(element.index)
+                # self._in_records[bend_in_record._record][0].append(element.index)
                 bend_in_record.append_pytac_element(element)
             else:
                 for field in element.get_fields()[pytac.SIM]:
                     value = element.get_value(
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
-                    get_pv = element.get_pv_name(field, pytac.RB)
+                    get_pv_name = element.get_pv_name(field, pytac.RB)
                     upper, lower, precision, drive_high, drive_low = limits_dict.get(
-                        get_pv, (None, None, None, None, None)
+                        get_pv_name, (None, None, None, None, None)
                     )
-                    in_pv = DumbPV(get_pv)
+                    in_pv = DumbPV(get_pv_name)
                     in_pv.create_softioc_record(
                         "ai", lower, upper, precision, drive_high, drive_low, value
                     )
                     in_pv.append_pytac_element(element)
                     in_pv.set_pytac_field(field)
-                    self._in_records[in_pv._record] = ([element.index], field)
+                    # self._in_records[in_pv._record] = ([element.index], field)
+                    self._pv_dict[get_pv_name] = in_pv
 
                     try:
-                        set_pv = element.get_pv_name(field, pytac.SP)
+                        set_pv_name = element.get_pv_name(field, pytac.SP)
                     except HandleException:
-                        self._rb_only_records.append(in_pv._record)
+                        # self._rb_only_records.append(in_pv._record)
+                        pass
                     else:
                         upper, lower, precision, drive_high, drive_low = (
-                            limits_dict.get(set_pv, (None, None, None, None, None))
+                            limits_dict.get(set_pv_name, (None, None, None, None, None))
                         )
-                        out_pv = DirectPV(set_pv, in_pv)
+                        out_pv = DirectPV(set_pv_name, in_pv)
                         out_pv.create_softioc_record(
                             "ao", lower, upper, precision, drive_high, drive_low, value
                         )
 
-                        self._out_records[out_pv._record] = in_pv._record
+                        # self._out_records[out_pv._record] = in_pv._record
+                        self._pv_dict[set_pv_name] = out_pv
                         if element.type_.upper() == "BEND" and bend_in_record is None:
                             bend_in_record = in_pv
 
@@ -219,19 +216,20 @@ class VirtacServer:
         for field in lat_fields:
             # Ignore basic devices as they do not have PVs.
             if not isinstance(self.lattice.get_device(field), SimpleDevice):
-                get_pv = self.lattice.get_pv_name(field, pytac.RB)
+                get_pv_name = self.lattice.get_pv_name(field, pytac.RB)
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
-                in_pv = DumbPV(get_pv)
+                in_pv = DumbPV(get_pv_name)
                 in_pv.create_softioc_record("ai", None, None, 4, None, None, value)
-                self._in_records[in_pv._record] = ([0], field)
                 in_pv.append_pytac_element(0)
                 in_pv.set_pytac_field(field)
-                self._rb_only_records.append(in_pv._record)
-        self._update_record_names(
-            list(self._in_records.keys()) + list(self._out_records.keys())
-        )
+                # self._in_records[in_pv._record] = ([0], field)
+                # self._rb_only_records.append(in_pv._record)
+                self._pv_dict[set_pv_name] = get_pv_name
+        # self._update_record_names(
+        #     list(self._in_records.keys()) + list(self._out_records.keys())
+        # )
         print("~*~*Woah, we're halfway there, Wo-oah...*~*~")
 
     def _create_bba_records(self, bba_csv):
@@ -242,8 +240,9 @@ class VirtacServer:
             bba_csv (str): The filepath to the .csv file to load the
                                     records in accordance with.
         """
-        self._bba_records = self._create_feedback_or_bba_records_from_csv(bba_csv)
-        self._update_record_names(self._bba_records.values())
+        self._create_feedback_or_bba_records_from_csv(bba_csv)
+        # self._bba_records = self._create_feedback_or_bba_records_from_csv(bba_csv)
+        # self._update_record_names(self._bba_records.values())
 
     def _create_feedback_records(self, feedback_csv, disable_emittance):
         """Create all the feedback records from the .csv file at the location
@@ -257,15 +256,14 @@ class VirtacServer:
                                         created or not.
         """
         # Create standard records from csv
-        self._feedback_records = self._create_feedback_or_bba_records_from_csv(
-            feedback_csv
-        )
+        self._create_feedback_or_bba_records_from_csv(feedback_csv)
 
         # We can choose to not calculate emittance as it is not always required,
         # which decreases computation time.
         if not disable_emittance:
             # Special case: EMIT STATUS for the vertical emittance feedback
-            emit_status_pv = DumbPV("SR-DI-EMIT-01:STATUS")
+            name = "SR-DI-EMIT-01:STATUS"
+            emit_status_pv = DumbPV(name)
             emit_status_pv.create_softioc_record(
                 "mbbi",
                 None,
@@ -282,31 +280,26 @@ class VirtacServer:
             # emit_status_record = builder.mbbIn(
             #     "STATUS", initial_value=0, ZRVL=0, ZRST="Successful", PINI="YES"
             # )
-            self._feedback_records[(0, "emittance_status")] = emit_status_pv._record
+            # self._feedback_records[(0, "emittance_status")] = emit_status_pv._record
+            self._pv_dict[name] = emit_status_pv
 
-        self._update_record_names(self._feedback_records.values())
+        # self._update_record_names(self._feedback_records.values())
 
-    def _create_feedback_or_bba_records_from_csv(
-        self, csv_file
-    ) -> dict[tuple[int, str], typing.Any]:
+    def _create_feedback_or_bba_records_from_csv(self, csv_file):
         """Read the csv file and create the corresponding records based on
         its contents.
 
         Args:
             csv_file (str): The filepath to the .csv file to load the
                                     records in accordance with.
-        Returns:
-            records dict[tuple[int, str], typing.Any]: A dictionary containing
-                a tuple of indexes,field as its key and a softioc.builder record
-                as its value
         """
         # We don't set limits or precision but this shouldn't be an issue as these
         # records aren't really intended to be set to by a user.
         with open(csv_file) as f:
             csv_reader = csv.DictReader(f)
-            records: dict[
-                tuple[int, str], builder.aIn | builder.aOut | builder.WaveformOut
-            ] = {}
+            # records: dict[
+            #     tuple[int, str], builder.aIn | builder.aOut | builder.WaveformOut
+            # ] = {}
             for line in csv_reader:
                 val: typing.Any = 0
                 name = line["pv"]
@@ -333,8 +326,9 @@ class VirtacServer:
                     )
                     pv.set_pytac_field(line["field"])
                     pv.append_pytac_element(line["index"])
-                    records[pv._pytac_elements[0], pv._pytac_field] = pv._record
-        return records
+                    self._pv_dict[name] = pv
+                    # records[pv._pytac_elements[0], pv._pytac_field] = pv._record
+        # return records
 
     def _create_mirror_records(self, mirror_csv):
         # Create a dictionary of monitored_pv: [pvs_affected]
@@ -413,22 +407,22 @@ class VirtacServer:
                 #     )
                 # Update the mirror dictionary.
 
-                pv_name = line["out"]
+                out_pv_name = line["out"]
                 if line["mirror type"] == "basic":
-                    output_pv = DumbPV(pv_name)
+                    output_pv = DumbPV(out_pv_name)
                     output_pv.create_softioc_record(
                         line["output type"], None, None, None, None, None, line["value"]
                     )
                     # self._mirrored_records[input_pvs[0]].append(output_record)
                 elif line["mirror type"] == "inverse":
                     # value = numpy.asarray(line["value"][1:-1].split(", "), dtype=float)
-                    output_pv = InversePV(pv_name)
+                    output_pv = InversePV(out_pv_name)
                     output_pv.create_softioc_record(
                         line["output type"], None, None, None, None, None, line["value"]
                     )
                     # self._mirrored_records[input_pvs[0]].append(output_record)
                 elif line["mirror type"] == "summate":
-                    output_pv = SummationPV(pv_name, input_records)
+                    output_pv = SummationPV(out_pv_name, input_records)
                     output_pv.create_softioc_record(
                         line["output type"], None, None, None, None, None, line["value"]
                     )
@@ -436,7 +430,7 @@ class VirtacServer:
                     # for pv in input_pvs:
                     #     self._mirrored_records[pv].append(summation_object)
                 elif line["mirror type"] == "collate":
-                    output_pv = CollationPV(pv_name, input_records)
+                    output_pv = CollationPV(out_pv_name, input_records)
                     output_pv.create_softioc_record(
                         line["output type"], None, None, None, None, None, line["value"]
                     )
@@ -456,43 +450,16 @@ class VirtacServer:
                         "'collate', 'inverse', and 'refresh'."
                     )
 
-            for pv in input_pvs:
-                if pv not in self._mirrored_records:
-                    self._mirrored_records[pv] = [output_pv]
+                self._pv_dict[out_pv_name] = output_pv
+            # for pv in input_pvs:
+            #     if pv not in self._mirrored_records:
+            #         self._mirrored_records[pv] = [output_pv]
 
-            mirrored_records = []
-            for rec_list in self._mirrored_records.values():
-                for record in rec_list:
-                    mirrored_records.append(record)
-        self._update_record_names(mirrored_records)
-
-    def monitor_mirrored_pvs(self):
-        """Start monitoring the input PVs for mirrored records, so that they
-        can update their value on change.
-        """
-        self._pv_monitoring = True
-        for pv, output in self._mirrored_records.items():
-            mask = callback_set(output)
-            try:
-                self._monitored_pvs[pv] = camonitor(pv, mask.callback)
-            except Exception as e:
-                warn(e, stacklevel=1)
-
-    def refresh_record(self, pv_name):
-        """For a given PV refresh the time-stamp of the associated record,
-        this is done by setting the record to its current value.
-
-        Args:
-            pv_name (str): The name of the record to refresh.
-        """
-        try:
-            record = self._record_names[pv_name]
-        except KeyError as exc:
-            raise ValueError(
-                f"{pv_name} is not the name of a record created by this server."
-            ) from exc
-        else:
-            record.set(record.get())
+            # mirrored_records = []
+            # for rec_list in self._mirrored_records.values():
+            #     for record in rec_list:
+            #         mirrored_records.append(record)
+        # self._update_record_names(mirrored_records)
 
     def setup_tune_feedback(self, tune_csv=None):
         """Read the tune feedback .csv and find the associated offset PVs,
@@ -520,13 +487,28 @@ class VirtacServer:
                 self.monitor_mirrored_pvs()
             self.tune_feedback_status = True
             for line in csv_reader:
-                offset_record = self._record_names[line["offset"]]
+                offset_record = self._pv_dict[line["offset"]]
                 self._offset_pvs[line["set pv"]] = offset_record
                 mask = callback_offset(self, line["set pv"], offset_record)
                 try:
                     camonitor(line["delta"], mask.callback)
                 except Exception as e:
                     warn(e, stacklevel=1)
+
+    def monitor_mirrored_pvs(self):
+        # I expect to move this function to within the PV class at some point
+        # a PV can optionally be setup with a list of pvs which it monitors
+        # and then does something when one of them changes value.
+        """Start monitoring the input PVs for mirrored records, so that they
+        can update their value on change.
+        """
+        self._pv_monitoring = True
+        for pv, output in self._mirrored_records.items():
+            mask = callback_set(output)
+            try:
+                self._monitored_pvs[pv] = camonitor(pv, mask.callback)
+            except Exception as e:
+                warn(e, stacklevel=1)
 
     def stop_all_monitoring(self):
         """Stop monitoring mirrored records and tune feedback offsets."""
@@ -571,3 +553,19 @@ class VirtacServer:
                     f"Simulated element {self.lattice[index]} does not have "
                     f"field {field}."
                 ) from exc
+
+    def refresh_record(self, pv_name):
+        """For a given PV refresh the time-stamp of the associated record,
+        this is done by setting the record to its current value.
+
+        Args:
+            pv_name (str): The name of the record to refresh.
+        """
+        try:
+            record = self._record_names[pv_name]
+        except KeyError as exc:
+            raise ValueError(
+                f"{pv_name} is not the name of a record created by this server."
+            ) from exc
+        else:
+            record.set(record.get())
