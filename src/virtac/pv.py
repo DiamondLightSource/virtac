@@ -44,6 +44,9 @@ class PV:
         drive_high,
         drive_low,
         initial_value,
+        zrvl=None,
+        zrst=None,
+        pini=None,
         always_update=True,
     ):
         if type == "ai":
@@ -73,6 +76,14 @@ class PV:
                 self._pv_name,
                 initial_value=initial_value,
                 always_update=True,
+            )
+        elif record_type == "mbbi":
+            self._record = builder.mbbIn(
+                self.name,
+                initial_value=initial_value,
+                ZRVL=zrvl,
+                ZRST=zrst,
+                PINI=pini,
             )
         else:
             raise ValueError(f"Failed to create PV with record type: {type}")

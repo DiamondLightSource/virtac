@@ -264,13 +264,25 @@ class VirtacServer:
         # We can choose to not calculate emittance as it is not always required,
         # which decreases computation time.
         if not disable_emittance:
-            # Special case: EMIT STATUS for the vertical emittance feedback, since
-            # we cannot currently create mbbIn records via CSV.
-            builder.SetDeviceName("SR-DI-EMIT-01")
-            emit_status_record = builder.mbbIn(
-                "STATUS", initial_value=0, ZRVL=0, ZRST="Successful", PINI="YES"
+            # Special case: EMIT STATUS for the vertical emittance feedback
+            emit_status_pv = DumbPV("SR-DI-EMIT-01:STATUS")
+            emit_status_pv.create_softioc_record(
+                "mbbi",
+                None,
+                None,
+                None,
+                None,
+                None,
+                0,
+                zrvl=0,
+                zrst="Successful",
+                pini="YES",
             )
-            self._feedback_records[(0, "emittance_status")] = emit_status_record
+            # builder.SetDeviceName("SR-DI-EMIT-01")
+            # emit_status_record = builder.mbbIn(
+            #     "STATUS", initial_value=0, ZRVL=0, ZRST="Successful", PINI="YES"
+            # )
+            self._feedback_records[(0, "emittance_status")] = emit_status_pv._record
 
         self._update_record_names(self._feedback_records.values())
 
@@ -474,9 +486,7 @@ class VirtacServer:
                 self._offset_pvs[line["set pv"]] = offset_record
                 mask = callback_offset(self, line["set pv"], offset_record)
                 try:
-                    self._monitored_pvs[line["delta"]] = camonitor(
-                        line["delta"], mask.callback
-                    )
+                    camonitor(line["delta"], mask.callback)
                 except Exception as e:
                     warn(e, stacklevel=1)
 
