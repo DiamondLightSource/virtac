@@ -483,8 +483,8 @@ class VirtacServer:
             )
         with open(self._tune_fb_csv_path) as f:
             csv_reader = csv.DictReader(f)
-            if not self._pv_monitoring:
-                self.monitor_mirrored_pvs()
+            # if not self._pv_monitoring:
+            #     self.monitor_mirrored_pvs()
             self.tune_feedback_status = True
             for line in csv_reader:
                 offset_record = self._pv_dict[line["offset"]]
@@ -495,27 +495,28 @@ class VirtacServer:
                 except Exception as e:
                     warn(e, stacklevel=1)
 
-    def monitor_mirrored_pvs(self):
-        # I expect to move this function to within the PV class at some point
-        # a PV can optionally be setup with a list of pvs which it monitors
-        # and then does something when one of them changes value.
-        """Start monitoring the input PVs for mirrored records, so that they
-        can update their value on change.
-        """
-        self._pv_monitoring = True
-        for pv, output in self._mirrored_records.items():
-            mask = callback_set(output)
-            try:
-                self._monitored_pvs[pv] = camonitor(pv, mask.callback)
-            except Exception as e:
-                warn(e, stacklevel=1)
+    # def monitor_mirrored_pvs(self):
+    #     # I expect to move this function to within the PV class at some point
+    #     # a PV can optionally be setup with a list of pvs which it monitors
+    #     # and then does something when one of them changes value.
+    #     """Start monitoring the input PVs for mirrored records, so that they
+    #     can update their value on change.
+    #     """
+    #     self._pv_monitoring = True
+    #     for pv, output in self._mirrored_records.items():
+    #         mask = callback_set(output)
+    #         try:
+    #             self._monitored_pvs[pv] = camonitor(pv, mask.callback)
+    #         except Exception as e:
+    #             warn(e, stacklevel=1)
 
-    def stop_all_monitoring(self):
-        """Stop monitoring mirrored records and tune feedback offsets."""
-        for subscription in self._monitored_pvs.values():
-            subscription.close()
-        self.tune_feedback_status = False
-        self._pv_monitoring = False
+    # def stop_all_monitoring(self):
+    #     # Still useful, but needs changing to work with new PV system
+    #     """Stop monitoring mirrored records and tune feedback offsets."""
+    #     for subscription in self._monitored_pvs.values():
+    #         subscription.close()
+    #     self.tune_feedback_status = False
+    #     self._pv_monitoring = False
 
     # refactor, these can just be out records and this can be removed.
     def set_feedback_record(self, index, field, value):
@@ -562,7 +563,7 @@ class VirtacServer:
             pv_name (str): The name of the record to refresh.
         """
         try:
-            record = self._record_names[pv_name]
+            record = self._pv_dict[pv_name]
         except KeyError as exc:
             raise ValueError(
                 f"{pv_name} is not the name of a record created by this server."

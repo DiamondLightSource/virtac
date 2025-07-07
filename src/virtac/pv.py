@@ -2,7 +2,7 @@ import logging
 
 import numpy
 import pytac
-from cothread.catools import caget, caput
+from cothread.catools import caget, camonitor, caput
 from softioc import builder
 
 
@@ -11,11 +11,14 @@ class PV:
     PV over channel access"""
 
     def __init__(self, name: str, tune_feedback: bool = False):
-        self._pv_name: str = name
+        self.name: str = name
         self._tune_feedback_status: bool = tune_feedback
         self._record = None
         self._pytac_elements: list = []
         self._pytac_field = None
+        self._monitor_list: list = []
+        self._camonitor_handle = None
+        self._camonitor_callback = self._monitor_callback
         self._timeout: float
 
     def _on_update(self, value, name):
@@ -57,7 +60,7 @@ class PV:
     ):
         if record_type == "ai" or record_type == "aIn":
             self._record = builder.aIn(
-                self._pv_name,
+                self.name,
                 PREC=precision,
                 LOPR=lower,
                 HOPR=upper,
@@ -66,7 +69,7 @@ class PV:
             )
         elif record_type == "ao" or record_type == "aOut":
             self._record = builder.aOut(
-                self._pv_name,
+                self.name,
                 PREC=precision,
                 LOPR=lower,
                 DRVH=drive_high,
@@ -79,7 +82,7 @@ class PV:
             )
         elif record_type == "wfm" or record_type == "Waveform":
             self._record = builder.WaveformOut(
-                self._pv_name,
+                self.name,
                 initial_value=initial_value,
                 always_update=True,
             )
@@ -94,6 +97,13 @@ class PV:
         else:
             raise ValueError(f"Failed to create PV with record type: {record_type}")
 
+    def monitor_pvs(self, pv_names):
+        self._monitor_list.append(pv_names)
+        self._camonitor_handle = camonitor(self._monitor_list, self._camonitor_callback)
+
+    def _monitor_callback(self, value, index):
+        print(f"Monitored PV: {self._monitor_list[index]} updated. New value: {value}")
+
 
 class DumbPV(PV):
     """Stores a passive softioc record which can be updated, but does nothing
@@ -102,6 +112,16 @@ class DumbPV(PV):
     def __init__(self, name: str):
         super().__init__(name)
         self._record = None
+
+    def get(self):
+        return self._record.get()
+
+    def set(self, value):
+        """
+        Args:
+            value (number): The value to set to the PV.
+        """
+        return self._record.get(value)
 
 
 class DirectPV(PV):
@@ -127,11 +147,11 @@ class DirectPV(PV):
             name (str): The name of record object that has just been set to.
         """
         logging.debug("Read value %s on pv %s", value, name)
-        self._in_record._record.set(value)
+        self._in_record.set(value)
 
         if self._tune_feedback_status is True:
             try:
-                value += self.offset_record._record.get()
+                value += self.offset_record.get()
             except KeyError:
                 pass
 
@@ -156,10 +176,6 @@ class CaputPV(PV):
         self._caput_pv_name = caput_pv_name
 
     def get(self):
-        """
-        Args:
-            value (number): The value to caput to the PV.
-        """
         return caget(self._caput_pv_name)
 
     def set(self, value):
@@ -178,6 +194,8 @@ class InversePV(PV):
         super().__init__(name)
         self.name = name
         self._in_record = in_record
+        self._camonitor_callback = self.set
+        self.monitor_pvs(self._in_record.name)
 
     def set(self, value):
         """An imitation  of the set method of Soft-IOC records, that applies a
@@ -195,8 +213,10 @@ class SummationPV(PV):
         super().__init__(name)
         self.name = name
         self._in_records = in_records
+        self._camonitor_callback = self.set
+        self.monitor_pvs(pv.name for pv in self._in_records)
 
-    def set(self, value):
+    def set(self, value, index):
         """An imitation  of the set method of Soft-IOC records."""
         value = sum([record.get() for record in self._in_records])
         self._record.set(value)
@@ -209,8 +229,10 @@ class CollationPV(PV):
         super().__init__(name)
         self.name = name
         self._in_records = in_records
+        self._camonitor_callback = self.set
+        self.monitor_pvs(pv.name for pv in self._in_records)
 
-    def set(self, value):
+    def set(self, value, index):
         """An imitation  of the set method of Soft-IOC records."""
         value = numpy.array([record.get() for record in self._in_records])
         self._record.set(value)
