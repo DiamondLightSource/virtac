@@ -1,6 +1,8 @@
 import logging
 
+import numpy
 import pytac
+from cothread.catools import caget, caput
 from softioc import builder
 
 
@@ -10,9 +12,10 @@ class PV:
 
     def __init__(self, name: str, tune_feedback: bool = False):
         self._pv_name: str = name
+        self._tune_feedback_status: bool = tune_feedback
+        self._record = None
         self._pytac_elements: list = []
         self._pytac_field = None
-        self._tune_feedback_status: bool = tune_feedback
         self._timeout: float
 
     def _on_update(self, value, name):
@@ -37,7 +40,7 @@ class PV:
 
     def create_softioc_record(
         self,
-        type,
+        record_type,
         lower,
         upper,
         precision,
@@ -49,7 +52,7 @@ class PV:
         pini=None,
         always_update=True,
     ):
-        if type == "ai":
+        if record_type == "ai" or record_type == "aIn":
             self._record = builder.aIn(
                 self._pv_name,
                 PREC=precision,
@@ -58,7 +61,7 @@ class PV:
                 MDEL="-1",
                 initial_value=initial_value,
             )
-        elif type == "ao":
+        elif record_type == "ao" or record_type == "aOut":
             self._record = builder.aOut(
                 self._pv_name,
                 PREC=precision,
@@ -71,7 +74,7 @@ class PV:
                 on_update_name=self._on_update,
                 always_update=always_update,
             )
-        elif type == "wfm":
+        elif record_type == "wfm" or record_type == "Waveform":
             self._record = builder.WaveformOut(
                 self._pv_name,
                 initial_value=initial_value,
@@ -86,7 +89,7 @@ class PV:
                 PINI=pini,
             )
         else:
-            raise ValueError(f"Failed to create PV with record type: {type}")
+            raise ValueError(f"Failed to create PV with record type: {record_type}")
 
 
 class DumbPV(PV):
@@ -139,3 +142,72 @@ class DirectPV(PV):
 
     def attach_offset_record(self, offset_record: PV):
         self._offset_record = offset_record
+
+
+class CaputPV(PV):
+    """Does a caput to set a remote EPICS PV to a value. This PV does not need
+    a softioc record."""
+
+    def __init__(self, name: str, caput_pv_name: str):
+        super().__init__(name)
+        self._caput_pv_name = caput_pv_name
+
+    def get(self):
+        """
+        Args:
+            value (number): The value to caput to the PV.
+        """
+        return caget(self._caput_pv_name)
+
+    def set(self, value):
+        """
+        Args:
+            value (number): The value to caput to the PV.
+        """
+        return caput(self._caput_pv_name, value)
+
+
+class InversePV(PV):
+    """Used to invert a boolean array waveform 'in_record', ie swap true to false and
+    false to true and then save the result in its own waveform _record."""
+
+    def __init__(self, name, in_record: PV):
+        super().__init__(name)
+        self.name = name
+        self._in_record = in_record
+
+    def set(self, value):
+        """An imitation  of the set method of Soft-IOC records, that applies a
+        transformation to the value before setting it to the output record.
+        """
+        value = numpy.asarray(value, dtype=bool)
+        value = numpy.asarray(numpy.invert(value), dtype=int)
+        self._record.set(value)
+
+
+class SummationPV(PV):
+    """"""
+
+    def __init__(self, name, in_records: list[PV]):
+        super().__init__(name)
+        self.name = name
+        self._in_records = in_records
+
+    def set(self, value):
+        """An imitation  of the set method of Soft-IOC records."""
+        value = sum([record.get() for record in self._in_records])
+        self._record.set(value)
+
+
+class CollationPV(PV):
+    """"""
+
+    def __init__(self, name, in_records: list[PV]):
+        super().__init__(name)
+        self.name = name
+        self._in_records = in_records
+
+    def set(self, value):
+        """An imitation  of the set method of Soft-IOC records."""
+        value = numpy.array([record.get() for record in self._in_records])
+        self._record.set(value)

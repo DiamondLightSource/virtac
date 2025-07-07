@@ -11,9 +11,9 @@ from pytac.device import SimpleDevice
 from pytac.exceptions import FieldException, HandleException
 from softioc import builder
 
-from .masks import caget_mask, callback_offset, callback_set, caput_mask
-from .mirror_objects import collate, refresher, summate, transform
-from .pv import DirectPV, DumbPV
+from .masks import callback_offset, callback_set
+from .mirror_objects import refresher
+from .pv import CaputPV, CollationPV, DirectPV, DumbPV, InversePV, SummationPV
 
 
 class VirtacServer:
@@ -337,6 +337,7 @@ class VirtacServer:
         return records
 
     def _create_mirror_records(self, mirror_csv):
+        # Create a dictionary of monitored_pv: [pvs_affected]
         """Create all the mirror records from the .csv file at the location
         passed, see create_csv.py for more information.
 
@@ -348,6 +349,7 @@ class VirtacServer:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
                 # Parse arguments.
+                # Get a list of input pvs, these are all virtac owned pvs
                 input_pvs = line["in"].split(", ")
                 if (len(input_pvs) > 1) and (
                     line["mirror type"] in ["basic", "inverse", "refresh"]
@@ -363,65 +365,101 @@ class VirtacServer:
                         "collation and summation mirror types take at least two input "
                         "PVs."
                     )
-                monitor = input_pvs  # need to update to support camonitor multiple
                 # Convert input pvs to record objects
                 input_records = []
                 for pv in input_pvs:
                     try:
+                        # Lookup pv in our dictionary of softioc records
                         input_records.append(self._record_names[pv])
                     except KeyError:
-                        input_records.append(caget_mask(pv))
+                        # If not owned by us, then we get it from CA
+                        input_records.append(CaputPV(line["out"], line["out"]))
                 # Create output record.
-                prefix, suffix = line["out"].split(":", 1)
-                builder.SetDeviceName(prefix)
-                if line["mirror type"] == "refresh":
-                    # Refresh records come first as do not require an output record
-                    pass
-                elif line["output type"] == "caput":
-                    output_record = caput_mask(line["out"])
-                elif line["output type"] == "aIn":
-                    value = float(line["value"])
-                    output_record = builder.aIn(suffix, initial_value=value, MDEL="-1")
-                elif line["output type"] == "longIn":
-                    value = int(line["value"])
-                    output_record = builder.longIn(
-                        suffix, initial_value=value, MDEL="-1"
-                    )
-                elif line["output type"] == "Waveform":
-                    value = numpy.asarray(line["value"][1:-1].split(", "), dtype=float)
-                    output_record = builder.Waveform(suffix, initial_value=value)
-                else:
-                    raise TypeError(
-                        f"{line['output type']} isn't a supported mirroring output "
-                        "type; please enter 'caput', 'aIn', 'longIn', or 'Waveform'."
-                    )
+                # prefix, suffix = line["out"].split(":", 1)
+                # builder.SetDeviceName(prefix)
+                # if line["mirror type"] == "refresh":
+                #     # I think this type can be removed and we can set the records
+                #     # scan interval to 1 second.
+                #     # Refresh records come first as do not require an output record
+                #     pass
+                # elif line["output type"] == "caput":
+                #     # I dont think this type is currently being used
+                #     output_record = caputPV(name, line["out"])
+                #     # output_record = caput_mask(line["out"])
+                # elif line["output type"] == "aIn":
+                #     value = float(line["value"])
+                #     output_record = DumbPV(name)
+                #     output_record.create_softioc_record(
+                #         "ai", None, None, None, None, None, value
+                #     )
+                #     # output_record = builder.aIn(suffix, initial_value=value, MDEL="-1")
+                # # elif line["output type"] == "longIn":
+                # #     #I Dont think this is being used
+                # #     value = int(line["value"])
+                # #     output_record = builder.longIn(
+                # #         suffix, initial_value=value, MDEL="-1"
+                # #     )
+                # elif line["output type"] == "Waveform":
+                #     value = numpy.asarray(line["value"][1:-1].split(", "), dtype=float)
+                #     output_record = DumbPV(name)
+                #     output_record.create_softioc_record(
+                #         "wfm", None, None, None, None, None, value
+                #     )
+                #     # output_record = builder.Waveform(suffix, initial_value=value)
+                # else:
+                #     raise TypeError(
+                #         f"{line['output type']} isn't a supported mirroring output "
+                #         "type; please enter 'caput', 'aIn', 'longIn', or 'Waveform'."
+                #     )
                 # Update the mirror dictionary.
-                for pv in monitor:
-                    if pv not in self._mirrored_records:
-                        self._mirrored_records[pv] = []
+
+                pv_name = line["out"]
                 if line["mirror type"] == "basic":
-                    self._mirrored_records[monitor[0]].append(output_record)
+                    output_pv = DumbPV(pv_name)
+                    output_pv.create_softioc_record(
+                        line["output type"], None, None, None, None, None, line["value"]
+                    )
+                    # self._mirrored_records[input_pvs[0]].append(output_record)
                 elif line["mirror type"] == "inverse":
-                    # Other transformation types are not yet supported.
-                    transformation = transform(numpy.invert, output_record)
-                    self._mirrored_records[monitor[0]].append(transformation)
+                    # value = numpy.asarray(line["value"][1:-1].split(", "), dtype=float)
+                    output_pv = InversePV(pv_name)
+                    output_pv.create_softioc_record(
+                        line["output type"], None, None, None, None, None, line["value"]
+                    )
+                    # self._mirrored_records[input_pvs[0]].append(output_record)
                 elif line["mirror type"] == "summate":
-                    summation_object = summate(input_records, output_record)
-                    for pv in monitor:
-                        self._mirrored_records[pv].append(summation_object)
+                    output_pv = SummationPV(pv_name, input_records)
+                    output_pv.create_softioc_record(
+                        line["output type"], None, None, None, None, None, line["value"]
+                    )
+                    # summation_object = summate(input_records, output_record)
+                    # for pv in input_pvs:
+                    #     self._mirrored_records[pv].append(summation_object)
                 elif line["mirror type"] == "collate":
-                    collation_object = collate(input_records, output_record)
-                    for pv in monitor:
-                        self._mirrored_records[pv].append(collation_object)
+                    output_pv = CollationPV(pv_name, input_records)
+                    output_pv.create_softioc_record(
+                        line["output type"], None, None, None, None, None, line["value"]
+                    )
+                    # for pv in input_pvs:
+                    #     self._mirrored_records[pv].append(collation_object)
                 elif line["mirror type"] == "refresh":
-                    refresh_object = refresher(self, line["out"])
-                    self._mirrored_records[pv].append(refresh_object)
+                    # We dont need a custom PV type for this, we just need to be able
+                    # to set the record SCAN field to 1 Second for relevant PVs.
+                    # I think we should add a column to the csv file called SCAN
+                    # and set this at the source rather than here.
+                    output_pv = refresher(self, line["out"])
+                    # self._mirrored_records[pv].append(refresh_object)
                 else:
                     raise TypeError(
                         f"{line['mirror type']} is not a valid mirror type; please "
                         "enter a currently supported type from: 'basic', 'summate', "
                         "'collate', 'inverse', and 'refresh'."
                     )
+
+            for pv in input_pvs:
+                if pv not in self._mirrored_records:
+                    self._mirrored_records[pv] = [output_pv]
+
             mirrored_records = []
             for rec_list in self._mirrored_records.values():
                 for record in rec_list:
