@@ -425,7 +425,7 @@ class VirtacServer:
                         suffix, initial_value=value, MDEL="-1"
                     )
                 elif line["output type"] == "Waveform":
-                    value = numpy.asarray(line["value"][1:-1].split(", "), dtype=float)
+                    value = numpy.asarray(line["value"][1:-1].split(" "), dtype=float)
                     output_record = builder.Waveform(suffix, initial_value=value)
                 else:
                     raise TypeError(

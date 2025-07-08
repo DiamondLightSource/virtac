@@ -104,7 +104,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_start_times",
                 f"{pv_stem}:EXCITE:START_TIMES",
-                numpy.zeros(18),
+                str(numpy.zeros(18)).replace("\n", ""),
                 "wfm",
             )
         )
@@ -113,7 +113,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_amps",
                 f"{pv_stem}:EXCITE:AMPS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)).replace("\n", ""),
                 "wfm",
             )
         )
@@ -122,7 +122,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_deltas",
                 f"{pv_stem}:EXCITE:DELTAS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)).replace("\n", ""),
                 "wfm",
             )
         )
@@ -131,7 +131,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_ticks",
                 f"{pv_stem}:EXCITE:TICKS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)).replace("\n", ""),
                 "wfm",
             )
         )
@@ -278,7 +278,7 @@ def generate_mirrored_pvs(lattice):
             "collate",
             ", ".join(bpm_enabled_pvs),
             "EBPM-ENABLED:INTERIM",
-            [0] * len(bpm_enabled_pvs),
+            str(numpy.zeros(len(bpm_enabled_pvs))).replace("\n", ""),
         )
     )
     data.append(
@@ -287,7 +287,7 @@ def generate_mirrored_pvs(lattice):
             "inverse",
             "EBPM-ENABLED:INTERIM",
             "SR-DI-EBPM-01:ENABLED",
-            [0] * len(bpm_enabled_pvs),
+            str(numpy.zeros(len(bpm_enabled_pvs))).replace("\n", ""),
         )
     )
     # BPM x positions for display on diagnostics screen.
@@ -298,7 +298,7 @@ def generate_mirrored_pvs(lattice):
             "collate",
             ", ".join(bpm_x_pvs),
             "SR-DI-EBPM-01:SA:X",
-            [0] * len(bpm_x_pvs),
+            str(numpy.zeros(len(bpm_x_pvs))).replace("\n", ""),
         )
     )
     # BPM y positions for display on diagnostics screen.
@@ -309,7 +309,7 @@ def generate_mirrored_pvs(lattice):
             "collate",
             ", ".join(bpm_y_pvs),
             "SR-DI-EBPM-01:SA:Y",
-            [0] * len(bpm_y_pvs),
+            str(numpy.zeros(len(bpm_y_pvs))).replace("\n", ""),
         )
     )
     # Tune and vertical emittance refresh PVs.
