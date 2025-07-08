@@ -196,7 +196,7 @@ def generate_mirrored_pvs(lattice):
     output type:
         The type of output record to create, only 'aIn', 'longIn',
         'Waveform' types are currently supported; if '' then output to an
-        existing in record already created in ATIPServer, 'caput' is also a
+        existing in record already created in VirtacServer, 'caput' is also a
         special case it creates a mask for cothread.catools.caput calling
         set(value) on this mask will call caput with the output PV and the
         passed value.

@@ -93,7 +93,7 @@ class refresher:
     def __init__(self, server, output_pv):
         """
         Args:
-            server (atip_server.ATIPServer): The server object on which to
+            server (virtac_server.VirtacServer): The server object on which to
                                               refresh the PV.
             output_pv (str): The name of the record to refresh.
         """
