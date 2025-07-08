@@ -11,6 +11,11 @@ import numpy
 import pytac
 from cothread.catools import FORMAT_CTRL, caget
 
+# Set the default string printing options for numpy arrays so that they are properly
+# formatted when outputting them to the csv file
+numpy.set_printoptions(threshold=100000)
+numpy.set_printoptions(linewidth=100000)
+
 
 def generate_feedback_pvs(all_elements, lattice):
     """Get feedback pvs. Also get families for tune feedback
@@ -278,7 +283,7 @@ def generate_mirrored_pvs(lattice):
             "collate",
             ", ".join(bpm_enabled_pvs),
             "EBPM-ENABLED:INTERIM",
-            [0] * len(bpm_enabled_pvs),
+            numpy.zeros(len(bpm_enabled_pvs)),
         )
     )
     data.append(
@@ -287,7 +292,7 @@ def generate_mirrored_pvs(lattice):
             "inverse",
             "EBPM-ENABLED:INTERIM",
             "SR-DI-EBPM-01:ENABLED",
-            [0] * len(bpm_enabled_pvs),
+            numpy.zeros(len(bpm_enabled_pvs)),
         )
     )
     # BPM x positions for display on diagnostics screen.
@@ -298,7 +303,7 @@ def generate_mirrored_pvs(lattice):
             "collate",
             ", ".join(bpm_x_pvs),
             "SR-DI-EBPM-01:SA:X",
-            [0] * len(bpm_x_pvs),
+            numpy.zeros(len(bpm_x_pvs)),
         )
     )
     # BPM y positions for display on diagnostics screen.
@@ -309,7 +314,7 @@ def generate_mirrored_pvs(lattice):
             "collate",
             ", ".join(bpm_y_pvs),
             "SR-DI-EBPM-01:SA:Y",
-            [0] * len(bpm_y_pvs),
+            numpy.zeros(len(bpm_y_pvs)),
         )
     )
     # Tune and vertical emittance refresh PVs.
