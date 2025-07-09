@@ -162,25 +162,15 @@ def generate_pv_limits(lattice):
         machine
     """
     data = [("pv", "upper", "lower", "precision", "drive high", "drive low")]
-    for element in lattice:
-        for field in element.get_fields()[pytac.SIM]:
-            pv = element.get_pv_name(field, pytac.RB)
-            ctrl = caget(pv, format=FORMAT_CTRL)
-            data.append(
-                (
-                    pv,
-                    ctrl.upper_ctrl_limit,
-                    ctrl.lower_ctrl_limit,
-                    ctrl.precision,
-                    ctrl.upper_disp_limit,
-                    ctrl.lower_disp_limit,
-                )
-            )
-            try:
-                pv = element.get_pv_name(field, pytac.SP)
-            except pytac.exceptions.HandleException:
-                pass
-            else:
+    all_elements = list(lattice)
+    all_elements.insert(0, lattice)
+    for element in all_elements:
+        lat_fields = element.get_fields()
+        # Only get the fields that exist in the LIVE and SIM pytac lattices
+        lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
+        for field in lat_fields:
+            if not isinstance(element.get_device(field), pytac.device.SimpleDevice):
+                pv = element.get_pv_name(field, pytac.RB)
                 ctrl = caget(pv, format=FORMAT_CTRL)
                 data.append(
                     (
@@ -192,6 +182,22 @@ def generate_pv_limits(lattice):
                         ctrl.lower_disp_limit,
                     )
                 )
+                try:
+                    pv = element.get_pv_name(field, pytac.SP)
+                except pytac.exceptions.HandleException:
+                    pass
+                else:
+                    ctrl = caget(pv, format=FORMAT_CTRL)
+                    data.append(
+                        (
+                            pv,
+                            ctrl.upper_ctrl_limit,
+                            ctrl.lower_ctrl_limit,
+                            ctrl.precision,
+                            ctrl.upper_disp_limit,
+                            ctrl.lower_disp_limit,
+                        )
+                    )
     return data
 
 
