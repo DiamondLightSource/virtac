@@ -7,6 +7,7 @@ import csv
 import os
 
 import atip
+import cothread
 import numpy
 import pytac
 from cothread.catools import FORMAT_CTRL, caget
@@ -81,7 +82,7 @@ def generate_bba_pvs(all_elements, symmetry):
     """Data to be written is stored as a list of tuples each with structure:
     element index (int), field (str), pv (str), value (int), record_type (str).
     """
-    data = [("index", "field", "pv", "value", "record_type")]
+    data: list[tuple] = [("index", "field", "pv", "value", "record_type")]
     # Iterate over the BPMs to construct the PV names.
     for elem in all_elements.bpm:
         pv_stem = elem.get_device("enabled").name
@@ -104,7 +105,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_start_times",
                 f"{pv_stem}:EXCITE:START_TIMES",
-                numpy.zeros(18),
+                str(numpy.zeros(18)).replace("\n", ""),
                 "wfm",
             )
         )
@@ -113,7 +114,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_amps",
                 f"{pv_stem}:EXCITE:AMPS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)).replace("\n", ""),
                 "wfm",
             )
         )
@@ -122,7 +123,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_deltas",
                 f"{pv_stem}:EXCITE:DELTAS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)).replace("\n", ""),
                 "wfm",
             )
         )
@@ -131,7 +132,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_ticks",
                 f"{pv_stem}:EXCITE:TICKS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)).replace("\n", ""),
                 "wfm",
             )
         )
@@ -148,35 +149,28 @@ def generate_bba_pvs(all_elements, symmetry):
     return data
 
 
-def generate_pv_limits(lattice):
+def get_element_pv_data(element, pvs, data):
     """Get the control limits and precision values from the live machine for
     all normal PVS.
 
     Args:
-        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
-        machine
+        element (pytac.lattice.Element | pytac.lattice.Lattice): An element of the pytac
+        lattice or the lattice itself
+        pvs (list[str]): A list of pv names which we have already found
+        data (list[tuple]): A list of tuples, with each tuple being a collection of data
+        about one pv.
     """
-    data = [("pv", "upper", "lower", "precision", "drive high", "drive low")]
-    for element in lattice:
-        for field in element.get_fields()[pytac.SIM]:
+    lat_fields = element.get_fields()
+    lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
+    # These pvs need to be configured with their SCAN fields set to 1 second. This is
+    # different to the SCAN field in the LIVE pv, so we cant just caget it.
+    refresh_pvs = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
+    for field in lat_fields:
+        if not isinstance(element.get_device(field), pytac.device.SimpleDevice):
             pv = element.get_pv_name(field, pytac.RB)
-            ctrl = caget(pv, format=FORMAT_CTRL)
-            data.append(
-                (
-                    pv,
-                    ctrl.upper_ctrl_limit,
-                    ctrl.lower_ctrl_limit,
-                    ctrl.precision,
-                    ctrl.upper_disp_limit,
-                    ctrl.lower_disp_limit,
-                )
-            )
-            try:
-                pv = element.get_pv_name(field, pytac.SP)
-            except pytac.exceptions.HandleException:
-                pass
-            else:
-                ctrl = caget(pv, format=FORMAT_CTRL)
+            ctrl = caget(pv, format=FORMAT_CTRL, timeout=10)
+            if pv not in pvs:
+                pvs.append(pv)
                 data.append(
                     (
                         pv,
@@ -185,23 +179,63 @@ def generate_pv_limits(lattice):
                         ctrl.precision,
                         ctrl.upper_disp_limit,
                         ctrl.lower_disp_limit,
+                        "1 second" if pv in refresh_pvs else "I/O Intr",
                     )
                 )
+                try:
+                    pv = element.get_pv_name(field, pytac.SP)
+                except pytac.exceptions.HandleException:
+                    pass
+                else:
+                    ctrl = caget(pv, format=FORMAT_CTRL, timeout=10)
+                    data.append(
+                        (
+                            pv,
+                            ctrl.upper_ctrl_limit,
+                            ctrl.lower_ctrl_limit,
+                            ctrl.precision,
+                            ctrl.upper_disp_limit,
+                            ctrl.lower_disp_limit,
+                            "1 second" if pv in refresh_pvs else "I/O Intr",
+                        )
+                    )
+
+
+def generate_pv_limits(lattice):
+    """Loop through each element in the lattice and spawn a cothread which will then
+    do a caget to get pv data for the element.
+
+    Args:
+        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
+        machine
+    """
+    data: list[tuple] = [
+        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "refresh")
+    ]
+    pvs: list[str] = []
+    caget_handles: list[cothread.Spawn] = []
+    # Add limits for lattice elements
+    all_elements = list(lattice)
+    all_elements.insert(0, lattice)
+    for element in all_elements:
+        caget_handles.append(cothread.Spawn(get_element_pv_data, element, pvs, data))
+    for caget_handle in caget_handles:
+        caget_handle.Wait()
     return data
 
 
 def generate_mirrored_pvs(lattice):
     """Structure of data:
 
-    output type:
-        The type of output record to create, only 'aIn', 'longIn',
+    output_type:
+        The type of output record to create, only 'ai', 'longIn',
         'Waveform' types are currently supported; if '' then output to an
-        existing in record already created in ATIPServer, 'caput' is also a
+        existing in record already created in VirtacServer, 'caput' is also a
         special case it creates a mask for cothread.catools.caput calling
         set(value) on this mask will call caput with the output PV and the
         passed value.
 
-    mirror type (The type of mirroring to apply):
+    mirror_type (The type of mirroring to apply):
 
         - basic: set the value of the input record to the output record.
         - summate: sum the values of the input records and set the result to
@@ -210,22 +244,24 @@ def generate_mirrored_pvs(lattice):
         - transform: apply the specified transformation function to the value
             of the input record and set the result to the output record. N.B.
             the only transformation type currently supported is 'inverse'.
-        - refresh: monitor the in PV and on a change call refresh_record on
-            the output PV.
 
-    in:
+    in_pv:
         The PV(s) to be monitored, on change mirror is updated, if multiple
         then the PVs should be separated by a comma and one space.
 
-    out:
+    out_pv:
         The single PV to output to, if a 'record type' is spcified then a new
         record will be created and so must not exist already.
 
     value:
         The inital value of the output record.
+
+    refresh:
+        Whether the out_pv should have its softioc record's SCAN field set to
+        '1 second' which will cause it to process every second.
     """
-    data: list[tuple[str, str, str, str, int]] = [
-        ("output type", "mirror type", "in", "out", "value")
+    data: list[tuple] = [
+        ("output_type", "mirror_type", "in_pv", "out_pv", "value", "refresh")
     ]
     # Tune PV aliases.
     tune = [
@@ -234,20 +270,22 @@ def generate_mirrored_pvs(lattice):
     ]
     data.append(
         (
-            "aIn",
+            "ai",
             "basic",
             "SR23C-DI-TMBF-01:X:TUNE:TUNE",
             "SR23C-DI-TMBF-01:TUNE:TUNE",
             tune[0],
+            "1 second",
         )
     )
     data.append(
         (
-            "aIn",
+            "ai",
             "basic",
             "SR23C-DI-TMBF-01:Y:TUNE:TUNE",
             "SR23C-DI-TMBF-02:TUNE:TUNE",
             tune[1],
+            "1 second",
         )
     )
     # Combined emittance and average emittance PVs.
@@ -256,81 +294,92 @@ def generate_mirrored_pvs(lattice):
         lattice.get_value("emittance_y", pytac.RB, data_source=pytac.SIM),
     ]
     data.append(
-        ("aIn", "basic", "SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:HEMIT_MEAN", emit[0])
-    )
-    data.append(
-        ("aIn", "basic", "SR-DI-EMIT-01:VEMIT", "SR-DI-EMIT-01:VEMIT_MEAN", emit[1])
+        (
+            "ai",
+            "basic",
+            "SR-DI-EMIT-01:HEMIT",
+            "SR-DI-EMIT-01:HEMIT_MEAN",
+            emit[0],
+            "I/O Intr",
+        )
     )
     data.append(
         (
-            "aIn",
+            "ai",
+            "basic",
+            "SR-DI-EMIT-01:VEMIT",
+            "SR-DI-EMIT-01:VEMIT_MEAN",
+            emit[1],
+            "I/O Intr",
+        )
+    )
+    data.append(
+        (
+            "ai",
             "summate",
             "SR-DI-EMIT-01:HEMIT, SR-DI-EMIT-01:VEMIT",
             "SR-DI-EMIT-01:EMITTANCE",
             sum(emit),
+            "I/O Intr",
         )
     )
     # Electron BPMs enabled.
     bpm_enabled_pvs = lattice.get_element_pv_names("BPM", "enabled", pytac.RB)
     data.append(
         (
-            "Waveform",
+            "wfm",
             "collate",
             ", ".join(bpm_enabled_pvs),
             "EBPM-ENABLED:INTERIM",
-            [0] * len(bpm_enabled_pvs),
+            str(numpy.zeros(len(bpm_enabled_pvs))).replace("\n", ""),
+            "I/O Intr",
         )
     )
     data.append(
         (
-            "Waveform",
+            "wfm",
             "inverse",
             "EBPM-ENABLED:INTERIM",
             "SR-DI-EBPM-01:ENABLED",
-            [0] * len(bpm_enabled_pvs),
+            str(numpy.zeros(len(bpm_enabled_pvs))).replace("\n", ""),
+            "I/O Intr",
         )
     )
     # BPM x positions for display on diagnostics screen.
     bpm_x_pvs = lattice.get_element_pv_names("BPM", "x", pytac.RB)
     data.append(
         (
-            "Waveform",
+            "wfm",
             "collate",
             ", ".join(bpm_x_pvs),
             "SR-DI-EBPM-01:SA:X",
-            [0] * len(bpm_x_pvs),
+            str(numpy.zeros(len(bpm_x_pvs))).replace("\n", ""),
+            "I/O Intr",
         )
     )
     # BPM y positions for display on diagnostics screen.
     bpm_y_pvs = lattice.get_element_pv_names("BPM", "y", pytac.RB)
     data.append(
         (
-            "Waveform",
+            "wfm",
             "collate",
             ", ".join(bpm_y_pvs),
             "SR-DI-EBPM-01:SA:Y",
-            [0] * len(bpm_y_pvs),
+            str(numpy.zeros(len(bpm_y_pvs))).replace("\n", ""),
+            "I/O Intr",
         )
     )
-    # Tune and vertical emittance refresh PVs.
-    data.append(
-        ("aIn", "refresh", "SR-CS-TFB-01:TIMER", "SR23C-DI-TMBF-01:TUNE:TUNE", 0)
-    )
-    data.append(
-        ("aIn", "refresh", "SR-CS-TFB-01:TIMER", "SR23C-DI-TMBF-02:TUNE:TUNE", 0)
-    )
-    data.append(("aIn", "refresh", "SR-CS-VEFB-01:TIMER", "SR-DI-EMIT-01:VEMIT", 0))
     return data
 
 
 def generate_tune_pvs(lattice):
     """Get the PVs associated with the tune feedback system, the structure of
     data is:
-    set pv: The PV to set the offset to.
-    offset: The PV which the set pv reads the offset from.
-    delta: The PV to get the offset from.
+    set_pv: The PV to set the offset to.
+    offset_pv: The PV which the set pv reads the offset from.
+    delta_pv: The PV to get the offset from.
     """
-    data = [("set pv", "offset", "delta")]
+    data: list[tuple] = [("set_pv", "offset_pv", "delta_pv")]
     # Offset PV for quadrupoles in tune feedback.
     tune_pvs = []
     offset_pvs = []

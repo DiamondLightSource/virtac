@@ -7,7 +7,7 @@ class callback_offset:
     def __init__(self, server, quad_pv, offset_record):
         """
         Args:
-            server (atip_server.ATIPServer): The server object on which to
+            server (virtac_server.VirtacServer): The server object on which to
                                               refresh the PVs.
             quad_pv (str): The name of the PV to refresh so it can have the new
                             offset applied, in the case of tune feedback this

@@ -12,7 +12,6 @@ from pytac.exceptions import FieldException, HandleException
 from softioc import builder
 
 from .masks import callback_offset, callback_set
-from .mirror_objects import refresher
 from .pv import CaputPV, CollationPV, DirectPV, DumbPV, InversePV, SummationPV
 
 
@@ -159,8 +158,9 @@ class VirtacServer:
                         float(line["upper"]),
                         float(line["lower"]),
                         int(line["precision"]),
-                        float(line["drive high"]),
-                        float(line["drive low"]),
+                        float(line["drive_high"]),
+                        float(line["drive_low"]),
+                        str(line["refresh"]),
                     )
 
         bend_in_record = None
@@ -177,12 +177,21 @@ class VirtacServer:
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
                     get_pv_name = element.get_pv_name(field, pytac.RB)
-                    upper, lower, precision, drive_high, drive_low = limits_dict.get(
-                        get_pv_name, (None, None, None, None, None)
+                    upper, lower, precision, drive_high, drive_low, refresh = (
+                        limits_dict.get(
+                            get_pv_name, (None, None, None, None, None, None)
+                        )
                     )
                     in_pv = DumbPV(get_pv_name)
                     in_pv.create_softioc_record(
-                        "ai", lower, upper, precision, drive_high, drive_low, value
+                        "ai",
+                        lower,
+                        upper,
+                        precision,
+                        drive_high,
+                        drive_low,
+                        value,
+                        refresh,
                     )
                     in_pv.append_pytac_element(element)
                     in_pv.set_pytac_field(field)
@@ -195,8 +204,10 @@ class VirtacServer:
                         # self._rb_only_records.append(in_pv._record)
                         pass
                     else:
-                        upper, lower, precision, drive_high, drive_low = (
-                            limits_dict.get(set_pv_name, (None, None, None, None, None))
+                        upper, lower, precision, drive_high, drive_low, refresh = (
+                            limits_dict.get(
+                                get_pv_name, (None, None, None, None, None, None)
+                            )
                         )
                         out_pv = DirectPV(set_pv_name, in_pv)
                         out_pv.create_softioc_record(
@@ -217,11 +228,16 @@ class VirtacServer:
             # Ignore basic devices as they do not have PVs.
             if not isinstance(self.lattice.get_device(field), SimpleDevice):
                 get_pv_name = self.lattice.get_pv_name(field, pytac.RB)
+                upper, lower, precision, drive_high, drive_low, refresh = (
+                    limits_dict.get(get_pv_name, (None, None, None, None, None, None))
+                )
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
                 in_pv = DumbPV(get_pv_name)
-                in_pv.create_softioc_record("ai", None, None, 4, None, None, value)
+                in_pv.create_softioc_record(
+                    "ai", lower, upper, precision, None, None, value, refresh
+                )
                 in_pv.append_pytac_element(0)
                 in_pv.set_pytac_field(field)
                 # self._in_records[in_pv._record] = ([0], field)
@@ -274,7 +290,6 @@ class VirtacServer:
                 0,
                 zrvl=0,
                 zrst="Successful",
-                pini="YES",
             )
             # builder.SetDeviceName("SR-DI-EMIT-01")
             # emit_status_record = builder.mbbIn(
@@ -344,16 +359,15 @@ class VirtacServer:
             for line in csv_reader:
                 # Parse arguments.
                 # Get a list of input pvs, these are all virtac owned pvs
-                input_pvs = line["in"].split(", ")
+                input_pvs = line["in_pv"].split(", ")
                 if (len(input_pvs) > 1) and (
-                    line["mirror type"] in ["basic", "inverse", "refresh"]
+                    line["mirror_type"] in ["basic", "inverse"]
                 ):
                     raise IndexError(
-                        "Transformation, refresher, and basic mirror "
-                        "types take only one input PV."
+                        "Transformation and basic mirror types take only one input PV."
                     )
                 elif (len(input_pvs) < 2) and (
-                    line["mirror type"] in ["collate", "summate"]
+                    line["mirror_type"] in ["collate", "summate"]
                 ):
                     raise IndexError(
                         "collation and summation mirror types take at least two input "
@@ -408,20 +422,20 @@ class VirtacServer:
                 # Update the mirror dictionary.
 
                 out_pv_name = line["out"]
-                if line["mirror type"] == "basic":
+                if line["mirror_type"] == "basic":
                     output_pv = DumbPV(out_pv_name)
                     output_pv.create_softioc_record(
                         line["output type"], None, None, None, None, None, line["value"]
                     )
                     # self._mirrored_records[input_pvs[0]].append(output_record)
-                elif line["mirror type"] == "inverse":
+                elif line["mirror_type"] == "inverse":
                     # value = numpy.asarray(line["value"][1:-1].split(", "), dtype=float)
                     output_pv = InversePV(out_pv_name)
                     output_pv.create_softioc_record(
-                        line["output type"], None, None, None, None, None, line["value"]
+                        line["output_type"], None, None, None, None, None, line["value"]
                     )
                     # self._mirrored_records[input_pvs[0]].append(output_record)
-                elif line["mirror type"] == "summate":
+                elif line["mirror_type"] == "summate":
                     output_pv = SummationPV(out_pv_name, input_records)
                     output_pv.create_softioc_record(
                         line["output type"], None, None, None, None, None, line["value"]
@@ -429,25 +443,18 @@ class VirtacServer:
                     # summation_object = summate(input_records, output_record)
                     # for pv in input_pvs:
                     #     self._mirrored_records[pv].append(summation_object)
-                elif line["mirror type"] == "collate":
+                elif line["mirror_type"] == "collate":
                     output_pv = CollationPV(out_pv_name, input_records)
                     output_pv.create_softioc_record(
-                        line["output type"], None, None, None, None, None, line["value"]
+                        line["output_type"], None, None, None, None, None, line["value"]
                     )
                     # for pv in input_pvs:
                     #     self._mirrored_records[pv].append(collation_object)
-                elif line["mirror type"] == "refresh":
-                    # We dont need a custom PV type for this, we just need to be able
-                    # to set the record SCAN field to 1 Second for relevant PVs.
-                    # I think we should add a column to the csv file called SCAN
-                    # and set this at the source rather than here.
-                    output_pv = refresher(self, line["out"])
-                    # self._mirrored_records[pv].append(refresh_object)
                 else:
                     raise TypeError(
-                        f"{line['mirror type']} is not a valid mirror type; please "
+                        f"{line['mirror_type']} is not a valid mirror type; please "
                         "enter a currently supported type from: 'basic', 'summate', "
-                        "'collate', 'inverse', and 'refresh'."
+                        "'collate' and 'inverse'."
                     )
 
                 self._pv_dict[out_pv_name] = output_pv
@@ -487,11 +494,11 @@ class VirtacServer:
             #     self.monitor_mirrored_pvs()
             self.tune_feedback_status = True
             for line in csv_reader:
-                offset_record = self._pv_dict[line["offset"]]
-                self._offset_pvs[line["set pv"]] = offset_record
-                mask = callback_offset(self, line["set pv"], offset_record)
+                offset_record = self._pv_dict[line["offset_pv"]]
+                self._offset_pvs[line["set_pv"]] = offset_record
+                mask = callback_offset(self, line["set_pv"], offset_record)
                 try:
-                    camonitor(line["delta"], mask.callback)
+                    camonitor(line["delta_pv"], mask.callback)
                 except Exception as e:
                     warn(e, stacklevel=1)
 
