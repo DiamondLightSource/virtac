@@ -9,9 +9,8 @@ import pytac
 from cothread.catools import camonitor
 from pytac.device import SimpleDevice
 from pytac.exceptions import FieldException, HandleException
-from softioc import builder
 
-from .masks import callback_offset, callback_set
+from .masks import callback_offset
 from .pv import CaputPV, CollationPV, DirectPV, DumbPV, InversePV, SummationPV
 
 
