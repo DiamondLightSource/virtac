@@ -525,12 +525,12 @@ class VirtacServer:
                 self.monitor_mirrored_pvs()
             self.tune_feedback_status = True
             for line in csv_reader:
-                offset_record = self._record_names[line["offset"]]
-                self._offset_pvs[line["set pv"]] = offset_record
-                mask = callback_offset(self, line["set pv"], offset_record)
+                offset_record = self._record_names[line["offset_pv"]]
+                self._offset_pvs[line["set_pv"]] = offset_record
+                mask = callback_offset(self, line["set_pv"], offset_record)
                 try:
-                    self._monitored_pvs[line["delta"]] = camonitor(
-                        line["delta"], mask.callback
+                    self._monitored_pvs[line["delta_pv"]] = camonitor(
+                        line["delta_pv"], mask.callback
                     )
                 except Exception as e:
                     warn(e, stacklevel=1)

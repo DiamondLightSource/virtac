@@ -341,11 +341,11 @@ def generate_mirrored_pvs(lattice):
 def generate_tune_pvs(lattice):
     """Get the PVs associated with the tune feedback system, the structure of
     data is:
-    set pv: The PV to set the offset to.
-    offset: The PV which the set pv reads the offset from.
-    delta: The PV to get the offset from.
+    set_pv: The PV to set the offset to.
+    offset_pv: The PV which the set pv reads the offset from.
+    delta_pv: The PV to get the offset from.
     """
-    data = [("set pv", "offset", "delta")]
+    data: list[tuple] = [("set_pv", "offset_pv", "delta_pv")]
     # Offset PV for quadrupoles in tune feedback.
     tune_pvs = []
     offset_pvs = []
