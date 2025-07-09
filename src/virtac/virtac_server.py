@@ -496,7 +496,8 @@ class VirtacServer:
                 f"{pv_name} is not the name of a record created by this server."
             ) from exc
         else:
-            record.set(record.get())
+            # We only need to make this pv process, so write to PROC field
+            record.set_field("PROC", 1)
 
     def setup_tune_feedback(self, tune_csv=None):
         """Read the tune feedback .csv and find the associated offset PVs,
