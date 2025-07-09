@@ -7,6 +7,7 @@ import csv
 import os
 
 import atip
+import cothread
 import numpy
 import pytac
 from cothread.catools import FORMAT_CTRL, caget
@@ -148,17 +149,18 @@ def generate_bba_pvs(all_elements, symmetry):
     return data
 
 
-def generate_pv_limits(lattice):
+def get_element_pv_data(element, pvs, data):
     """Get the control limits and precision values from the live machine for
     all normal PVS.
 
     Args:
-        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
-        machine
+        element (pytac.lattice.Element | pytac.lattice.Lattice): An element of the pytac
+        lattice or the lattice itself
+        pvs (list[str]): A list of pv names which we have already found
+        data (list[tuple]): A list of tuples, with each tuple being a collection of data
+        about one pv.
     """
     data = [("pv", "upper", "lower", "precision", "drive high", "drive low")]
-    for element in lattice:
-        for field in element.get_fields()[pytac.SIM]:
             pv = element.get_pv_name(field, pytac.RB)
             ctrl = caget(pv, format=FORMAT_CTRL)
             data.append(
@@ -187,6 +189,24 @@ def generate_pv_limits(lattice):
                         ctrl.lower_disp_limit,
                     )
                 )
+def generate_pv_limits(lattice):
+    """Loop through each element in the lattice and spawn a cothread which will then
+    do a caget to get pv data for the element.
+
+    Args:
+        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
+        machine
+    """
+    data: list[tuple] = [
+        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "refresh")
+    ]
+    pvs: list[str] = []
+    caget_handles: list[cothread.Spawn] = []
+    # Add limits for lattice elements
+    for element in lattice:
+        caget_handles.append(cothread.Spawn(get_element_pv_data, element, pvs, data))
+    for caget_handle in caget_handles:
+        caget_handle.Wait()
     return data
 
 
