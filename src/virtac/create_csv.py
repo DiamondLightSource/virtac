@@ -82,7 +82,7 @@ def generate_bba_pvs(all_elements, symmetry):
     """Data to be written is stored as a list of tuples each with structure:
     element index (int), field (str), pv (str), value (int), record_type (str).
     """
-    data = [("index", "field", "pv", "value", "record_type")]
+    data: list[tuple] = [("index", "field", "pv", "value", "record_type")]
     # Iterate over the BPMs to construct the PV names.
     for elem in all_elements.bpm:
         pv_stem = elem.get_device("enabled").name
@@ -169,6 +169,8 @@ def get_element_pv_data(element, pvs, data):
         if not isinstance(element.get_device(field), pytac.device.SimpleDevice):
             pv = element.get_pv_name(field, pytac.RB)
             ctrl = caget(pv, format=FORMAT_CTRL, timeout=10)
+            if pv not in pvs:
+                pvs.append(pv)
                 data.append(
                     (
                         pv,
