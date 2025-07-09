@@ -161,6 +161,10 @@ def get_element_pv_data(element, pvs, data):
         about one pv.
     """
     data = [("pv", "upper", "lower", "precision", "drive high", "drive low")]
+    lat_fields = element.get_fields()
+    lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
+    for field in lat_fields:
+        if not isinstance(element.get_device(field), pytac.device.SimpleDevice):
             pv = element.get_pv_name(field, pytac.RB)
             ctrl = caget(pv, format=FORMAT_CTRL)
             data.append(
@@ -203,7 +207,9 @@ def generate_pv_limits(lattice):
     pvs: list[str] = []
     caget_handles: list[cothread.Spawn] = []
     # Add limits for lattice elements
-    for element in lattice:
+    all_elements = list(lattice)
+    all_elements.insert(0, lattice)
+    for element in all_elements:
         caget_handles.append(cothread.Spawn(get_element_pv_data, element, pvs, data))
     for caget_handle in caget_handles:
         caget_handle.Wait()
