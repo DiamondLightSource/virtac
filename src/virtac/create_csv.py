@@ -193,15 +193,15 @@ def generate_pv_limits(lattice):
 def generate_mirrored_pvs(lattice):
     """Structure of data:
 
-    output type:
-        The type of output record to create, only 'aIn', 'longIn',
+    output_type:
+        The type of output record to create, only 'ai', 'longIn',
         'Waveform' types are currently supported; if '' then output to an
         existing in record already created in VirtacServer, 'caput' is also a
         special case it creates a mask for cothread.catools.caput calling
         set(value) on this mask will call caput with the output PV and the
         passed value.
 
-    mirror type (The type of mirroring to apply):
+    mirror_type (The type of mirroring to apply):
 
         - basic: set the value of the input record to the output record.
         - summate: sum the values of the input records and set the result to
@@ -210,22 +210,24 @@ def generate_mirrored_pvs(lattice):
         - transform: apply the specified transformation function to the value
             of the input record and set the result to the output record. N.B.
             the only transformation type currently supported is 'inverse'.
-        - refresh: monitor the in PV and on a change call refresh_record on
-            the output PV.
 
-    in:
+    in_pv:
         The PV(s) to be monitored, on change mirror is updated, if multiple
         then the PVs should be separated by a comma and one space.
 
-    out:
+    out_pv:
         The single PV to output to, if a 'record type' is spcified then a new
         record will be created and so must not exist already.
 
     value:
         The inital value of the output record.
+
+    refresh:
+        Whether the out_pv should have its softioc record's SCAN field set to
+        '1 second' which will cause it to process every second.
     """
-    data: list[tuple[str, str, str, str, int]] = [
-        ("output type", "mirror type", "in", "out", "value")
+    data: list[tuple] = [
+        ("output_type", "mirror_type", "in_pv", "out_pv", "value", "refresh")
     ]
     # Tune PV aliases.
     tune = [
@@ -234,20 +236,22 @@ def generate_mirrored_pvs(lattice):
     ]
     data.append(
         (
-            "aIn",
+            "ai",
             "basic",
             "SR23C-DI-TMBF-01:X:TUNE:TUNE",
             "SR23C-DI-TMBF-01:TUNE:TUNE",
             tune[0],
+            "1 second",
         )
     )
     data.append(
         (
-            "aIn",
+            "ai",
             "basic",
             "SR23C-DI-TMBF-01:Y:TUNE:TUNE",
             "SR23C-DI-TMBF-02:TUNE:TUNE",
             tune[1],
+            "1 second",
         )
     )
     # Combined emittance and average emittance PVs.
@@ -256,70 +260,81 @@ def generate_mirrored_pvs(lattice):
         lattice.get_value("emittance_y", pytac.RB, data_source=pytac.SIM),
     ]
     data.append(
-        ("aIn", "basic", "SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:HEMIT_MEAN", emit[0])
-    )
-    data.append(
-        ("aIn", "basic", "SR-DI-EMIT-01:VEMIT", "SR-DI-EMIT-01:VEMIT_MEAN", emit[1])
+        (
+            "ai",
+            "basic",
+            "SR-DI-EMIT-01:HEMIT",
+            "SR-DI-EMIT-01:HEMIT_MEAN",
+            emit[0],
+            "I/O Intr",
+        )
     )
     data.append(
         (
-            "aIn",
+            "ai",
+            "basic",
+            "SR-DI-EMIT-01:VEMIT",
+            "SR-DI-EMIT-01:VEMIT_MEAN",
+            emit[1],
+            "I/O Intr",
+        )
+    )
+    data.append(
+        (
+            "ai",
             "summate",
             "SR-DI-EMIT-01:HEMIT, SR-DI-EMIT-01:VEMIT",
             "SR-DI-EMIT-01:EMITTANCE",
             sum(emit),
+            "I/O Intr",
         )
     )
     # Electron BPMs enabled.
     bpm_enabled_pvs = lattice.get_element_pv_names("BPM", "enabled", pytac.RB)
     data.append(
         (
-            "Waveform",
+            "wfm",
             "collate",
             ", ".join(bpm_enabled_pvs),
             "EBPM-ENABLED:INTERIM",
             str(numpy.zeros(len(bpm_enabled_pvs))).replace("\n", ""),
+            "I/O Intr",
         )
     )
     data.append(
         (
-            "Waveform",
+            "wfm",
             "inverse",
             "EBPM-ENABLED:INTERIM",
             "SR-DI-EBPM-01:ENABLED",
             str(numpy.zeros(len(bpm_enabled_pvs))).replace("\n", ""),
+            "I/O Intr",
         )
     )
     # BPM x positions for display on diagnostics screen.
     bpm_x_pvs = lattice.get_element_pv_names("BPM", "x", pytac.RB)
     data.append(
         (
-            "Waveform",
+            "wfm",
             "collate",
             ", ".join(bpm_x_pvs),
             "SR-DI-EBPM-01:SA:X",
             str(numpy.zeros(len(bpm_x_pvs))).replace("\n", ""),
+            "I/O Intr",
         )
     )
     # BPM y positions for display on diagnostics screen.
     bpm_y_pvs = lattice.get_element_pv_names("BPM", "y", pytac.RB)
     data.append(
         (
-            "Waveform",
+            "wfm",
             "collate",
             ", ".join(bpm_y_pvs),
             "SR-DI-EBPM-01:SA:Y",
             str(numpy.zeros(len(bpm_y_pvs))).replace("\n", ""),
+            "I/O Intr",
         )
     )
-    # Tune and vertical emittance refresh PVs.
-    data.append(
-        ("aIn", "refresh", "SR-CS-TFB-01:TIMER", "SR23C-DI-TMBF-01:TUNE:TUNE", 0)
-    )
-    data.append(
-        ("aIn", "refresh", "SR-CS-TFB-01:TIMER", "SR23C-DI-TMBF-02:TUNE:TUNE", 0)
-    )
-    data.append(("aIn", "refresh", "SR-CS-VEFB-01:TIMER", "SR-DI-EMIT-01:VEMIT", 0))
     return data
 
 
