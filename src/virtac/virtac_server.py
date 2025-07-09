@@ -232,12 +232,21 @@ class VirtacServer:
             # Ignore basic devices as they do not have PVs.
             if not isinstance(self.lattice.get_device(field), SimpleDevice):
                 get_pv = self.lattice.get_pv_name(field, pytac.RB)
+                upper, lower, precision, drive_high, drive_low, refresh = (
+                    limits_dict.get(get_pv, (None, None, None, None, None, None))
+                )
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
                 builder.SetDeviceName(get_pv.split(":", 1)[0])
                 in_record = builder.aIn(
-                    get_pv.split(":", 1)[1], PREC=4, initial_value=value, MDEL="-1"
+                    get_pv.split(":", 1)[1],
+                    LOPR=lower,
+                    HOPR=upper,
+                    PREC=precision,
+                    initial_value=value,
+                    MDEL="-1",
+                    SCAN=refresh,
                 )
                 self._in_records[in_record] = ([0], field)
                 self._rb_only_records.append(in_record)
