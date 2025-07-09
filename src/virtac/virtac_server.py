@@ -12,7 +12,7 @@ from pytac.exceptions import FieldException, HandleException
 from softioc import builder
 
 from .masks import caget_mask, callback_offset, callback_set, caput_mask
-from .mirror_objects import collate, refresher, summate, transform
+from .mirror_objects import collate, summate, transform
 
 
 class VirtacServer:
@@ -164,8 +164,9 @@ class VirtacServer:
                         float(line["upper"]),
                         float(line["lower"]),
                         int(line["precision"]),
-                        float(line["drive high"]),
-                        float(line["drive low"]),
+                        float(line["drive_high"]),
+                        float(line["drive_low"]),
+                        str(line["refresh"]),
                     )
 
         bend_in_record = None
@@ -181,8 +182,8 @@ class VirtacServer:
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
                     get_pv = element.get_pv_name(field, pytac.RB)
-                    upper, lower, precision, drive_high, drive_low = limits_dict.get(
-                        get_pv, (None, None, None, None, None)
+                    upper, lower, precision, drive_high, drive_low, refresh = (
+                        limits_dict.get(get_pv, (None, None, None, None, None, None))
                     )
                     builder.SetDeviceName(get_pv.split(":", 1)[0])
                     in_record = builder.aIn(
@@ -192,6 +193,7 @@ class VirtacServer:
                         PREC=precision,
                         MDEL="-1",
                         initial_value=value,
+                        SCAN=refresh,
                     )
                     self._in_records[in_record] = ([element.index], field)
 
@@ -200,8 +202,10 @@ class VirtacServer:
                     except HandleException:
                         self._rb_only_records.append(in_record)
                     else:
-                        upper, lower, precision, drive_high, drive_low = (
-                            limits_dict.get(set_pv, (None, None, None, None, None))
+                        upper, lower, precision, drive_high, drive_low, refresh = (
+                            limits_dict.get(
+                                get_pv, (None, None, None, None, None, None)
+                            )
                         )
                         builder.SetDeviceName(set_pv.split(":", 1)[0])
                         out_record = builder.aOut(
@@ -228,12 +232,21 @@ class VirtacServer:
             # Ignore basic devices as they do not have PVs.
             if not isinstance(self.lattice.get_device(field), SimpleDevice):
                 get_pv = self.lattice.get_pv_name(field, pytac.RB)
+                upper, lower, precision, drive_high, drive_low, refresh = (
+                    limits_dict.get(get_pv, (None, None, None, None, None, None))
+                )
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
                 builder.SetDeviceName(get_pv.split(":", 1)[0])
                 in_record = builder.aIn(
-                    get_pv.split(":", 1)[1], PREC=4, initial_value=value, MDEL="-1"
+                    get_pv.split(":", 1)[1],
+                    LOPR=lower,
+                    HOPR=upper,
+                    PREC=precision,
+                    initial_value=value,
+                    MDEL="-1",
+                    SCAN=refresh,
                 )
                 self._in_records[in_record] = ([0], field)
                 self._rb_only_records.append(in_record)
@@ -304,7 +317,7 @@ class VirtacServer:
             # we cannot currently create mbbIn records via CSV.
             builder.SetDeviceName("SR-DI-EMIT-01")
             emit_status_record = builder.mbbIn(
-                "STATUS", initial_value=0, ZRVL=0, ZRST="Successful", PINI="YES"
+                "STATUS", initial_value=0, ZRVL=0, ZRST="Successful"
             )
             self._feedback_records[(0, "emittance_status")] = emit_status_record
 
@@ -385,16 +398,15 @@ class VirtacServer:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
                 # Parse arguments.
-                input_pvs = line["in"].split(", ")
+                input_pvs = line["in_pv"].split(", ")
                 if (len(input_pvs) > 1) and (
-                    line["mirror type"] in ["basic", "inverse", "refresh"]
+                    line["mirror_type"] in ["basic", "inverse"]
                 ):
                     raise IndexError(
-                        "Transformation, refresher, and basic mirror "
-                        "types take only one input PV."
+                        "Transformation and basic mirror types take only one input PV."
                     )
                 elif (len(input_pvs) < 2) and (
-                    line["mirror type"] in ["collate", "summate"]
+                    line["mirror_type"] in ["collate", "summate"]
                 ):
                     raise IndexError(
                         "collation and summation mirror types take at least two input "
@@ -409,55 +421,61 @@ class VirtacServer:
                     except KeyError:
                         input_records.append(caget_mask(pv))
                 # Create output record.
-                prefix, suffix = line["out"].split(":", 1)
+                prefix, suffix = line["out_pv"].split(":", 1)
                 builder.SetDeviceName(prefix)
-                if line["mirror type"] == "refresh":
-                    # Refresh records come first as do not require an output record
-                    pass
-                elif line["output type"] == "caput":
-                    output_record = caput_mask(line["out"])
-                elif line["output type"] == "aIn":
+                if line["output_type"] == "caput":
+                    output_record = caput_mask(line["out_pv"])
+                elif line["output_type"] == "ai":
                     value = float(line["value"])
-                    output_record = builder.aIn(suffix, initial_value=value, MDEL="-1")
-                elif line["output type"] == "longIn":
+                    output_record = builder.aIn(
+                        suffix,
+                        initial_value=value,
+                        MDEL="-1",
+                        SCAN=line["refresh"],
+                    )
+                elif line["output_type"] == "longIn":
                     value = int(line["value"])
                     output_record = builder.longIn(
-                        suffix, initial_value=value, MDEL="-1"
+                        suffix,
+                        initial_value=value,
+                        MDEL="-1",
+                        SCAN=line["refresh"],
                     )
-                elif line["output type"] == "Waveform":
-                    value = numpy.asarray(line["value"][1:-1].split(", "), dtype=float)
-                    output_record = builder.Waveform(suffix, initial_value=value)
+                elif line["output_type"] == "wfm":
+                    value = numpy.asarray(line["value"][1:-1].split(" "), dtype=float)
+                    output_record = builder.Waveform(
+                        suffix,
+                        initial_value=value,
+                        SCAN=line["refresh"],
+                    )
                 else:
                     raise TypeError(
-                        f"{line['output type']} isn't a supported mirroring output "
+                        f"{line['output_type']} isn't a supported mirroring output "
                         "type; please enter 'caput', 'aIn', 'longIn', or 'Waveform'."
                     )
                 # Update the mirror dictionary.
                 for pv in monitor:
                     if pv not in self._mirrored_records:
                         self._mirrored_records[pv] = []
-                if line["mirror type"] == "basic":
+                if line["mirror_type"] == "basic":
                     self._mirrored_records[monitor[0]].append(output_record)
-                elif line["mirror type"] == "inverse":
+                elif line["mirror_type"] == "inverse":
                     # Other transformation types are not yet supported.
                     transformation = transform(numpy.invert, output_record)
                     self._mirrored_records[monitor[0]].append(transformation)
-                elif line["mirror type"] == "summate":
+                elif line["mirror_type"] == "summate":
                     summation_object = summate(input_records, output_record)
                     for pv in monitor:
                         self._mirrored_records[pv].append(summation_object)
-                elif line["mirror type"] == "collate":
+                elif line["mirror_type"] == "collate":
                     collation_object = collate(input_records, output_record)
                     for pv in monitor:
                         self._mirrored_records[pv].append(collation_object)
-                elif line["mirror type"] == "refresh":
-                    refresh_object = refresher(self, line["out"])
-                    self._mirrored_records[pv].append(refresh_object)
                 else:
                     raise TypeError(
-                        f"{line['mirror type']} is not a valid mirror type; please "
+                        f"{line['mirror_type']} is not a valid mirror type; please "
                         "enter a currently supported type from: 'basic', 'summate', "
-                        "'collate', 'inverse', and 'refresh'."
+                        "'collate' and 'inverse'."
                     )
             mirrored_records = []
             for rec_list in self._mirrored_records.values():
@@ -491,7 +509,8 @@ class VirtacServer:
                 f"{pv_name} is not the name of a record created by this server."
             ) from exc
         else:
-            record.set(record.get())
+            # We only need to make this pv process, so write to PROC field
+            record.set_field("PROC", 1)
 
     def setup_tune_feedback(self, tune_csv=None):
         """Read the tune feedback .csv and find the associated offset PVs,
@@ -519,12 +538,12 @@ class VirtacServer:
                 self.monitor_mirrored_pvs()
             self.tune_feedback_status = True
             for line in csv_reader:
-                offset_record = self._record_names[line["offset"]]
-                self._offset_pvs[line["set pv"]] = offset_record
-                mask = callback_offset(self, line["set pv"], offset_record)
+                offset_record = self._record_names[line["offset_pv"]]
+                self._offset_pvs[line["set_pv"]] = offset_record
+                mask = callback_offset(self, line["set_pv"], offset_record)
                 try:
-                    self._monitored_pvs[line["delta"]] = camonitor(
-                        line["delta"], mask.callback
+                    self._monitored_pvs[line["delta_pv"]] = camonitor(
+                        line["delta_pv"], mask.callback
                     )
                 except Exception as e:
                     warn(e, stacklevel=1)
