@@ -304,7 +304,7 @@ class VirtacServer:
             # we cannot currently create mbbIn records via CSV.
             builder.SetDeviceName("SR-DI-EMIT-01")
             emit_status_record = builder.mbbIn(
-                "STATUS", initial_value=0, ZRVL=0, ZRST="Successful", PINI="YES"
+                "STATUS", initial_value=0, ZRVL=0, ZRST="Successful"
             )
             self._feedback_records[(0, "emittance_status")] = emit_status_record
 
