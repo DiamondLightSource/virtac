@@ -160,29 +160,15 @@ def get_element_pv_data(element, pvs, data):
         data (list[tuple]): A list of tuples, with each tuple being a collection of data
         about one pv.
     """
-    data = [("pv", "upper", "lower", "precision", "drive high", "drive low")]
     lat_fields = element.get_fields()
     lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
+    # These pvs need to be configured with their SCAN fields set to 1 second. This is
+    # different to the SCAN field in the LIVE pv, so we cant just caget it.
+    refresh_pvs = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
     for field in lat_fields:
         if not isinstance(element.get_device(field), pytac.device.SimpleDevice):
             pv = element.get_pv_name(field, pytac.RB)
-            ctrl = caget(pv, format=FORMAT_CTRL)
-            data.append(
-                (
-                    pv,
-                    ctrl.upper_ctrl_limit,
-                    ctrl.lower_ctrl_limit,
-                    ctrl.precision,
-                    ctrl.upper_disp_limit,
-                    ctrl.lower_disp_limit,
-                )
-            )
-            try:
-                pv = element.get_pv_name(field, pytac.SP)
-            except pytac.exceptions.HandleException:
-                pass
-            else:
-                ctrl = caget(pv, format=FORMAT_CTRL)
+            ctrl = caget(pv, format=FORMAT_CTRL, timeout=10)
                 data.append(
                     (
                         pv,
@@ -191,8 +177,28 @@ def get_element_pv_data(element, pvs, data):
                         ctrl.precision,
                         ctrl.upper_disp_limit,
                         ctrl.lower_disp_limit,
+                        "1 second" if pv in refresh_pvs else "I/O Intr",
                     )
                 )
+                try:
+                    pv = element.get_pv_name(field, pytac.SP)
+                except pytac.exceptions.HandleException:
+                    pass
+                else:
+                    ctrl = caget(pv, format=FORMAT_CTRL, timeout=10)
+                    data.append(
+                        (
+                            pv,
+                            ctrl.upper_ctrl_limit,
+                            ctrl.lower_ctrl_limit,
+                            ctrl.precision,
+                            ctrl.upper_disp_limit,
+                            ctrl.lower_disp_limit,
+                            "1 second" if pv in refresh_pvs else "I/O Intr",
+                        )
+                    )
+
+
 def generate_pv_limits(lattice):
     """Loop through each element in the lattice and spawn a cothread which will then
     do a caget to get pv data for the element.
