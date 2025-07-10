@@ -1,6 +1,5 @@
 import csv
 import logging
-import sys
 import typing
 from warnings import warn
 
@@ -12,7 +11,7 @@ from pytac.device import SimpleDevice
 from pytac.exceptions import FieldException, HandleException
 
 from .masks import callback_offset
-from .pv import PV, CaputPV, CollationPV, DirectPV, DumbPV, InversePV, SummationPV
+from .pv import PV, CaputPV, CollationPV, DirectPV, InversePV, SummationPV
 
 
 class VirtacServer:
@@ -136,7 +135,7 @@ class VirtacServer:
                     )
                     logging.debug(f"Update_pvs: {name} to val {value}")
                     pv.set(value)
-                except FieldException as e:
+                except FieldException:
                     print("Missing pytac field")
                     # print(e)
         logging.debug("Finished updating output PVs")
@@ -190,7 +189,7 @@ class VirtacServer:
                             get_pv_name, (None, None, None, None, None, None)
                         )
                     )
-                    in_pv = DumbPV(get_pv_name)
+                    in_pv = PV(get_pv_name)
                     in_pv.create_softioc_record(
                         "ai",
                         lower=lower,
@@ -248,7 +247,7 @@ class VirtacServer:
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
-                in_pv = DumbPV(get_pv_name)
+                in_pv = PV(get_pv_name)
                 in_pv.create_softioc_record(
                     "ai",
                     lower=lower,
@@ -291,7 +290,7 @@ class VirtacServer:
         if not disable_emittance:
             # Special case: EMIT STATUS for the vertical emittance feedback
             name = "SR-DI-EMIT-01:STATUS"
-            emit_status_pv = DumbPV(name)
+            emit_status_pv = PV(name)
             emit_status_pv.create_softioc_record(
                 "mbbi",
                 zrvl=0,
@@ -328,7 +327,7 @@ class VirtacServer:
                         f"{line['value']}"
                     ) from exc
                 else:
-                    pv = DumbPV(name)
+                    pv = PV(name)
                     # TODO: Add some checks of csv data here?
                     pv.create_softioc_record(line["record_type"], initial_value=val)
                     pv.set_pytac_field(line["field"])
@@ -397,7 +396,7 @@ class VirtacServer:
                 else:
                     out_pv_name = line["out_pv"]
                     if line["mirror_type"] == "basic":
-                        output_pv = DumbPV(out_pv_name)
+                        output_pv = PV(out_pv_name)
                         output_pv.create_softioc_record(
                             line["output_type"], initial_value=val
                         )

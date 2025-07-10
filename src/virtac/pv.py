@@ -19,10 +19,6 @@ class PV:
         self._record = None
         self._pytac_elements: list = []
         self._pytac_field = None
-        self._monitor_list: list = []
-        self._camonitor_handle = None
-        self._camonitor_callback = self._monitor_callback
-        self._timeout: float
         self.update_lattice = False
 
     def _on_update(self, value, name):
@@ -106,13 +102,6 @@ class PV:
         else:
             raise ValueError(f"Failed to create PV with record type: {record_type}")
 
-    def monitor_pvs(self, pv_names):
-        self._monitor_list.extend(pv_names)
-        self._camonitor_handle = camonitor(self._monitor_list, self._camonitor_callback)
-
-    def _monitor_callback(self, value, index):
-        print(f"Monitored PV: {self._monitor_list[index]} updated. New value: {value}")
-
     def get(self):
         return self._record.get()
 
@@ -123,14 +112,6 @@ class PV:
         """
         logging.debug(f"PV setter: {self.name} changed to: {value}")
         return self._record.set(value)
-
-
-class DumbPV(PV):
-    """Stores a passive softioc record which can be updated, but does nothing
-    when it is updated, other than update its own value."""
-
-    def __init__(self, name: str):
-        super().__init__(name)
 
 
 class DirectPV(PV):
@@ -200,16 +181,42 @@ class CaputPV(PV):
         return caput(self._caput_pv_name, value)
 
 
-class InversePV(PV):
+class MonitorPV(PV):
+    """This type of PV monitors one or more PVs and does a callback when one of the
+    monitors returns"""
+
+    def __init__(self, name, in_records: list[PV], callback):
+        super().__init__(name)
+        self._in_records = in_records
+        self._monitor_list: list = []
+        self._camonitor_handle = None
+        self._timeout: float
+        self.monitor_pvs(self._in_records, callback)
+
+    def monitor_pvs(self, pvs, callback):
+        """Get either a single pv to monitor or a list, configure the function
+        'callback' to be called when they change value."""
+        if len(pvs) > 1:
+            pv_names = [pv.name for pv in self._in_records]
+        elif len(pvs) == 1:
+            pv_names = pvs[0].name
+        else:
+            # TODO error
+            pass
+        self._monitor_list.extend(pv_names)
+        self._camonitor_handle = camonitor(self._monitor_list, callback)
+
+    def _monitor_callback(self, value, index):
+        print(f"Monitored PV: {self._monitor_list[index]} updated. New value: {value}")
+
+
+class InversePV(MonitorPV):
     """Used to invert a boolean array waveform 'in_record', ie swap true to false and
     false to true and then save the result in its own waveform _record."""
 
     def __init__(self, name, in_record: PV):
-        super().__init__(name)
+        super().__init__(name, in_record, self.set)
         self.name = name
-        self._in_record = in_record
-        self._camonitor_callback = self.set
-        self.monitor_pvs(self._in_record[0].name)
 
     def set(self, value):
         """An imitation  of the set method of Soft-IOC records, that applies a
@@ -221,15 +228,12 @@ class InversePV(PV):
         self._record.set(value)
 
 
-class SummationPV(PV):
-    """"""
+class SummationPV(MonitorPV):
+    """Sum a list of PV values and set this PVs record to the result"""
 
     def __init__(self, name, in_records: list[PV]):
-        super().__init__(name)
+        super().__init__(name, in_records, self.set)
         self.name = name
-        self._in_records = in_records
-        self._camonitor_callback = self.set
-        self.monitor_pvs(pv.name for pv in self._in_records)
 
     def set(self, value, index):
         """An imitation  of the set method of Soft-IOC records."""
@@ -239,19 +243,16 @@ class SummationPV(PV):
         self._record.set(value)
 
 
-class CollationPV(PV):
+class CollationPV(MonitorPV):
     """Monitor a list of input PVs and when any change then get the values of all PVs
     and collate them into a numpy array which is then set to the record owned by this
     PV."""
 
     def __init__(self, name, in_records: list[PV]):
-        super().__init__(name)
+        super().__init__(name, in_records, self.set_update_required)
         self.name = name
-        self._in_records = in_records
-        self._update_required = False
-        self._camonitor_callback = self.set_update_required
         self._last_update_time = time.time()
-        self.monitor_pvs([pv.name for pv in self._in_records])
+        self._update_required = False
         cothread.Spawn(self.periodic_update)
 
     def periodic_update(self):
