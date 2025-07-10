@@ -124,7 +124,7 @@ def main():
     # Start the IOC.
     builder.LoadDatabase()
     softioc.iocInit()
-    server.monitor_mirrored_pvs()
+    # server.monitor_mirrored_pvs()
     if args.enable_tfb:
         server.setup_tune_feedback()
     context = globals() | {"server": server}
