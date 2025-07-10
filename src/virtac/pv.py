@@ -15,7 +15,7 @@ class PV:
     def __init__(self, name: str, tune_feedback: bool = False):
         self.name: str = name
         print(f"Creating record {name}")
-        self._tune_feedback_status: bool = tune_feedback
+        self._tune_feedback_enabled: bool = tune_feedback
         self._record = None
         self._pytac_elements: list = []
         self._pytac_field = None
@@ -33,7 +33,7 @@ class PV:
         logging.info(f"PV {name} changed to: {value}")
 
     def set_tune_feedback_status(self, status):
-        self._tune_feedback_status = status
+        self._tune_feedback_enabled = status
 
     def get_pytac_data(self):
         return self._pytac_elements, self._pytac_field
@@ -138,9 +138,13 @@ class DirectPV(PV):
         logging.debug("Read value %s on pv %s", value, name)
         self._in_record.set(value)
 
-        if self._tune_feedback_status is True:
+        if self._tune_feedback_enabled is True and self._offset_record is not None:
             try:
-                value += self.offset_record.get()
+                offset = self._offset_record.get()
+                # print(
+                #     f"Applying offset for pv {self.name} old val= {value} offset= {offset}"
+                # )
+                value += offset
             except KeyError:
                 pass
 
@@ -160,8 +164,8 @@ class DirectPV(PV):
         self._offset_record = offset_record
 
 
-class CaputPV(PV):
-    """Does a caput to set a remote EPICS PV to a value. This PV does not need
+class CaPV(PV):
+    """Uses channel access to get and set an EPICS PV to a value. This PV does not need
     a softioc record."""
 
     def __init__(self, name: str, caput_pv_name: str):
@@ -185,29 +189,57 @@ class MonitorPV(PV):
     """This type of PV monitors one or more PVs and does a callback when one of the
     monitors returns"""
 
-    def __init__(self, name, in_records: list[PV], callback):
+    def __init__(self, name, in_records: list[PV], callback=None):
         super().__init__(name)
         self._in_records = in_records
         self._monitor_list: list = []
         self._camonitor_handle = None
         self._timeout: float
+        if callback is None:
+            callback = self.set
         self.monitor_pvs(self._in_records, callback)
 
     def monitor_pvs(self, pvs, callback):
         """Get either a single pv to monitor or a list, configure the function
         'callback' to be called when they change value."""
-        if len(pvs) > 1:
+        if len(pvs) >= 1:
             pv_names = [pv.name for pv in self._in_records]
-        elif len(pvs) == 1:
-            pv_names = pvs[0].name
         else:
             # TODO error
             pass
         self._monitor_list.extend(pv_names)
         self._camonitor_handle = camonitor(self._monitor_list, callback)
 
-    def _monitor_callback(self, value, index):
-        print(f"Monitored PV: {self._monitor_list[index]} updated. New value: {value}")
+    def set(self, value, index):
+        print(f"Monitor callback {self.name} {value}")
+        self._record.set(value)
+
+
+class RefreshPV(PV):
+    def __init__(
+        self,
+        name,
+        monitor_record: PV,
+        refresh_record: PV,
+        pytac_elements,
+        pytac_field,
+        record,
+    ):
+        super().__init__(name)
+        self._record = record
+        self._pytac_field = pytac_field
+        self._pytac_elements = pytac_elements
+        self._refresh_record = refresh_record
+        camonitor(monitor_record, self.set)
+
+    def set(self, value):
+        """An imitation  of the set method of Soft-IOC records, that applies a
+        transformation to the value before setting it to the output record.
+        """
+        # print(f"{self.name} Refreshing quad")
+        # print(f"Setting PV {self.name} to {value}")
+        self._record.set(value)
+        self._refresh_record._record.set_field("PROC", 1)
 
 
 class InversePV(MonitorPV):
@@ -218,7 +250,7 @@ class InversePV(MonitorPV):
         super().__init__(name, in_record, self.set)
         self.name = name
 
-    def set(self, value):
+    def set(self, value, index):
         """An imitation  of the set method of Soft-IOC records, that applies a
         transformation to the value before setting it to the output record.
         """
@@ -233,7 +265,6 @@ class SummationPV(MonitorPV):
 
     def __init__(self, name, in_records: list[PV]):
         super().__init__(name, in_records, self.set)
-        self.name = name
 
     def set(self, value, index):
         """An imitation  of the set method of Soft-IOC records."""
@@ -250,7 +281,6 @@ class CollationPV(MonitorPV):
 
     def __init__(self, name, in_records: list[PV]):
         super().__init__(name, in_records, self.set_update_required)
-        self.name = name
         self._last_update_time = time.time()
         self._update_required = False
         cothread.Spawn(self.periodic_update)

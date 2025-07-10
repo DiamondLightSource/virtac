@@ -10,8 +10,16 @@ from cothread.catools import camonitor
 from pytac.device import SimpleDevice
 from pytac.exceptions import FieldException, HandleException
 
-from .masks import callback_offset
-from .pv import PV, CaputPV, CollationPV, DirectPV, InversePV, SummationPV
+from .pv import (
+    PV,
+    CaPV,
+    CollationPV,
+    DirectPV,
+    InversePV,
+    MonitorPV,
+    RefreshPV,
+    SummationPV,
+)
 
 
 class VirtacServer:
@@ -119,8 +127,6 @@ class VirtacServer:
             logging.debug(f"Updating pv {name}")
             if pv.update_lattice:
                 elements, field = pv.get_pytac_data()
-                # print(f"{name}, {pv}")
-                # print(f"{elements}, {field}")
                 # elements is a list of pytac lattice elements associated with a pv. The
                 # lattice itself is also considered an element, and can be associated with
                 # pvs.
@@ -258,6 +264,7 @@ class VirtacServer:
                 )
                 in_pv.append_pytac_element(self.lattice)
                 in_pv.set_pytac_field(field)
+                in_pv.update_lattice = True
                 self._pv_dict[get_pv_name] = in_pv
         print("~*~*Woah, we're halfway there, Wo-oah...*~*~")
 
@@ -333,8 +340,6 @@ class VirtacServer:
                     pv.set_pytac_field(line["field"])
                     pv.append_pytac_element(self.lattice[int(line["index"]) - 1])
                     self._pv_dict[name] = pv
-                    # records[pv._pytac_elements[0], pv._pytac_field] = pv._record
-        # return records
 
     def _create_mirror_records(self, mirror_csv):
         # Create a dictionary of monitored_pv: [pvs_affected]
@@ -369,14 +374,10 @@ class VirtacServer:
                 for pv in input_pvs:
                     try:
                         # Lookup pv in our dictionary of softioc records
-                        # print(f"{pv} {self._pv_dict[pv]}")
                         input_records.append(self._pv_dict[pv])
-                        # for name, pv_item in self._pv_dict.items():
-                        #     print(f"{name}, {pv_item}")
-                        # sys.exit(1)
                     except KeyError:
                         # If not owned by us, then we get it from CA
-                        input_records.append(CaputPV(pv, pv))
+                        input_records.append(CaPV(pv, pv))
                 # Update the mirror dictionary.
                 try:
                     # Waveform records may have values stored as a list such as: [5 1 3]
@@ -396,25 +397,25 @@ class VirtacServer:
                 else:
                     out_pv_name = line["out_pv"]
                     if line["mirror_type"] == "basic":
-                        output_pv = PV(out_pv_name)
+                        output_pv = MonitorPV(out_pv_name, input_records)
                         output_pv.create_softioc_record(
-                            line["output_type"], initial_value=val
+                            line["output_type"], initial_value=val, scan=line["refresh"]
                         )
                     elif line["mirror_type"] == "inverse":
                         output_pv = InversePV(out_pv_name, input_records)
                         output_pv.create_softioc_record(
-                            line["output_type"], initial_value=val
+                            line["output_type"], initial_value=val, scan=line["refresh"]
                         )
                     elif line["mirror_type"] == "summate":
                         output_pv = SummationPV(out_pv_name, input_records)
                         output_pv.create_softioc_record(
-                            line["output_type"], initial_value=val
+                            line["output_type"], initial_value=val, scan=line["refresh"]
                         )
                     elif line["mirror_type"] == "collate":
                         # print(out_pv_name, input_records, val)
                         output_pv = CollationPV(out_pv_name, input_records)
                         output_pv.create_softioc_record(
-                            line["output_type"], initial_value=val
+                            line["output_type"], initial_value=val, scan=line["refresh"]
                         )
                     else:
                         raise TypeError(
@@ -447,19 +448,23 @@ class VirtacServer:
             )
         with open(self._tune_fb_csv_path) as f:
             csv_reader = csv.DictReader(f)
-            # if not self._pv_monitoring:
-            #     self.monitor_mirrored_pvs()
-            self.tune_feedback_status = True
             for line in csv_reader:
-                offset_record = self._pv_dict[line["offset_pv"]]
-                self._offset_pvs[line["set_pv"]] = offset_record
-                mask = callback_offset(self, line["set_pv"], offset_record)
-                try:
-                    camonitor(line["delta_pv"], mask.callback)
-                except Exception as e:
-                    warn(e, stacklevel=1)
+                set_record = self._pv_dict[line["set_pv"]]
+                old_offset_record = self._pv_dict[line["offset_pv"]]
+                elements, field = old_offset_record.get_pytac_data()
+                new_offset_record = RefreshPV(
+                    line["offset_pv"],
+                    line["delta_pv"],
+                    set_record,
+                    elements,
+                    field,
+                    old_offset_record._record,
+                )
+                self._pv_dict[line["offset_pv"]] = new_offset_record
+                set_record.attach_offset_record(new_offset_record)
+                set_record.set_tune_feedback_status(True)
 
-    # refactor, these can just be out records and this can be removed.
+    # Needs fixing from refactor
     def set_feedback_record(self, index, field, value):
         """Set a value to the feedback in records.
 
