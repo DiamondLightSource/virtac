@@ -129,8 +129,8 @@ class PV:
 
 
 class DirectPV(PV):
-    """When this PV has its value updated, we find its paired PV and update it based
-    on simulation data."""
+    """When this PV has its value updated, we do two things. We update its
+    paired in_record with value"""
 
     def __init__(self, name, record_data: RecordData, in_record: PV):
         super().__init__(name, record_data)
@@ -138,10 +138,9 @@ class DirectPV(PV):
         self._offset_record = None
 
     def _on_update(self, value, name):
-        """The callback function passed to out records, it is called after
-        successful record processing has been completed. It updates the out
-        record's corresponding in record with the value that has been set and
-        then sets the value to the Pytac lattice.
+        """This function is called whenever this PVs softioc record processes. It
+        in_record with the value that has been set to this PVs record (out_record) and
+        then sets the value to the in_records Pytac elements.
 
         This functions needs to be kept FAST as it can be called rapidly by CA clients.
 
@@ -160,6 +159,8 @@ class DirectPV(PV):
 
         elements, field = self._in_record.get_pytac_data()
         for element in elements:
+            # Some elements such as bend magnets share a single PV which is used to
+            # update them all to the same value
             logging.debug(
                 f"Updating lattice for pv: {self._in_record.name} to val {value}"
             )
@@ -265,7 +266,8 @@ class RefreshPV(PV):
         transformation to the value before setting it to the output record.
         """
         logging.debug(
-            f"Setting refresh record: {self.name} to {value} and prodding {self._refresh_record._record.name} to process "
+            f"Setting refresh record: {self.name} to {value} and prodding "
+            f"{self._refresh_record._record.name} to process "
         )
         # print(f"{self.name} Refreshing quad")
         # print(f"Setting PV {self.name} to {value}")

@@ -30,7 +30,7 @@ class VirtacServer:
     Attributes:
         lattice (pytac.lattice.Lattice): An instance of a Pytac lattice with a
                                           simulator data source.
-        tune_feedback_status (bool): A boolean indicating whether the tune
+        tune_feedback_enabled (bool): A boolean indicating whether the tune
                                       feedback records have been created and
                                       the monitoring systems are running.
     .. Private Attributes:
@@ -72,7 +72,7 @@ class VirtacServer:
             disable_emittance (bool): Whether the emittance should be disabled.
         """
         self.lattice = atip.utils.loader(ring_mode, self.update_pvs, disable_emittance)
-        self.tune_feedback_status = False
+        self.tune_feedback_enabled = False
         self._pv_monitoring = True
         self._tune_fb_csv_path = tune_csv
         self._pv_dict: dict[str, PV] = {}
@@ -84,7 +84,6 @@ class VirtacServer:
             self._create_feedback_records(feedback_csv, disable_emittance)
         if mirror_csv is not None:
             self._create_mirror_records(mirror_csv)
-        print(f"Finished creating all {len(self._pv_dict)} records.")
 
     def update_pvs(self):
         """The callback function passed to ATSimulator during lattice creation,
@@ -151,6 +150,8 @@ class VirtacServer:
             # we have another bend element, then just register this element with the
             # existing pv. Otherwise create a new PV for the element
             if element.type_.upper() == "BEND" and bend_in_record is not None:
+                # field = element.get_fields()[pytac.SIM][0]
+                # print(element.get_value(field, units=pytac.ENG, data_source=pytac.SIM))
                 bend_in_record.append_pytac_element(element)
             else:
                 for field in element.get_fields()[pytac.SIM]:
@@ -405,6 +406,7 @@ class VirtacServer:
                 "start-up, please provide one now; i.e. "
                 "server.start_tune_feedback('<path_to_csv>')"
             )
+        self.tune_feedback_enabled = True
         with open(self._tune_fb_csv_path) as f:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
@@ -420,7 +422,6 @@ class VirtacServer:
                     old_offset_record._record,
                 )
                 self._pv_dict[line["offset_pv"]] = new_offset_record
-                print(f"{line['offset_pv']}, {new_offset_record}")
                 set_record.set_tune_feedback_enabled(True)
                 set_record.attach_offset_record(new_offset_record)
 
@@ -480,7 +481,54 @@ class VirtacServer:
             logging.warning("PV monitoring is already enabled, nothing to do.")
         else:
             logging.info("Enabling PV monitoring")
-            for _, pv in self._pv_dict.items():
+            for pv in self._pv_dict.values():
                 if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
                     pv.toggle_monitoring(True)
             self._pv_monitoring = True
+
+    def print_virtac_stats(self, verbosity=0):
+        """Print helpful statistics based on passed verbosity level"""
+        total_num_pvs = len(self._pv_dict)
+        num_ca_pvs = num_pvs = num_direct_pvs = num_monitor_pvs = num_collation_pvs = (
+            num_inverse_pvs
+        ) = num_summation_pvs = num_refresh_pvs = 0
+        for pv in self._pv_dict.values():
+            if type(pv) is CaPV:
+                num_ca_pvs += 1
+            elif type(pv) is PV:
+                num_pvs += 1
+            elif type(pv) is DirectPV:
+                num_direct_pvs += 1
+            elif type(pv) is MonitorPV:
+                num_monitor_pvs += 1
+            elif type(pv) is CollationPV:
+                num_collation_pvs += 1
+            elif type(pv) is InversePV:
+                num_inverse_pvs += 1
+            elif type(pv) is SummationPV:
+                num_summation_pvs += 1
+            elif type(pv) is RefreshPV:
+                num_refresh_pvs += 1
+
+        print("Virtac stats:")
+        print(
+            f"\t Tune feedbacks is "
+            f"{('enabled' if self.tune_feedback_enabled else 'disabled')}"
+        )
+        print(
+            f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
+        )
+        print(f"\t Total pvs: {total_num_pvs}")
+        print(f"\t\t CA pvs: {num_ca_pvs}")
+        print(f"\t\t PV pvs: {num_pvs}")
+        print(f"\t\t Direct pvs: {num_direct_pvs}")
+        print(f"\t\t Monitor pvs: {num_monitor_pvs}")
+        print(f"\t\t Collation pvs: {num_collation_pvs}")
+        print(f"\t\t Inverse pvs: {num_inverse_pvs}")
+        print(f"\t\t Summation pvs: {num_summation_pvs}")
+        print(f"\t\t Refresh pvs: {num_refresh_pvs}")
+
+        if verbosity >= 1:
+            print("\tAvailable PVs")
+            for pv in self._pv_dict.values():
+                print(f"\t\t{pv.name}, {type(pv)}")
