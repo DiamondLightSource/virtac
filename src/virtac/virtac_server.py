@@ -1,12 +1,10 @@
 import csv
 import logging
 import typing
-from warnings import warn
 
 import atip
 import numpy
 import pytac
-from cothread.catools import camonitor
 from pytac.device import SimpleDevice
 from pytac.exceptions import FieldException, HandleException
 
@@ -17,6 +15,7 @@ from .pv import (
     DirectPV,
     InversePV,
     MonitorPV,
+    RecordData,
     RefreshPV,
     SummationPV,
 )
@@ -117,33 +116,25 @@ class VirtacServer:
         with the latest values from the simulator.
         """
         logging.debug("Updating output PVs")
-        logging.debug("Building list")
-        things = []
         for name, pv in self._pv_dict.items():
-            if pv.update_lattice:
-                things.append((name, pv))
-        logging.debug("Doing updates")
-        for name, pv in things:
             logging.debug(f"Updating pv {name}")
             if pv.update_lattice:
                 elements, field = pv.get_pytac_data()
-                # elements is a list of pytac lattice elements associated with a pv. The
-                # lattice itself is also considered an element, and can be associated with
-                # pvs.
-                # for element in elements:
-                #     # TODO: Does this make sense? A PV can have multiple elements, but what
-                #     # is the point of looping through them and updating the PVs value to
-                #     # each elements value? Only the last element in the list will have an
-                #     # effect?
+                # A PV can have multiple elements, specifically for the bend magnets,
+                # previously we looped through these elements and updated the record
+                # to the value, but this doesnt make much sense as we are overwriting
+                # ourselves each time. Really there should be a 1 to 1 mapping so that
+                # each element and each field has its own PV. But currently we just have
+                # 1 PV for all bends and it takes its value from element[0].
                 try:
                     value = elements[0].get_value(
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
                     logging.debug(f"Update_pvs: {name} to val {value}")
                     pv.set(value)
-                except FieldException:
-                    print("Missing pytac field")
-                    # print(e)
+                except FieldException as e:
+                    # print("Missing pytac field")
+                    print(e)
         logging.debug("Finished updating output PVs")
 
     def _create_records(self, limits_csv, disable_emittance):
@@ -195,8 +186,7 @@ class VirtacServer:
                             get_pv_name, (None, None, None, None, None, None)
                         )
                     )
-                    in_pv = PV(get_pv_name)
-                    in_pv.create_softioc_record(
+                    record_data = RecordData(
                         "ai",
                         lower=lower,
                         upper=upper,
@@ -206,6 +196,7 @@ class VirtacServer:
                         initial_value=value,
                         scan=refresh,
                     )
+                    in_pv = PV(get_pv_name, record_data)
                     in_pv.append_pytac_element(element)
                     in_pv.set_pytac_field(field)
                     in_pv.update_lattice = True
@@ -221,8 +212,7 @@ class VirtacServer:
                                 get_pv_name, (None, None, None, None, None, None)
                             )
                         )
-                        out_pv = DirectPV(set_pv_name, in_pv)
-                        out_pv.create_softioc_record(
+                        record_data = RecordData(
                             "ao",
                             lower=lower,
                             upper=upper,
@@ -230,7 +220,9 @@ class VirtacServer:
                             drive_high=drive_high,
                             drive_low=drive_low,
                             initial_value=value,
+                            always_update=True,
                         )
+                        out_pv = DirectPV(set_pv_name, record_data, in_pv)
                         # out_pv.append_pytac_element(element)
                         # out_pv.set_pytac_field(field)
 
@@ -253,8 +245,7 @@ class VirtacServer:
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
-                in_pv = PV(get_pv_name)
-                in_pv.create_softioc_record(
+                record_data = RecordData(
                     "ai",
                     lower=lower,
                     upper=upper,
@@ -262,6 +253,7 @@ class VirtacServer:
                     scan=refresh,
                     initial_value=value,
                 )
+                in_pv = PV(get_pv_name, record_data)
                 in_pv.append_pytac_element(self.lattice)
                 in_pv.set_pytac_field(field)
                 in_pv.update_lattice = True
@@ -297,12 +289,12 @@ class VirtacServer:
         if not disable_emittance:
             # Special case: EMIT STATUS for the vertical emittance feedback
             name = "SR-DI-EMIT-01:STATUS"
-            emit_status_pv = PV(name)
-            emit_status_pv.create_softioc_record(
+            record_data = RecordData(
                 "mbbi",
                 zrvl=0,
                 zrst="Successful",
             )
+            emit_status_pv = PV(name, record_data)
             self._pv_dict[name] = emit_status_pv
 
     def _create_feedback_or_bba_records_from_csv(self, csv_file):
@@ -334,9 +326,9 @@ class VirtacServer:
                         f"{line['value']}"
                     ) from exc
                 else:
-                    pv = PV(name)
+                    record_data = RecordData(line["record_type"], initial_value=val)
+                    pv = PV(name, record_data)
                     # TODO: Add some checks of csv data here?
-                    pv.create_softioc_record(line["record_type"], initial_value=val)
                     pv.set_pytac_field(line["field"])
                     pv.append_pytac_element(self.lattice[int(line["index"]) - 1])
                     self._pv_dict[name] = pv
@@ -396,27 +388,17 @@ class VirtacServer:
                     ) from exc
                 else:
                     out_pv_name = line["out_pv"]
+                    record_data = RecordData(
+                        line["output_type"], initial_value=val, scan=line["refresh"]
+                    )
                     if line["mirror_type"] == "basic":
-                        output_pv = MonitorPV(out_pv_name, input_records)
-                        output_pv.create_softioc_record(
-                            line["output_type"], initial_value=val, scan=line["refresh"]
-                        )
+                        output_pv = MonitorPV(out_pv_name, record_data, input_records)
                     elif line["mirror_type"] == "inverse":
-                        output_pv = InversePV(out_pv_name, input_records)
-                        output_pv.create_softioc_record(
-                            line["output_type"], initial_value=val, scan=line["refresh"]
-                        )
+                        output_pv = InversePV(out_pv_name, record_data, input_records)
                     elif line["mirror_type"] == "summate":
-                        output_pv = SummationPV(out_pv_name, input_records)
-                        output_pv.create_softioc_record(
-                            line["output_type"], initial_value=val, scan=line["refresh"]
-                        )
+                        output_pv = SummationPV(out_pv_name, record_data, input_records)
                     elif line["mirror_type"] == "collate":
-                        # print(out_pv_name, input_records, val)
-                        output_pv = CollationPV(out_pv_name, input_records)
-                        output_pv.create_softioc_record(
-                            line["output_type"], initial_value=val, scan=line["refresh"]
-                        )
+                        output_pv = CollationPV(out_pv_name, record_data, input_records)
                     else:
                         raise TypeError(
                             f"{line['mirror type']} is not a valid mirror type; please "
@@ -461,8 +443,9 @@ class VirtacServer:
                     old_offset_record._record,
                 )
                 self._pv_dict[line["offset_pv"]] = new_offset_record
+                print(f"{line['offset_pv']}, {new_offset_record}")
+                set_record.set_tune_feedback_enabled(True)
                 set_record.attach_offset_record(new_offset_record)
-                set_record.set_tune_feedback_status(True)
 
     # Needs fixing from refactor
     def set_feedback_record(self, index, field, value):
