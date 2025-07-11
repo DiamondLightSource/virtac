@@ -36,32 +36,9 @@ class VirtacServer:
     .. Private Attributes:
            _pv_monitoring (bool): Whether the mirrored PVs are being monitored.
            _tune_fb_csv_path (str): The path to the tune feedback .csv file.
-           _in_records (dict): A dictionary containing all the created in
-                                records, a list of associated element indexes and
-                                Pytac field, i.e. {in_record: [[index], field]}.
-           _out_records (dict): A dictionary containing the names of all the
-                                 created out records and their associated in
-                                 records, i.e. {out_record.name: in_record}.
-           _rb_only_records (list): A list of all the in records that do not
-                                     have an associated out record.
-           _feedback_records (dict): A dictionary containing all the feedback
-                                      related records, in the same format as
-                                      _in_records because they are all readback
-                                      only.
-           _mirrored_records (dict): A dictionary containing the PVs that the
-                                      mirrored records monitor for a change
-                                      and the associated mirror, in the form
-                                      {monitored PV: mirror record/object}.
-           _monitored_pvs (dict): A dictionary of all the PVs that are being
-                                   monitored for a change and the associated
-                                   camonitor object, in the form
-                                   {monitored PV: camonitor object}.
-           _offset_pvs (dict): A dictionary of the PVs to apply offset to and
-                                their associated offset records from which to
-                                get the offset from.
-            _record_names (dict[str: softioc.builder.record]): A dictonary
-                                containing the name of every pv created by the
-                                virtual accelerator and the pv object itself.
+           _pv_dict (dict): A dictionary containing every PV created by the virtac
+           with the PV name as the key and PV object as the item in a 1 to 1 mapping.
+
     """
 
     def __init__(
@@ -96,7 +73,7 @@ class VirtacServer:
         """
         self.lattice = atip.utils.loader(ring_mode, self.update_pvs, disable_emittance)
         self.tune_feedback_status = False
-        self._pv_monitoring = False
+        self._pv_monitoring = True
         self._tune_fb_csv_path = tune_csv
         self._pv_dict: dict[str, PV] = {}
         print("Starting record creation.")
@@ -369,7 +346,7 @@ class VirtacServer:
                         input_records.append(self._pv_dict[pv])
                     except KeyError:
                         # If not owned by us, then we get it from CA
-                        input_records.append(CaPV(pv, pv))
+                        input_records.append(CaPV(pv))
                 # Update the mirror dictionary.
                 try:
                     # Waveform records may have values stored as a list such as: [5 1 3]
@@ -483,3 +460,27 @@ class VirtacServer:
                     f"Simulated element {self.lattice[index]} does not have "
                     f"field {field}."
                 ) from exc
+
+    def disable_monitoring(self):
+        """Disable monitoring for all MonitorPV derived PVs. This will disable
+        tune feedback and vertical emittance feedback"""
+        if not self._pv_monitoring:
+            logging.warning("PV monitoring is already disabled, nothing to do.")
+        else:
+            logging.info("Disabling PV monitoring")
+            for _, pv in self._pv_dict.items():
+                if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
+                    pv.toggle_monitoring(False)
+            self._pv_monitoring = False
+
+    def enable_monitoring(self):
+        """Enable monitoring for all MonitorPV derived PVs. This will allow
+        tune feedback and vertical emittance feedback to work again"""
+        if self._pv_monitoring:
+            logging.warning("PV monitoring is already enabled, nothing to do.")
+        else:
+            logging.info("Enabling PV monitoring")
+            for _, pv in self._pv_dict.items():
+                if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
+                    pv.toggle_monitoring(True)
+            self._pv_monitoring = True

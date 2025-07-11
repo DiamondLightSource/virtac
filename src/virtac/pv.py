@@ -175,55 +175,61 @@ class DirectPV(PV):
         logging.debug(f"Attaching offset record: {offset_record} to PV: {self.name}")
 
 
-class CaPV(PV):
-    """Uses channel access to get and set an EPICS PV to a value. This PV does not need
-    a softioc record."""
-
-    def __init__(self, name: str, record_data: RecordData, caput_pv_name: str):
-        super().__init__(name, record_data)
-        self._caput_pv_name = caput_pv_name
-
-    def get(self):
-        logging.debug(f"{self.name} caget, value: {caget(self._caput_pv_name)}")
-        return caget(self._caput_pv_name)
-
-    def set(self, value):
-        """
-        Args:
-            value (number): The value to caput to the PV.
-        """
-        print(f"{self.name} Caputting data")
-        return caput(self._caput_pv_name, value)
-
-
 class MonitorPV(PV):
-    """This type of PV monitors one or more PVs and does a callback when one of the
-    monitors returns"""
+    """This type of PV monitors one or more PVs using channal access and does a callback
+    when one of the monitors returns"""
 
     def __init__(
-        self, name, record_data: RecordData, in_records: list[PV], callback=None
+        self, name, record_data: RecordData, monitored_records: list[PV], callbacks=None
     ):
         super().__init__(name, record_data)
-        self._in_records = in_records
-        self._monitor_list: list = []
-        self._camonitor_handle = None
+        self._monitored_records = list(monitored_records)
+        # Stores a list of tuples containing the name of the monitored pv and its
+        # associated callback function
+        self._monitor_list: list[tuple] = []
+        self._camonitor_handles = []
         self._timeout: float
-        if callback is None:
-            callback = self.set
-        self.monitor_pvs(self._in_records, callback)
+        if callbacks is None:
+            callbacks = [self.set]
+        self.monitor_pvs(self._monitored_records, callbacks)
 
-    def monitor_pvs(self, pvs, callback):
-        """Get either a single pv to monitor or a list, configure the function
-        'callback' to be called when they change value."""
-        if len(pvs) >= 1:
-            pv_names = [pv.name for pv in self._in_records]
+    def monitor_pvs(self, pvs: list[PV], callbacks: list):
+        """Get a list of PVs and a list of callbacks. If only a single callback is
+        supplied, then it is used for each PV, if a list of callbacks is supplied, then
+        it must be the same length as the list of pvs"""
+        if len(callbacks) > 1:
+            assert len(pvs) == len(callbacks)
+
+        if len(callbacks) == 1:
+            # Use the same callback for all pvs
+            pv_names = []
+            callback = callbacks[0]
+            for pv in pvs:
+                self._monitor_list.append((pv, callback))
+                pv_names.append(pv.name)
+            self._camonitor_handles.extend(camonitor(pv_names, callback))
         else:
-            # TODO error
-            pass
-        self._monitor_list.extend(pv_names)
-        self._camonitor_handle = camonitor(self._monitor_list, callback)
+            for pv, callback in zip(pvs, callbacks, strict=True):
+                self._monitor_list.append((pv, callback))
+                self._camonitor_handles.append(camonitor(pv.name, callback))
 
-    def set(self, value, index):
+    def toggle_monitoring(self, enable):
+        """Can be used to switch off this PVs monitoring by closing camonitor
+        subscriptions or to re-enable monitoring by recreating the subscriptions."""
+        if enable:
+            logging.debug(f"Enabling monitoring for PV {self.name}")
+            pv_list = []
+            callback_list = []
+            for pv, callback in self._monitor_list:
+                pv_list.append(pv)
+                callback_list.append(callback)
+            self.monitor_pvs(pv_list, callback_list)
+        else:
+            logging.debug(f"Disabling monitoring for PV {self.name}")
+            for handle in self._camonitor_handles:
+                handle.close()
+
+    def set(self, value, index=None):
         # print(f"Monitor callback {self.name} {value}")
         self._record.set(value)
 
@@ -272,11 +278,11 @@ class InversePV(MonitorPV):
     """Used to invert a boolean array waveform 'in_record', ie swap true to false and
     false to true and then save the result in its own waveform _record."""
 
-    def __init__(self, name, record_data: RecordData, in_record: PV):
-        super().__init__(name, record_data, in_record, self.set)
+    def __init__(self, name, record_data: RecordData, in_record: list[PV]):
+        super().__init__(name, record_data, in_record, [self.set])
         self.name = name
 
-    def set(self, value, index):
+    def set(self, value, index=None):
         """An imitation  of the set method of Soft-IOC records, that applies a
         transformation to the value before setting it to the output record.
         """
@@ -290,11 +296,11 @@ class SummationPV(MonitorPV):
     """Sum a list of PV values and set this PVs record to the result"""
 
     def __init__(self, name, record_data: RecordData, in_records: list[PV]):
-        super().__init__(name, record_data, in_records, self.set)
+        super().__init__(name, record_data, in_records, [self.set])
 
-    def set(self, value, index):
+    def set(self, value, index=None):
         """An imitation  of the set method of Soft-IOC records."""
-        value = sum([pv.get() for pv in self._in_records])
+        value = sum([pv.get() for pv in self._monitored_records])
         # print(self._in_records)
         # print(f"{self.name} Summing data, value: {value}")
         self._record.set(value)
@@ -306,7 +312,7 @@ class CollationPV(MonitorPV):
     PV."""
 
     def __init__(self, name, record_data: RecordData, in_records: list[PV]):
-        super().__init__(name, record_data, in_records, self.set_update_required)
+        super().__init__(name, record_data, in_records, [self.set_update_required])
         self._last_update_time = time.time()
         self._update_required = False
         cothread.Spawn(self.periodic_update)
@@ -319,7 +325,7 @@ class CollationPV(MonitorPV):
             else:
                 cothread.Sleep(0.5)
 
-    def set_update_required(self, value, index):
+    def set_update_required(self, value, index=None):
         # print("Camonitor returning")
         self._update_required = True
 
@@ -329,9 +335,29 @@ class CollationPV(MonitorPV):
         # print(f"{self.name} Collating data")
         if time.time() - self._last_update_time < 0.5:
             cothread.Sleep(time.time() - self._last_update_time)
-        value = numpy.array([record.get() for record in self._in_records])
+        value = numpy.array([record.get() for record in self._monitored_records])
         logging.debug("Collate data")
         self._last_update_time = time.time()
         self._record.set(value)
         self._record.set_field("PROC", 1)
         self._update_required = False
+
+
+class CaPV:
+    """Uses channel access to get and set an EPICS PV to a value. This PV does not need
+    a softioc record."""
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def get(self):
+        logging.debug(f"{self.name} caget, value: {caget(self._caput_pv_name)}")
+        return caget(self.name)
+
+    def set(self, value):
+        """
+        Args:
+            value (number): The value to caput to the PV.
+        """
+        print(f"{self.name} Caputting data")
+        return caput(self.name, value)
