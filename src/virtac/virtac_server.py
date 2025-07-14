@@ -141,7 +141,7 @@ class VirtacServer:
                         int(line["precision"]),
                         float(line["drive_high"]),
                         float(line["drive_low"]),
-                        str(line["refresh"]),
+                        str(line["scan"]),
                     )
 
         bend_in_record = None
@@ -159,7 +159,7 @@ class VirtacServer:
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
                     get_pv_name = element.get_pv_name(field, pytac.RB)
-                    upper, lower, precision, drive_high, drive_low, refresh = (
+                    upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
                             get_pv_name, (None, None, None, None, None, None)
                         )
@@ -172,7 +172,7 @@ class VirtacServer:
                         drive_high=drive_high,
                         drive_low=drive_low,
                         initial_value=value,
-                        scan=refresh,
+                        scan=scan,
                     )
                     in_pv = PV(get_pv_name, record_data)
                     in_pv.append_pytac_element(element)
@@ -185,7 +185,7 @@ class VirtacServer:
                     except HandleException:
                         pass
                     else:
-                        upper, lower, precision, drive_high, drive_low, refresh = (
+                        upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
                                 get_pv_name, (None, None, None, None, None, None)
                             )
@@ -217,8 +217,8 @@ class VirtacServer:
             # Ignore basic devices as they do not have PVs.
             if not isinstance(self.lattice.get_device(field), SimpleDevice):
                 get_pv_name = self.lattice.get_pv_name(field, pytac.RB)
-                upper, lower, precision, drive_high, drive_low, refresh = (
-                    limits_dict.get(get_pv_name, (None, None, None, None, None, None))
+                upper, lower, precision, drive_high, drive_low, scan = limits_dict.get(
+                    get_pv_name, (None, None, None, None, None, None)
                 )
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
@@ -228,7 +228,7 @@ class VirtacServer:
                     lower=lower,
                     upper=upper,
                     precision=precision,
-                    scan=refresh,
+                    scan=scan,
                     initial_value=value,
                 )
                 in_pv = PV(get_pv_name, record_data)
@@ -367,7 +367,7 @@ class VirtacServer:
                 else:
                     out_pv_name = line["out_pv"]
                     record_data = RecordData(
-                        line["output_type"], initial_value=val, scan=line["refresh"]
+                        line["output_type"], initial_value=val, scan=line["scan"]
                     )
                     if line["mirror_type"] == "basic":
                         output_pv = MonitorPV(out_pv_name, record_data, input_records)

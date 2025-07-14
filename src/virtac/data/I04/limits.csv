@@ -1,4 +1,4 @@
-pv,upper,lower,precision,drive_high,drive_low,refresh
+pv,upper,lower,precision,drive_high,drive_low,scan
 LI-RF-MOSC-01:FREQ,500000000.0,499000000.0,1,500000000.0,499000000.0,I/O Intr
 LI-RF-MOSC-01:FREQ_SET,499687000.0,499677000.0,1,499687000.0,499677000.0,I/O Intr
 SR-DI-EMIT-01:HEMIT,0.0,0.0,2,0.0,0.0,1 second

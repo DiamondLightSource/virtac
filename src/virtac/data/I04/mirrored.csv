@@ -1,4 +1,4 @@
-output_type,mirror_type,in_pv,out_pv,value,refresh
+output_type,mirror_type,in_pv,out_pv,value,scan
 ai,basic,SR-DI-EMIT-01:HEMIT,SR-DI-EMIT-01:HEMIT_MEAN,2.7047087742475044,I/O Intr
 ai,basic,SR-DI-EMIT-01:VEMIT,SR-DI-EMIT-01:VEMIT_MEAN,0.0,I/O Intr
 ai,basic,SR23C-DI-TMBF-01:X:TUNE:TUNE,SR23C-DI-TMBF-01:TUNE:TUNE,0.18906259278011533,1 second

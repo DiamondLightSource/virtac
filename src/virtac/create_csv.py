@@ -164,7 +164,7 @@ def get_element_pv_data(element, pvs, data):
     lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
     # These pvs need to be configured with their SCAN fields set to 1 second. This is
     # different to the SCAN field in the LIVE pv, so we cant just caget it.
-    refresh_pvs = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
+    scan_pvs = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
     for field in lat_fields:
         if not isinstance(element.get_device(field), pytac.device.SimpleDevice):
             pv = element.get_pv_name(field, pytac.RB)
@@ -179,7 +179,7 @@ def get_element_pv_data(element, pvs, data):
                         ctrl.precision,
                         ctrl.upper_disp_limit,
                         ctrl.lower_disp_limit,
-                        "1 second" if pv in refresh_pvs else "I/O Intr",
+                        "1 second" if pv in scan_pvs else "I/O Intr",
                     )
                 )
                 try:
@@ -196,7 +196,7 @@ def get_element_pv_data(element, pvs, data):
                             ctrl.precision,
                             ctrl.upper_disp_limit,
                             ctrl.lower_disp_limit,
-                            "1 second" if pv in refresh_pvs else "I/O Intr",
+                            "1 second" if pv in scan_pvs else "I/O Intr",
                         )
                     )
 
@@ -210,7 +210,7 @@ def generate_pv_limits(lattice):
         machine
     """
     data: list[tuple] = [
-        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "refresh")
+        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")
     ]
     pvs: list[str] = []
     caget_handles: list[cothread.Spawn] = []
@@ -256,12 +256,12 @@ def generate_mirrored_pvs(lattice):
     value:
         The inital value of the output record.
 
-    refresh:
+    scans:
         Whether the out_pv should have its softioc record's SCAN field set to
         '1 second' which will cause it to process every second.
     """
     data: list[tuple] = [
-        ("output_type", "mirror_type", "in_pv", "out_pv", "value", "refresh")
+        ("output_type", "mirror_type", "in_pv", "out_pv", "value", "scan")
     ]
     # Tune PV aliases.
     tune = [
