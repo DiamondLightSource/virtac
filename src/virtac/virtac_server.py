@@ -413,6 +413,9 @@ class VirtacServer:
                 set_record = self._pv_dict[line["set_pv"]]
                 old_offset_record = self._pv_dict[line["offset_pv"]]
                 elements, field = old_offset_record.get_pytac_data()
+                # we are overwriting the old_offset_record with the new one which has
+                # the additional tunefb stuff, idk if this is how we should be doing it
+                # or not
                 new_offset_record = RefreshPV(
                     line["offset_pv"],
                     line["delta_pv"],
@@ -498,7 +501,8 @@ class VirtacServer:
                 "num_inverse_pvs",
                 "num_summation_pvs",
                 "num_refresh_pvs",
-            ]
+            ],
+            0,
         )
         total_num_pvs = len(self._pv_dict)
         for pv in self._pv_dict.values():

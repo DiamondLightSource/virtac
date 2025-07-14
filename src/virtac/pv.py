@@ -119,12 +119,12 @@ class PV:
     def get(self):
         return self._record.get()
 
-    def set(self, value):
+    def set(self, value, index=None):
         """
         Args:
             value (number): The value to set to the PV.
         """
-        logging.debug(f"PV setter: {self.name} changed to: {value}")
+        logging.debug(f"PV: {self.name} changed to: {value}")
         return self._record.set(value)
 
 
@@ -230,15 +230,11 @@ class MonitorPV(PV):
             for handle in self._camonitor_handles:
                 handle.close()
 
-    def set(self, value, index=None):
-        # print(f"Monitor callback {self.name} {value}")
-        self._record.set(value)
-
 
 class RefreshPV(PV):
     """This record is currently very convoluted and needs refactoring. Currently we
     hijack an already created PV and steal its data and then replace it in the pv
-    dictionary. The actualy functionality of this pv is: we monitor the monitor_record
+    dictionary. The actual functionality of this pv is: we monitor the monitor_record
     and when it changes, we update this record with the value returned and then poke
     a third record, the refresh_record, which then processes, during which it will
     get the value stored in this record as part of its update."""
@@ -298,9 +294,9 @@ class SummationPV(MonitorPV):
     """Sum a list of PV values and set this PVs record to the result"""
 
     def __init__(self, name, record_data: RecordData, in_records: list[PV]):
-        super().__init__(name, record_data, in_records, [self.set])
+        super().__init__(name, record_data, in_records, [self.summate])
 
-    def set(self, value, index=None):
+    def summate(self, value, index=None):
         """An imitation  of the set method of Soft-IOC records."""
         value = sum([pv.get() for pv in self._monitored_records])
         # print(self._in_records)
@@ -321,9 +317,8 @@ class CollationPV(MonitorPV):
 
     def periodic_update(self):
         while True:
-            # print("Running periodic task")
             if self._update_required:
-                self.set()
+                self.collate()
             else:
                 cothread.Sleep(0.5)
 
@@ -331,14 +326,12 @@ class CollationPV(MonitorPV):
         # print("Camonitor returning")
         self._update_required = True
 
-    def set(self):
+    def collate(self):
         """An imitation of the set method of Soft-IOC records."""
-        # Temporary limit to stop this updating when every in_record updates
-        # print(f"{self.name} Collating data")
+        logging.debug("Collating data")
         if time.time() - self._last_update_time < 0.5:
             cothread.Sleep(time.time() - self._last_update_time)
         value = numpy.array([record.get() for record in self._monitored_records])
-        logging.debug("Collate data")
         self._last_update_time = time.time()
         self._record.set(value)
         self._record.set_field("PROC", 1)
@@ -356,7 +349,7 @@ class CaPV:
         logging.debug(f"{self.name} caget, value: {caget(self._caput_pv_name)}")
         return caget(self.name)
 
-    def set(self, value):
+    def set(self, value, index=None):
         """
         Args:
             value (number): The value to caput to the PV.
