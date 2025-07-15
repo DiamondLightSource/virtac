@@ -12,7 +12,7 @@ from pytac.exceptions import FieldException, HandleException
 from softioc import builder
 
 from .masks import caget_mask, callback_offset, callback_set, caput_mask
-from .mirror_objects import collate, refresher, summate, transform
+from .mirror_objects import collate, summate, transform
 
 
 class VirtacServer:
@@ -387,11 +387,10 @@ class VirtacServer:
                 # Parse arguments.
                 input_pvs = line["in_pv"].split(", ")
                 if (len(input_pvs) > 1) and (
-                    line["mirror_type"] in ["basic", "inverse", "refresh"]
+                    line["mirror_type"] in ["basic", "inverse"]
                 ):
                     raise IndexError(
-                        "Transformation, refresher, and basic mirror "
-                        "types take only one input PV."
+                        "Transformation and basic mirror types take only one input PV."
                     )
                 elif (len(input_pvs) < 2) and (
                     line["mirror_type"] in ["collate", "summate"]
@@ -462,14 +461,11 @@ class VirtacServer:
                     collation_object = collate(input_records, output_record)
                     for pv in monitor:
                         self._mirrored_records[pv].append(collation_object)
-                elif line["mirror type"] == "refresh":
-                    refresh_object = refresher(self, line["out"])
-                    self._mirrored_records[pv].append(refresh_object)
                 else:
                     raise TypeError(
                         f"{line['mirror_type']} is not a valid mirror type; please "
                         "enter a currently supported type from: 'basic', 'summate', "
-                        "'collate', 'inverse', and 'refresh'."
+                        "'collate' and 'inverse'."
                     )
             mirrored_records = []
             for rec_list in self._mirrored_records.values():
