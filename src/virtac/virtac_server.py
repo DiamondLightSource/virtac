@@ -385,16 +385,16 @@ class VirtacServer:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
                 # Parse arguments.
-                input_pvs = line["in"].split(", ")
+                input_pvs = line["in_pv"].split(", ")
                 if (len(input_pvs) > 1) and (
-                    line["mirror type"] in ["basic", "inverse", "refresh"]
+                    line["mirror_type"] in ["basic", "inverse", "refresh"]
                 ):
                     raise IndexError(
                         "Transformation, refresher, and basic mirror "
                         "types take only one input PV."
                     )
                 elif (len(input_pvs) < 2) and (
-                    line["mirror type"] in ["collate", "summate"]
+                    line["mirror_type"] in ["collate", "summate"]
                 ):
                     raise IndexError(
                         "collation and summation mirror types take at least two input "
@@ -409,44 +409,56 @@ class VirtacServer:
                     except KeyError:
                         input_records.append(caget_mask(pv))
                 # Create output record.
-                prefix, suffix = line["out"].split(":", 1)
+                prefix, suffix = line["out_pv"].split(":", 1)
                 builder.SetDeviceName(prefix)
-                if line["mirror type"] == "refresh":
+                if line["mirror_type"] == "refresh":
                     # Refresh records come first as do not require an output record
                     pass
-                elif line["output type"] == "caput":
-                    output_record = caput_mask(line["out"])
-                elif line["output type"] == "aIn":
+                elif line["output_type"] == "caput":
+                    output_record = caput_mask(line["out_pv"])
+                elif line["output_type"] == "ai":
                     value = float(line["value"])
-                    output_record = builder.aIn(suffix, initial_value=value, MDEL="-1")
-                elif line["output type"] == "longIn":
+                    output_record = builder.aIn(
+                        suffix,
+                        initial_value=value,
+                        MDEL="-1",
+                        SCAN=line["scan"],
+                    )
+                elif line["output_type"] == "longIn":
                     value = int(line["value"])
                     output_record = builder.longIn(
-                        suffix, initial_value=value, MDEL="-1"
+                        suffix,
+                        initial_value=value,
+                        MDEL="-1",
+                        SCAN=line["scan"],
                     )
-                elif line["output type"] == "Waveform":
+                elif line["output_type"] == "wfm":
                     value = numpy.asarray(line["value"][1:-1].split(" "), dtype=float)
-                    output_record = builder.Waveform(suffix, initial_value=value)
+                    output_record = builder.Waveform(
+                        suffix,
+                        initial_value=value,
+                        SCAN=line["scan"],
+                    )
                 else:
                     raise TypeError(
-                        f"{line['output type']} isn't a supported mirroring output "
+                        f"{line['output_type']} isn't a supported mirroring output "
                         "type; please enter 'caput', 'aIn', 'longIn', or 'Waveform'."
                     )
                 # Update the mirror dictionary.
                 for pv in monitor:
                     if pv not in self._mirrored_records:
                         self._mirrored_records[pv] = []
-                if line["mirror type"] == "basic":
+                if line["mirror_type"] == "basic":
                     self._mirrored_records[monitor[0]].append(output_record)
-                elif line["mirror type"] == "inverse":
+                elif line["mirror_type"] == "inverse":
                     # Other transformation types are not yet supported.
                     transformation = transform(numpy.invert, output_record)
                     self._mirrored_records[monitor[0]].append(transformation)
-                elif line["mirror type"] == "summate":
+                elif line["mirror_type"] == "summate":
                     summation_object = summate(input_records, output_record)
                     for pv in monitor:
                         self._mirrored_records[pv].append(summation_object)
-                elif line["mirror type"] == "collate":
+                elif line["mirror_type"] == "collate":
                     collation_object = collate(input_records, output_record)
                     for pv in monitor:
                         self._mirrored_records[pv].append(collation_object)
@@ -455,7 +467,7 @@ class VirtacServer:
                     self._mirrored_records[pv].append(refresh_object)
                 else:
                     raise TypeError(
-                        f"{line['mirror type']} is not a valid mirror type; please "
+                        f"{line['mirror_type']} is not a valid mirror type; please "
                         "enter a currently supported type from: 'basic', 'summate', "
                         "'collate', 'inverse', and 'refresh'."
                     )
