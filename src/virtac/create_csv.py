@@ -161,7 +161,10 @@ def generate_pv_limits(lattice):
         lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
         machine
     """
-    data = [("pv", "upper", "lower", "precision", "drive high", "drive low")]
+    data: list[tuple] = [
+        ("pv", "upper", "lower", "precision", "drive high", "drive low")
+    ]
+    pvs: str = []
     all_elements = list(lattice)
     all_elements.insert(0, lattice)
     for element in all_elements:
@@ -170,27 +173,13 @@ def generate_pv_limits(lattice):
         lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
         for field in lat_fields:
             if not isinstance(element.get_device(field), pytac.device.SimpleDevice):
-                pv = element.get_pv_name(field, pytac.RB)
-                ctrl = caget(pv, format=FORMAT_CTRL)
-                data.append(
-                    (
-                        pv,
-                        ctrl.upper_ctrl_limit,
-                        ctrl.lower_ctrl_limit,
-                        ctrl.precision,
-                        ctrl.upper_disp_limit,
-                        ctrl.lower_disp_limit,
-                    )
-                )
-                try:
-                    pv = element.get_pv_name(field, pytac.SP)
-                except pytac.exceptions.HandleException:
-                    pass
-                else:
-                    ctrl = caget(pv, format=FORMAT_CTRL)
+                rb_pv = element.get_pv_name(field, pytac.RB)
+                if rb_pv not in pvs:
+                    pvs.append(rb_pv)
+                    ctrl = caget(rb_pv, format=FORMAT_CTRL)
                     data.append(
                         (
-                            pv,
+                            rb_pv,
                             ctrl.upper_ctrl_limit,
                             ctrl.lower_ctrl_limit,
                             ctrl.precision,
@@ -198,6 +187,24 @@ def generate_pv_limits(lattice):
                             ctrl.lower_disp_limit,
                         )
                     )
+                    try:
+                        sp_pv = element.get_pv_name(field, pytac.SP)
+                    except pytac.exceptions.HandleException:
+                        pass
+                    else:
+                        if sp_pv not in pvs:
+                            pvs.append(sp_pv)
+                            ctrl = caget(sp_pv, format=FORMAT_CTRL)
+                            data.append(
+                                (
+                                    sp_pv,
+                                    ctrl.upper_ctrl_limit,
+                                    ctrl.lower_ctrl_limit,
+                                    ctrl.precision,
+                                    ctrl.upper_disp_limit,
+                                    ctrl.lower_disp_limit,
+                                )
+                            )
     return data
 
 
