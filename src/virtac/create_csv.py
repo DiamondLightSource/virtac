@@ -162,11 +162,14 @@ def generate_pv_limits(lattice):
         machine
     """
     data: list[tuple] = [
-        ("pv", "upper", "lower", "precision", "drive high", "drive low")
+        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")
     ]
     pvs: str = []
     all_elements = list(lattice)
     all_elements.insert(0, lattice)
+    # These pvs need to be configured with their SCAN fields set to 1 second. This is
+    # different to the SCAN field in the LIVE pv, so we cant just caget it.
+    refresh_pvs = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
     for element in all_elements:
         lat_fields = element.get_fields()
         # Only get the fields that exist in the LIVE and SIM pytac lattices
@@ -185,6 +188,7 @@ def generate_pv_limits(lattice):
                             ctrl.precision,
                             ctrl.upper_disp_limit,
                             ctrl.lower_disp_limit,
+                            "1 second" if rb_pv in refresh_pvs else "I/O Intr",
                         )
                     )
                     try:
@@ -203,6 +207,7 @@ def generate_pv_limits(lattice):
                                     ctrl.precision,
                                     ctrl.upper_disp_limit,
                                     ctrl.lower_disp_limit,
+                                    "1 second" if sp_pv in refresh_pvs else "I/O Intr",
                                 )
                             )
     return data
