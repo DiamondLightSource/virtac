@@ -74,6 +74,7 @@ nitpick_ignore = [
     ("py:class", "number"),
     ("py:class", "pythonSoftIoc.RecordWrapper"),
     ("py:class", "pytac.lattice.Lattice"),
+    ("py:class", "pytac.lattice.Element"),
     ("py:exc", "pytac.FieldException"),
     ("py:exc", "pytac.ControlSystemException"),
     ("py:exc", "pytac.HandleException"),
