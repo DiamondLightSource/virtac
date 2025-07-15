@@ -160,10 +160,10 @@ def get_element_pv_data(element, pvs, data):
 
     Args:
         element (pytac.lattice.Element | pytac.lattice.Lattice): An element of the pytac
-        lattice or the lattice itself
+            lattice or the lattice itself
         pvs (list[str]): A list of pv names which we have already found
         data (list[tuple]): A list of tuples, with each tuple being a collection of data
-        about one pv.
+            about one pv.
     """
     lat_fields = element.get_fields()
     lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
@@ -213,7 +213,7 @@ def generate_pv_limits(lattice):
 
     Args:
         lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
-        machine
+            machine
     """
     data: list[tuple] = [
         ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")
