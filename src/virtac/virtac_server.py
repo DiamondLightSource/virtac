@@ -37,7 +37,9 @@ class VirtacServer:
            _pv_monitoring (bool): Whether the mirrored PVs are being monitored.
            _tune_fb_csv_path (str): The path to the tune feedback .csv file.
            _pv_dict (dict): A dictionary containing every PV created by the virtac
-           with the PV name as the key and PV object as the item in a 1 to 1 mapping.
+                with the PV name as the key and PV object as the item in a 1 to 1 mapping.
+           _readback_pvs_dict (dict): A dictionary containing the subset of pvs from
+                _pv_dict which need updating whenever the pytac lattice changes.
 
     """
 
@@ -76,6 +78,9 @@ class VirtacServer:
         self._pv_monitoring = True
         self._tune_fb_csv_path = tune_csv
         self._pv_dict: dict[str, PV] = {}
+        # This dict contains all the PVs which have a pytac lattice element and need to
+        # be updated whenever the lattice updates
+        self._readback_pvs_dict: dict[str, PV] = {}
         print("Starting record creation.")
         self._create_records(limits_csv, disable_emittance)
         if bba_csv is not None:
@@ -85,6 +90,10 @@ class VirtacServer:
         if mirror_csv is not None:
             self._create_mirror_records(mirror_csv)
 
+        for name, pv in self._pv_dict.items():
+            if pv.update_lattice:
+                self._readback_pvs_dict[name] = pv
+
     def update_pvs(self):
         """The callback function passed to ATSimulator during lattice creation,
         it is called each time a calculation of physics data is completed. It
@@ -92,25 +101,21 @@ class VirtacServer:
         with the latest values from the simulator.
         """
         logging.debug("Updating output PVs")
-        for name, pv in self._pv_dict.items():
+        for name, pv in self._readback_pvs_dict.items():
             logging.debug(f"Updating pv {name}")
-            if pv.update_lattice:
-                elements, field = pv.get_pytac_data()
-                # A PV can have multiple elements, specifically for the bend magnets,
-                # previously we looped through these elements and updated the record
-                # to the value, but this doesnt make much sense as we are overwriting
-                # ourselves each time. Really there should be a 1 to 1 mapping so that
-                # each element and each field has its own PV. But currently we just have
-                # 1 PV for all bends and it takes its value from element[0].
-                try:
-                    value = elements[0].get_value(
-                        field, units=pytac.ENG, data_source=pytac.SIM
-                    )
-                    logging.debug(f"Update_pvs: {name} to val {value}")
-                    pv.set(value)
-                except FieldException as e:
-                    # print("Missing pytac field")
-                    print(e)
+            elements, field = pv.get_pytac_data()
+            # A PV can have multiple elements, specifically for the bend magnets.
+            # Currently we just have 1 PV for all bends and it takes its value from
+            # element[0]. This could be a target for future improvement.
+            try:
+                value = elements[0].get_value(
+                    field, units=pytac.ENG, data_source=pytac.SIM
+                )
+                logging.debug(f"Update_pvs: {name} to val {value}")
+                pv.set(value)
+            except FieldException as e:
+                # print("Missing pytac field")
+                print(e)
         logging.debug("Finished updating output PVs")
 
     def _create_records(self, limits_csv, disable_emittance):
@@ -150,8 +155,6 @@ class VirtacServer:
             # we have another bend element, then just register this element with the
             # existing pv. Otherwise create a new PV for the element
             if element.type_.upper() == "BEND" and bend_in_record is not None:
-                # field = element.get_fields()[pytac.SIM][0]
-                # print(element.get_value(field, units=pytac.ENG, data_source=pytac.SIM))
                 bend_in_record.append_pytac_element(element)
             else:
                 for field in element.get_fields()[pytac.SIM]:
@@ -422,13 +425,13 @@ class VirtacServer:
                     set_record,
                     elements,
                     field,
-                    old_offset_record._record,
+                    old_offset_record.get_record(),
                 )
                 self._pv_dict[line["offset_pv"]] = new_offset_record
                 set_record.set_tune_feedback_enabled(True)
                 set_record.attach_offset_record(new_offset_record)
 
-    # Needs fixing from refactor
+    # Needs fixing from refactor, is this function needed?
     def set_feedback_record(self, index, field, value):
         """Set a value to the feedback in records.
 
@@ -465,6 +468,7 @@ class VirtacServer:
                     f"field {field}."
                 ) from exc
 
+    # Is this needed? It essentially just pauses a subset of the virtacs functionality
     def disable_monitoring(self):
         """Disable monitoring for all MonitorPV derived PVs. This will disable
         tune feedback and vertical emittance feedback"""

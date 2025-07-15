@@ -21,7 +21,7 @@ class RecordData:
     drive_low: str | None = None
     zrvl: str | None = None
     zrst: str | None = None
-    scan: str | None = "I/O Intr"
+    scan: str = "I/O Intr"
     always_update: str | None = False
     initial_value: int | float | numpy.typing.NDArray = 0
 
@@ -37,6 +37,8 @@ class PV:
         self._record = None
         self._pytac_elements: list = []
         self._pytac_field = None
+        # Any PV with update_lattice as true, will have its value updated when the pytac
+        # lattice is updated
         self.update_lattice = False
         if record_data is not None:
             self.create_softioc_record(record_data)
@@ -65,6 +67,10 @@ class PV:
     def set_pytac_field(self, field):
         self._pytac_field = field
 
+    def get_record(self):
+        """Return this PVs softioc record."""
+        return self._record
+
     def set_record_field(self, field, value):
         self._record.set_field(field, value)
 
@@ -79,7 +85,6 @@ class PV:
                 PREC=record_data.precision,
                 LOPR=record_data.lower,
                 HOPR=record_data.upper,
-                MDEL="-1",
                 SCAN=record_data.scan,
                 initial_value=record_data.initial_value,
             )
@@ -91,7 +96,6 @@ class PV:
                 DRVH=record_data.drive_high,
                 DRVL=record_data.drive_low,
                 HOPR=record_data.upper,
-                MDEL="-1",
                 initial_value=record_data.initial_value,
                 always_update=record_data.always_update,
                 on_update_name=self._on_update,
@@ -232,8 +236,9 @@ class MonitorPV(PV):
 
 
 class RefreshPV(PV):
-    """This record is currently very convoluted and needs refactoring. Currently we
-    hijack an already created PV and steal its data and then replace it in the pv
+    """This record is currently quite convoluted and the logic probably wants
+    redesigning. Currently we hijack an already created PV and steal its data and then
+    replace it in the pv
     dictionary. The actual functionality of this pv is: we monitor the monitor_record
     and when it changes, we update this record with the value returned and then poke
     a third record, the refresh_record, which then processes, during which it will
@@ -249,26 +254,21 @@ class RefreshPV(PV):
         record,
     ):
         super().__init__(name, None)
-        # TODO: We steal an already created record from a previously made PV and then
-        # replace that pv when we should only need to create this PV once.
         self._record = record
         self._pytac_field = pytac_field
         self._pytac_elements = pytac_elements
         self._refresh_record = refresh_record
-        camonitor(monitor_record, self.set)
+        camonitor(monitor_record, self.refresh)
 
-    def set(self, value):
+    def refresh(self, value):
         """An imitation  of the set method of Soft-IOC records, that applies a
         transformation to the value before setting it to the output record.
         """
         logging.debug(
             f"Setting refresh record: {self.name} to {value} and prodding "
-            f"{self._refresh_record._record.name} to process "
+            f"{self._refresh_record.name} to process "
         )
-        # print(f"{self.name} Refreshing quad")
-        # print(f"Setting PV {self.name} to {value}")
         self._record.set(value)
-        # print(f"{self._refresh_record._record} Proccing SETI PV")
         self._refresh_record._record.set_field("PROC", 1)
 
 
@@ -277,10 +277,10 @@ class InversePV(MonitorPV):
     false to true and then save the result in its own waveform _record."""
 
     def __init__(self, name, record_data: RecordData, in_record: list[PV]):
-        super().__init__(name, record_data, in_record, [self.set])
+        super().__init__(name, record_data, in_record, [self.invert])
         self.name = name
 
-    def set(self, value, index=None):
+    def invert(self, value, index=None):
         """An imitation  of the set method of Soft-IOC records, that applies a
         transformation to the value before setting it to the output record.
         """
@@ -298,9 +298,8 @@ class SummationPV(MonitorPV):
 
     def summate(self, value, index=None):
         """An imitation  of the set method of Soft-IOC records."""
+        logging.debug("Summing data")
         value = sum([pv.get() for pv in self._monitored_records])
-        # print(self._in_records)
-        # print(f"{self.name} Summing data, value: {value}")
         self._record.set(value)
 
 
@@ -323,7 +322,6 @@ class CollationPV(MonitorPV):
                 cothread.Sleep(0.5)
 
     def set_update_required(self, value, index=None):
-        # print("Camonitor returning")
         self._update_required = True
 
     def collate(self):
