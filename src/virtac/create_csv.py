@@ -5,17 +5,13 @@ default EPICS port for the live machine not 8064.
 import argparse
 import csv
 import os
+import sys
 
 import atip
 import cothread
 import numpy
 import pytac
 from cothread.catools import FORMAT_CTRL, caget
-
-# Set the default string printing options for numpy arrays so that they are properly
-# formatted when outputting them to the csv file
-numpy.set_printoptions(threshold=100000)
-numpy.set_printoptions(linewidth=100000)
 
 
 def generate_feedback_pvs(all_elements, lattice):
@@ -464,6 +460,11 @@ def parse_arguments():
 
 
 if __name__ == "__main__":
+    # Set the default string printing options for numpy arrays so that they are properly
+    # formatted when outputting them to the csv file
+    numpy.set_printoptions(threshold=sys.maxsize)
+    numpy.set_printoptions(linewidth=100000)
+
     args = parse_arguments()
     lattice = atip.utils.loader(args.ring_mode)
     all_elements = atip.utils.preload(lattice)
@@ -482,3 +483,6 @@ if __name__ == "__main__":
     print("Creating tune PVs CSV file.")
     data = generate_tune_pvs(lattice)
     write_data_to_file(data, args.tune, args.ring_mode)
+
+    numpy.set_printoptions(threshold=1000)
+    numpy.set_printoptions(linewidth=75)
