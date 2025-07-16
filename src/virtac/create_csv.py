@@ -13,15 +13,18 @@ import numpy
 import pytac
 from cothread.catools import FORMAT_CTRL, caget
 
+# Type alias for data to be stored in VIRTAC csv files
+CSVData = list[tuple[str | int, ...]]
 
-def generate_feedback_pvs(all_elements, lattice):
+
+def generate_feedback_pvs(all_elements, lattice: pytac.lattice.Lattice) -> CSVData:
     """Get feedback pvs. Also get families for tune feedback
     Args:
         all_elements (list): a list of elements
         lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
         machine
     Returns:
-        list[tuple]: Data to be written to csv
+        CSVData: Data to be written to csv
     """
     tune_quad_elements = set(
         all_elements.q1d
@@ -34,30 +37,30 @@ def generate_feedback_pvs(all_elements, lattice):
     # Data to be written is stored as a list of tuples each with structure:
     #     element index (int), field (str), pv (str), value (int), record_type (str).
     # We have special cases for four lattice fields that feedback systems read from.
-    data: list[tuple] = [
+    data: CSVData = [
         ("index", "field", "pv", "value", "record_type"),
-        (0, "beam_current", "SR-DI-DCCT-01:SIGNAL", 300, "ai"),
-        (0, "feedback_status", "CS-CS-MSTAT-01:FBSTAT", 2, "ai"),
-        (0, "fofb_status", "SR01A-CS-FOFB-01:RUN", 0, "ao"),
-        (0, "feedback_heart", "CS-CS-MSTAT-01:FBHEART", 10, "ao"),
+        (0, "beam_current", "SR-DI-DCCT-01:SIGNAL", "300", "ai"),
+        (0, "feedback_status", "CS-CS-MSTAT-01:FBSTAT", "2", "ai"),
+        (0, "fofb_status", "SR01A-CS-FOFB-01:RUN", "0", "ao"),
+        (0, "feedback_heart", "CS-CS-MSTAT-01:FBHEART", "10", "ao"),
     ]
     # Iterate over our elements to get the PV names.
     for elem in all_elements.hstr:
         pv_stem = elem.get_device("x_kick").name
-        data.append((elem.index, "error_sum", pv_stem + ":ERCSUM", 0, "ai"))
-        data.append((elem.index, "state", pv_stem + ":STATE", 2, "ai"))
+        data.append((elem.index, "error_sum", pv_stem + ":ERCSUM", "0", "ai"))
+        data.append((elem.index, "state", pv_stem + ":STATE", "2", "ai"))
     for elem in all_elements.vstr:
         pv_stem = elem.get_device("y_kick").name
-        data.append((elem.index, "error_sum", pv_stem + ":ERCSUM", 0, "ai"))
-        data.append((elem.index, "state", pv_stem + ":STATE", 2, "ai"))
+        data.append((elem.index, "error_sum", pv_stem + ":ERCSUM", "0", "ai"))
+        data.append((elem.index, "state", pv_stem + ":STATE", "2", "ai"))
     for elem in all_elements.bpm:
         data.append(
-            (elem.index, "enabled", elem.get_pv_name("enabled", pytac.RB), 1, "ai")
+            (elem.index, "enabled", elem.get_pv_name("enabled", pytac.RB), "1", "ai")
         )
     # Add elements for Tune Feedback
     for elem in tune_quad_elements:
         data.append(
-            (elem.index, "offset", elem.get_device("b1").name + ":OFFSET1", 0, "ai")
+            (elem.index, "offset", elem.get_device("b1").name + ":OFFSET1", "0", "ai")
         )
 
     # BPM ID for the x axis of beam position plot
@@ -79,26 +82,27 @@ def generate_feedback_pvs(all_elements, lattice):
     return data
 
 
-def generate_bba_pvs(all_elements, symmetry):
+def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
     """Data to be written is stored as a list of tuples each with structure:
     element index (int), field (str), pv (str), value (int), record_type (str).
     """
-    data = [("index", "field", "pv", "value", "record_type")]
+    data: CSVData = [("index", "field", "pv", "value", "record_type")]
+    pv_stem: str = ""
     # Iterate over the BPMs to construct the PV names.
     for elem in all_elements.bpm:
         pv_stem = elem.get_device("enabled").name
         data.append(
-            (elem.index, "golden_offset_x", pv_stem + ":CF:GOLDEN_X_S", 0, "ao")
+            (elem.index, "golden_offset_x", pv_stem + ":CF:GOLDEN_X_S", "0", "ao")
         )
         data.append(
-            (elem.index, "golden_offset_y", pv_stem + ":CF:GOLDEN_Y_S", 0, "ao")
+            (elem.index, "golden_offset_y", pv_stem + ":CF:GOLDEN_Y_S", "0", "ao")
         )
-        data.append((elem.index, "bcd_offset_x", pv_stem + ":CF:BCD_X_S", 0, "ao"))
-        data.append((elem.index, "bcd_offset_y", pv_stem + ":CF:BCD_Y_S", 0, "ao"))
-        data.append((elem.index, "bba_offset_x", pv_stem + ":CF:BBA_X_S", 0, "ao"))
-        data.append((elem.index, "bba_offset_y", pv_stem + ":CF:BBA_Y_S", 0, "ao"))
+        data.append((elem.index, "bcd_offset_x", pv_stem + ":CF:BCD_X_S", "0", "ao"))
+        data.append((elem.index, "bcd_offset_y", pv_stem + ":CF:BCD_Y_S", "0", "ao"))
+        data.append((elem.index, "bba_offset_x", pv_stem + ":CF:BBA_X_S", "0", "ao"))
+        data.append((elem.index, "bba_offset_y", pv_stem + ":CF:BBA_Y_S", "0", "ao"))
     for cell in range(1, symmetry + 1):
-        padded_cell = str(cell).zfill(2)
+        padded_cell: str = str(cell).zfill(2)
         pv_stem = f"SR{padded_cell}A-CS-FOFB-01"
         # Waveform records
         data.append(
@@ -106,7 +110,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_start_times",
                 f"{pv_stem}:EXCITE:START_TIMES",
-                numpy.zeros(18),
+                str(numpy.zeros(18)),
                 "wfm",
             )
         )
@@ -115,7 +119,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_amps",
                 f"{pv_stem}:EXCITE:AMPS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)),
                 "wfm",
             )
         )
@@ -124,7 +128,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_deltas",
                 f"{pv_stem}:EXCITE:DELTAS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)),
                 "wfm",
             )
         )
@@ -133,7 +137,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_ticks",
                 f"{pv_stem}:EXCITE:TICKS",
-                numpy.zeros(18),
+                str(numpy.zeros(18)),
                 "wfm",
             )
         )
@@ -143,7 +147,7 @@ def generate_bba_pvs(all_elements, symmetry):
                 cell,
                 f"cell_{padded_cell}_excite_prime",
                 f"{pv_stem}:EXCITE:PRIME",
-                0,
+                "0",
                 "ao",
             )
         )
@@ -153,7 +157,7 @@ def generate_bba_pvs(all_elements, symmetry):
 def get_element_pv_data(
     pytac_item: pytac.lattice.Lattice | pytac.element.Element,
     pvs: list[str],
-    data,
+    data: CSVData,
 ):
     """Get the control limits and precision values from the live machine for
     all normal PVS.
@@ -209,7 +213,7 @@ def get_element_pv_data(
                         )
 
 
-def generate_pv_limits(lattice: pytac.lattice.Lattice):
+def generate_pv_limits(lattice: pytac.lattice.Lattice) -> CSVData:
     """Loop through each element in the lattice and spawn a cothread which will then
     do a caget to get pv data for the element.
 
@@ -217,7 +221,9 @@ def generate_pv_limits(lattice: pytac.lattice.Lattice):
         lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
             machine
     """
-    data = [("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")]
+    data: CSVData = [
+        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")
+    ]
     pvs: list[str] = []
     caget_handles: list[cothread.Spawn] = []
     # Add limits for PVs connected to lattice element and the lattice itself
@@ -230,7 +236,7 @@ def generate_pv_limits(lattice: pytac.lattice.Lattice):
     return data
 
 
-def generate_mirrored_pvs(lattice):
+def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     """Structure of data:
 
     output_type:
@@ -266,11 +272,9 @@ def generate_mirrored_pvs(lattice):
         Whether the out_pv should have its softioc record's SCAN field set to
         '1 second' which will cause it to process every second.
     """
-    data: list[tuple] = [
-        ("output_type", "mirror_type", "in_pv", "out_pv", "value", "scan")
-    ]
+    data: CSVData = [("output_type", "mirror_type", "in_pv", "out_pv", "value", "scan")]
     # Tune PV aliases.
-    tune = [
+    tune: list[str] = [
         lattice.get_value("tune_x", pytac.RB, data_source=pytac.SIM),
         lattice.get_value("tune_y", pytac.RB, data_source=pytac.SIM),
     ]
@@ -295,7 +299,7 @@ def generate_mirrored_pvs(lattice):
         )
     )
     # Combined emittance and average emittance PVs.
-    emit = [
+    emit: list[float] = [
         lattice.get_value("emittance_x", pytac.RB, data_source=pytac.SIM),
         lattice.get_value("emittance_y", pytac.RB, data_source=pytac.SIM),
     ]
@@ -305,7 +309,7 @@ def generate_mirrored_pvs(lattice):
             "basic",
             "SR-DI-EMIT-01:HEMIT",
             "SR-DI-EMIT-01:HEMIT_MEAN",
-            emit[0],
+            str(emit[0]),
             "I/O Intr",
         )
     )
@@ -315,7 +319,7 @@ def generate_mirrored_pvs(lattice):
             "basic",
             "SR-DI-EMIT-01:VEMIT",
             "SR-DI-EMIT-01:VEMIT_MEAN",
-            emit[1],
+            str(emit[1]),
             "I/O Intr",
         )
     )
@@ -325,19 +329,21 @@ def generate_mirrored_pvs(lattice):
             "summate",
             "SR-DI-EMIT-01:HEMIT, SR-DI-EMIT-01:VEMIT",
             "SR-DI-EMIT-01:EMITTANCE",
-            sum(emit),
+            str(sum(emit)),
             "I/O Intr",
         )
     )
     # Electron BPMs enabled.
-    bpm_enabled_pvs = lattice.get_element_pv_names("BPM", "enabled", pytac.RB)
+    bpm_enabled_pvs: list[str] = lattice.get_element_pv_names(
+        "BPM", "enabled", pytac.RB
+    )
     data.append(
         (
             "wfm",
             "collate",
             ", ".join(bpm_enabled_pvs),
             "EBPM-ENABLED:INTERIM",
-            numpy.zeros(len(bpm_enabled_pvs)),
+            str(numpy.zeros(len(bpm_enabled_pvs))),
             "I/O Intr",
         )
     )
@@ -347,49 +353,49 @@ def generate_mirrored_pvs(lattice):
             "inverse",
             "EBPM-ENABLED:INTERIM",
             "SR-DI-EBPM-01:ENABLED",
-            numpy.zeros(len(bpm_enabled_pvs)),
+            str(numpy.zeros(len(bpm_enabled_pvs))),
             "I/O Intr",
         )
     )
     # BPM x positions for display on diagnostics screen.
-    bpm_x_pvs = lattice.get_element_pv_names("BPM", "x", pytac.RB)
+    bpm_x_pvs: list[str] = lattice.get_element_pv_names("BPM", "x", pytac.RB)
     data.append(
         (
             "wfm",
             "collate",
             ", ".join(bpm_x_pvs),
             "SR-DI-EBPM-01:SA:X",
-            numpy.zeros(len(bpm_x_pvs)),
+            str(numpy.zeros(len(bpm_x_pvs))),
             "I/O Intr",
         )
     )
     # BPM y positions for display on diagnostics screen.
-    bpm_y_pvs = lattice.get_element_pv_names("BPM", "y", pytac.RB)
+    bpm_y_pvs: list[str] = lattice.get_element_pv_names("BPM", "y", pytac.RB)
     data.append(
         (
             "wfm",
             "collate",
             ", ".join(bpm_y_pvs),
             "SR-DI-EBPM-01:SA:Y",
-            numpy.zeros(len(bpm_y_pvs)),
+            str(numpy.zeros(len(bpm_y_pvs))),
             "I/O Intr",
         )
     )
     return data
 
 
-def generate_tune_pvs(lattice):
+def generate_tune_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     """Get the PVs associated with the tune feedback system, the structure of
     data is:
     set_pv: The PV to set the offset to.
     offset_pv: The PV which the set pv reads the offset from.
     delta_pv: The PV to get the offset from.
     """
-    data: list[tuple] = [("set_pv", "offset_pv", "delta_pv")]
+    data: CSVData = [("set_pv", "offset_pv", "delta_pv")]
     # Offset PV for quadrupoles in tune feedback.
-    tune_pvs = []
-    offset_pvs = []
-    delta_pvs = []
+    tune_pvs: list[str] = []
+    offset_pvs: list[str] = []
+    delta_pvs: list[str] = []
     for family in ["Q1D", "Q2D", "Q3D", "Q3B", "Q2B", "Q1B"]:
         tune_pvs.extend(lattice.get_element_pv_names(family, "b1", pytac.SP))
     for pv in tune_pvs:
@@ -402,7 +408,7 @@ def generate_tune_pvs(lattice):
     return data
 
 
-def write_data_to_file(data, filename, ring_mode):
+def write_data_to_file(data: CSVData, filename: str, ring_mode: str):
     """Write the collected data to a .csv file with the given name. If the file
     already exists it will be overwritten.
 
