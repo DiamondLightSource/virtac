@@ -346,11 +346,9 @@ class VirtacServer:
                 # Parse arguments.
                 # Get a list of input pvs, these are all virtac owned pvs
                 input_pvs = line["in_pv"].split(", ")
-                if (len(input_pvs) > 1) and (
-                    line["mirror_type"] in ["basic", "inverse"]
-                ):
+                if (len(input_pvs) > 1) and (line["mirror_type"] in ["basic"]):
                     raise IndexError(
-                        "Transformation and basic mirror types take only one input PV."
+                        "Transformation mirror type takes only one input PV."
                     )
                 elif (len(input_pvs) < 2) and (
                     line["mirror_type"] in ["collate", "summate"]

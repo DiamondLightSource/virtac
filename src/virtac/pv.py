@@ -22,6 +22,7 @@ class RecordData:
     zrvl: str | None = None
     zrst: str | None = None
     scan: str = "I/O Intr"
+    pini: str = "YES"
     always_update: str | None = False
     initial_value: int | float | numpy.typing.NDArray = 0
 
@@ -104,8 +105,9 @@ class PV:
             self._record = builder.WaveformOut(
                 self.name,
                 initial_value=record_data.initial_value,
-                always_update=True,
+                PINI=record_data.pini,
                 SCAN=record_data.scan,
+                always_update=record_data.always_update,
             )
         elif record_data.record_type == "mbbi":
             self._record = builder.mbbIn(
@@ -273,11 +275,11 @@ class RefreshPV(PV):
 
 
 class InversePV(MonitorPV):
-    """Used to invert a boolean array waveform 'in_record', ie swap true to false and
+    """Used to invert boolean 'in_record(s)', ie swap true to false and
     false to true and then save the result in its own waveform _record."""
 
-    def __init__(self, name, record_data: RecordData, in_record: list[PV]):
-        super().__init__(name, record_data, in_record, [self.invert])
+    def __init__(self, name, record_data: RecordData, in_records: list[PV]):
+        super().__init__(name, record_data, in_records, [self.invert])
         self.name = name
 
     def invert(self, value, index=None):
@@ -285,8 +287,18 @@ class InversePV(MonitorPV):
         transformation to the value before setting it to the output record.
         """
         logging.debug(f"{self.name} Inverting data")
-        value = numpy.asarray(value, dtype=bool)
-        value = numpy.asarray(numpy.invert(value), dtype=int)
+        if (len(self._monitored_records)) == 1:
+            # We are inverting a single waveform record
+            value = numpy.asarray(value, dtype=bool)
+            value = numpy.asarray(numpy.invert(value), dtype=int)
+        elif (len(self._monitored_records)) > 1:
+            # We are inverting a list of ai records
+            value = numpy.array(
+                [record.get() for record in self._monitored_records], dtype=bool
+            )
+            value = numpy.asarray(numpy.invert(value), dtype=int)
+        else:
+            raise Exception
         self._record.set(value)
 
 
