@@ -121,12 +121,13 @@ def main():
         os.environ["EPICS_CAS_BEACON_ADDR_LIST"] = primary_ip
         os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
 
+    if args.enable_tfb:
+        server.setup_tune_feedback()
+
     # Start the IOC.
     builder.LoadDatabase()
     softioc.iocInit()
     # server.monitor_mirrored_pvs()
-    if args.enable_tfb:
-        server.setup_tune_feedback()
 
     server.print_virtac_stats()
     context = globals() | {"server": server}

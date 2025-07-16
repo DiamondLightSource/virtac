@@ -34,13 +34,12 @@ class PV:
     def __init__(self, name: str, record_data: RecordData):
         logging.debug(f"Creating PV {name}")
         self.name: str = name
-        self._tune_feedback_enabled: bool = False
         self._record = None
         self._pytac_elements: list = []
         self._pytac_field = None
-        # Any PV with update_lattice as true, will have its value updated when the pytac
+        # Any PV with update_from_lattice as true, will have its value updated when the pytac
         # lattice is updated
-        self.update_lattice = False
+        self.update_from_lattice = False
         if record_data is not None:
             self.create_softioc_record(record_data)
 
@@ -54,10 +53,6 @@ class PV:
             name (str): The name of record object that has just been set to.
         """
         logging.info(f"PV {name} changed to: {value}")
-
-    def set_tune_feedback_enabled(self, enable):
-        logging.debug(f"Setting tunefb enabled to: {enable} for PV: {self.name}")
-        self._tune_feedback_enabled = enable
 
     def get_pytac_data(self):
         return self._pytac_elements, self._pytac_field
@@ -141,7 +136,6 @@ class DirectPV(PV):
     def __init__(self, name, record_data: RecordData, in_record: PV):
         super().__init__(name, record_data)
         self._in_record = in_record
-        self._offset_record = None
 
     def _on_update(self, value, name):
         """This function is called whenever this PVs softioc record processes. It
@@ -156,12 +150,52 @@ class DirectPV(PV):
         """
         logging.debug("Read value %s on pv %s", value, name)
         self._in_record.set(value)
-        if self._tune_feedback_enabled is True and self._offset_record is not None:
-            try:
-                offset = self._offset_record.get()
-                value += offset
-            except KeyError as e:
-                print(e)
+
+        elements, field = self._in_record.get_pytac_data()
+        for element in elements:
+            # Some elements such as bend magnets share a single PV which is used to
+            # update them all to the same value
+            logging.debug(
+                f"Updating lattice for pv: {self._in_record.name} to val {value}"
+            )
+            element.set_value(
+                field,
+                value,
+                units=pytac.ENG,
+                data_source=pytac.SIM,
+            )
+
+
+class OffsetPV(DirectPV):
+    def __init__(
+        self,
+        name,
+        record_data: RecordData,
+        in_record: PV,
+        offset_record: PV | None = None,
+    ):
+        super().__init__(name, record_data, in_record)
+        self._offset_record = offset_record
+
+    def _on_update(self, value, name):
+        """This function is called whenever this PVs softioc record processes. It
+        in_record with the value that has been set to this PVs record (out_record) and
+        then sets the value to the in_records Pytac elements.
+
+        This functions needs to be kept FAST as it can be called rapidly by CA clients.
+
+        Args:
+            value (number): The value that has just been set to the record.
+            name (str): The name of record object that has just been set to.
+        """
+        logging.debug("Read value %s on pv %s", value, name)
+        self._in_record.set(value)
+
+        try:
+            offset = self._offset_record.get()
+            value += offset
+        except KeyError as e:
+            print(e)
 
         elements, field = self._in_record.get_pytac_data()
         for element in elements:
@@ -254,8 +288,9 @@ class RefreshPV(PV):
         pytac_elements,
         pytac_field,
         record,
+        record_data: RecordData | None = None,
     ):
-        super().__init__(name, None)
+        super().__init__(name, record_data)
         self._record = record
         self._pytac_field = pytac_field
         self._pytac_elements = pytac_elements

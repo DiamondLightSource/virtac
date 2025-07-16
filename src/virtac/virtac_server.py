@@ -15,6 +15,7 @@ from .pv import (
     DirectPV,
     InversePV,
     MonitorPV,
+    OffsetPV,
     RecordData,
     RefreshPV,
     SummationPV,
@@ -91,7 +92,7 @@ class VirtacServer:
             self._create_mirror_records(mirror_csv)
 
         for name, pv in self._pv_dict.items():
-            if pv.update_lattice:
+            if pv.update_from_lattice:
                 print(name)
                 self._readback_pvs_dict[name] = pv
         print(len(self._readback_pvs_dict))
@@ -203,7 +204,7 @@ class VirtacServer:
                         #
                         # I think this way of doing things is fine, as long as RBs with
                         # SPs are never updated by the lattice.
-                        in_pv.update_lattice = True
+                        in_pv.update_from_lattice = True
                     else:
                         upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
@@ -220,9 +221,14 @@ class VirtacServer:
                             initial_value=value,
                             always_update=True,
                         )
-                        out_pv = DirectPV(set_pv_name, record_data, in_pv)
-                        # out_pv.append_pytac_element(element)
-                        # out_pv.set_pytac_field(field)
+                        # TODO, this is a fudge and wants improving
+                        # For tunefb the quadrapole SETI records need to be OffsetPVs
+                        # isntead of DirectPVs, but as tunefb is an extension module it
+                        # is a bit awkward
+                        if "PC-Q" in set_pv_name:
+                            out_pv = OffsetPV(set_pv_name, record_data, in_pv)
+                        else:
+                            out_pv = DirectPV(set_pv_name, record_data, in_pv)
 
                         self._pv_dict[set_pv_name] = out_pv
                         if element.type_.upper() == "BEND" and bend_in_record is None:
@@ -254,7 +260,7 @@ class VirtacServer:
                 in_pv = PV(get_pv_name, record_data)
                 in_pv.append_pytac_element(self.lattice)
                 in_pv.set_pytac_field(field)
-                in_pv.update_lattice = True
+                in_pv.update_from_lattice = True
                 self._pv_dict[get_pv_name] = in_pv
         print("~*~*Woah, we're halfway there, Wo-oah...*~*~")
 
@@ -442,9 +448,8 @@ class VirtacServer:
                     field,
                     old_offset_record.get_record(),
                 )
-                self._pv_dict[line["offset_pv"]] = new_offset_record
-                set_record.set_tune_feedback_enabled(True)
                 set_record.attach_offset_record(new_offset_record)
+                self._pv_dict[line["offset_pv"]] = new_offset_record
 
     # Needs fixing from refactor, is this function needed?
     def set_feedback_record(self, index, field, value):
@@ -515,6 +520,7 @@ class VirtacServer:
                 "num_ca_pvs",
                 "num_pvs",
                 "num_direct_pvs",
+                "num_offset_pvs",
                 "num_monitor_pvs",
                 "num_collation_pvs",
                 "num_inverse_pvs",
@@ -531,6 +537,8 @@ class VirtacServer:
                 num_pvs_dict["num_pvs"] += 1
             elif type(pv) is DirectPV:
                 num_pvs_dict["num_direct_pvs"] += 1
+            elif type(pv) is OffsetPV:
+                num_pvs_dict["num_offset_pvs"] += 1
             elif type(pv) is MonitorPV:
                 num_pvs_dict["num_monitor_pvs"] += 1
             elif type(pv) is CollationPV:
@@ -554,6 +562,7 @@ class VirtacServer:
         print(f"\t\t CA pvs: {num_pvs_dict['num_ca_pvs']}")
         print(f"\t\t PV pvs: {num_pvs_dict['num_pvs']}")
         print(f"\t\t Direct pvs: {num_pvs_dict['num_direct_pvs']}")
+        print(f"\t\t Offset pvs: {num_pvs_dict['num_offset_pvs']}")
         print(f"\t\t Monitor pvs: {num_pvs_dict['num_monitor_pvs']}")
         print(f"\t\t Collation pvs: {num_pvs_dict['num_collation_pvs']}")
         print(f"\t\t Inverse pvs: {num_pvs_dict['num_inverse_pvs']}")
