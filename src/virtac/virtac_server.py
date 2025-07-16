@@ -92,7 +92,9 @@ class VirtacServer:
 
         for name, pv in self._pv_dict.items():
             if pv.update_lattice:
+                print(name)
                 self._readback_pvs_dict[name] = pv
+        print(len(self._readback_pvs_dict))
 
     def update_pvs(self):
         """The callback function passed to ATSimulator during lattice creation,
@@ -180,13 +182,28 @@ class VirtacServer:
                     in_pv = PV(get_pv_name, record_data)
                     in_pv.append_pytac_element(element)
                     in_pv.set_pytac_field(field)
-                    in_pv.update_lattice = True
                     self._pv_dict[get_pv_name] = in_pv
 
                     try:
                         set_pv_name = element.get_pv_name(field, pytac.SP)
                     except HandleException:
-                        pass
+                        # TODO: I dont like this, it seems like an arbitrary way
+                        # of defining pvs to update from the lattice. Currently
+                        # it is almost only BPM PVs. The outcome is fine, I just
+                        # think the way of doing it isnt great
+                        #
+                        # Only fields of elements which have a RB but no SP PV are
+                        # updated, this is a total of 350 pvs out of 1328 RB PVs
+                        # The remaining 978 RB PVs are set when their SP PV is
+                        # written to. These 978 PVs are not set from the lattice
+                        # when it updates.
+                        # I guess we just assume if a field has a RB but no SP, then
+                        # when the lattice updates, the PV needs updating. But if it
+                        # has a SP then it isnt affected by the lattice updating?
+                        #
+                        # I think this way of doing things is fine, as long as RBs with
+                        # SPs are never updated by the lattice.
+                        in_pv.update_lattice = True
                     else:
                         upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
@@ -544,6 +561,11 @@ class VirtacServer:
         print(f"\t\t Inverse pvs: {num_pvs_dict['num_inverse_pvs']}")
         print(f"\t\t Summation pvs: {num_pvs_dict['num_summation_pvs']}")
         print(f"\t\t Refresh pvs: {num_pvs_dict['num_refresh_pvs']}")
+
+        print(
+            "\t PVs updated after each lattice recalculation: "
+            f"{len(self._readback_pvs_dict)}"
+        )
 
         if verbosity >= 1:
             print("\tAvailable PVs")
