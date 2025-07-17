@@ -52,7 +52,8 @@ class VirtacServer:
         feedback_csv=None,
         mirror_csv=None,
         tune_csv=None,
-        disable_emittance=False,
+        enable_emittance=True,
+        enable_tunefb=False,
     ):
         """
         Args:
@@ -72,44 +73,50 @@ class VirtacServer:
             tune_csv (str): The filepath to the .csv file from which to
                                 load the tune feedback records, for more
                                 information see create_csv.py.
-            disable_emittance (bool): Whether the emittance should be disabled.
+            _enable_emittance (bool): Whether emittance should be enabled.
+            _enable_tunefb (bool): Whether the VIRTAC should be configured to allow
+                tunefb to work.
         """
-        self.lattice = atip.utils.loader(ring_mode, self.update_pvs, disable_emittance)
-        self.tune_feedback_enabled = False
+        self._enable_emittance = enable_emittance
+        self._enable_tunefb = enable_tunefb
+        # TODO: Need to update ATIP to use enable_emittance instead of disable_emittance
+        self.lattice = atip.utils.loader(
+            ring_mode, self.update_pvs, not self._enable_emittance
+        )
         self._pv_monitoring = True
-        self._tune_fb_csv_path = tune_csv
         self._pv_dict: dict[str, PV] = {}
-        # This dict contains all the PVs which have a pytac lattice element and need to
-        # be updated whenever the lattice updates
         self._readback_pvs_dict: dict[str, PV] = {}
-        print("Starting record creation.")
-        self._create_records(limits_csv, disable_emittance)
+
+        print("Starting PV creation.")
+        self._create_core_pvs(limits_csv)
         if bba_csv is not None:
             self._create_bba_records(bba_csv)
         if feedback_csv is not None:
-            self._create_feedback_records(feedback_csv, disable_emittance)
+            self._create_feedback_records(feedback_csv)
         if mirror_csv is not None:
             self._create_mirror_records(mirror_csv)
+        if enable_tunefb and tune_csv is not None:
+            self._setup_tune_feedback(tune_csv)
 
+        print("Selecting PVs to update after lattice recalculation.")
         for name, pv in self._pv_dict.items():
             if pv.update_from_lattice:
-                print(name)
                 self._readback_pvs_dict[name] = pv
-        print(len(self._readback_pvs_dict))
 
     def update_pvs(self):
         """The callback function passed to ATSimulator during lattice creation,
-        it is called each time a calculation of physics data is completed. It
+        which is called each time a calculation of physics data is completed and
         updates all the in records that do not have a corresponding out record
         with the latest values from the simulator.
+
+            - Note that a PV can have multiple elements, specifically for the bend
+              magnets. Currently we just have 1 PV for all bends and it takes its
+              value from element[0]. This could be a target for future improvement.
         """
         logging.debug("Updating output PVs")
         for name, pv in self._readback_pvs_dict.items():
             logging.debug(f"Updating pv {name}")
             elements, field = pv.get_pytac_data()
-            # A PV can have multiple elements, specifically for the bend magnets.
-            # Currently we just have 1 PV for all bends and it takes its value from
-            # element[0]. This could be a target for future improvement.
             try:
                 value = elements[0].get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
@@ -117,26 +124,28 @@ class VirtacServer:
                 logging.debug(f"Update_pvs: {name} to val {value}")
                 pv.set(value)
             except FieldException as e:
-                # print("Missing pytac field")
-                print(e)
+                print("PV is missing an expected pytac field")
+                raise (e)
         logging.debug("Finished updating output PVs")
 
-    def _create_records(self, limits_csv, disable_emittance):
-        """Create all the standard records from both lattice and element Pytac
-        fields. Several assumptions have been made for simplicity and
+    def _create_core_pvs(self, limits_csv):
+        """Create the core records required for the virtac from both lattice and element
+        pytac fields. Several assumptions have been made for simplicity and
         efficiency, these are:
+
             - That bend elements all share a single PV, and are the only
                element family to do so.
             - That every field that has an out type record (SP) will also have
                an in type record (RB).
             - That all lattice fields are never setpoint and so only in records
                need to be created for them.
+            - That only (RB) records without a corresponding (SP) need to be updated
+               when the pytac lattice is recalculated. The other (RB) records are only
+               updated from their (SP) record.
 
         Args:
             limits_csv (str): The filepath to the .csv file from which to
                                     load the pv limits.
-            disable_emittance (bool): Whether the emittance related PVs should be
-                                        created or not.
         """
         limits_dict = {}
         if limits_csv is not None:
@@ -152,6 +161,13 @@ class VirtacServer:
                         str(line["scan"]),
                     )
 
+        # Create PVs from lattice elements.
+        self._create_element_pvs(limits_dict)
+
+        # Create PVs from the lattice itself.
+        self._create_lattice_pvs(limits_dict)
+
+    def _create_element_pvs(self, limits_dict):
         bend_in_record = None
         for element in self.lattice:
             # There is only 1 bend PV in the lattice, if it has already been defined and
@@ -188,22 +204,8 @@ class VirtacServer:
                     try:
                         set_pv_name = element.get_pv_name(field, pytac.SP)
                     except HandleException:
-                        # TODO: I dont like this, it seems like an arbitrary way
-                        # of defining pvs to update from the lattice. Currently
-                        # it is almost only BPM PVs. The outcome is fine, I just
-                        # think the way of doing it isnt great
-                        #
-                        # Only fields of elements which have a RB but no SP PV are
-                        # updated, this is a total of 350 pvs out of 1328 RB PVs
-                        # The remaining 978 RB PVs are set when their SP PV is
-                        # written to. These 978 PVs are not set from the lattice
-                        # when it updates.
-                        # I guess we just assume if a field has a RB but no SP, then
-                        # when the lattice updates, the PV needs updating. But if it
-                        # has a SP then it isnt affected by the lattice updating?
-                        #
-                        # I think this way of doing things is fine, as long as RBs with
-                        # SPs are never updated by the lattice.
+                        # Only update the pv when the pytac lattice is recalculated
+                        # if the RB has no corresponding SP
                         in_pv.update_from_lattice = True
                     else:
                         upper, lower, precision, drive_high, drive_low, scan = (
@@ -225,7 +227,7 @@ class VirtacServer:
                         # For tunefb the quadrapole SETI records need to be OffsetPVs
                         # isntead of DirectPVs, but as tunefb is an extension module it
                         # is a bit awkward
-                        if "PC-Q" in set_pv_name:
+                        if self._enable_tunefb and field == "b1":
                             out_pv = OffsetPV(set_pv_name, record_data, in_pv)
                         else:
                             out_pv = DirectPV(set_pv_name, record_data, in_pv)
@@ -234,10 +236,10 @@ class VirtacServer:
                         if element.type_.upper() == "BEND" and bend_in_record is None:
                             bend_in_record = in_pv
 
-        # Now for lattice fields.
+    def _create_lattice_pvs(self, limits_dict):
         lat_fields = self.lattice.get_fields()
         lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
-        if disable_emittance:
+        if not self._enable_emittance:
             lat_fields -= {"emittance_x", "emittance_y"}
         for field in lat_fields:
             # Ignore basic devices as they do not have PVs.
@@ -262,7 +264,6 @@ class VirtacServer:
                 in_pv.set_pytac_field(field)
                 in_pv.update_from_lattice = True
                 self._pv_dict[get_pv_name] = in_pv
-        print("~*~*Woah, we're halfway there, Wo-oah...*~*~")
 
     def _create_bba_records(self, bba_csv):
         """Create all the beam-based-alignment records from the .csv file at the
@@ -274,7 +275,7 @@ class VirtacServer:
         """
         self._create_feedback_or_bba_records_from_csv(bba_csv)
 
-    def _create_feedback_records(self, feedback_csv, disable_emittance):
+    def _create_feedback_records(self, feedback_csv):
         """Create all the feedback records from the .csv file at the location
         passed, see create_csv.py for more information; records for one edge
         case are also created.
@@ -282,16 +283,12 @@ class VirtacServer:
         Args:
             feedback_csv (str): The filepath to the .csv file to load the
                                     records in accordance with.
-            disable_emittance (bool): Whether the emittance related PVs should be
-                                        created or not.
         """
-        # Create standard records from csv
         self._create_feedback_or_bba_records_from_csv(feedback_csv)
 
         # We can choose to not calculate emittance as it is not always required,
         # which decreases computation time.
-        if not disable_emittance:
-            # Special case: EMIT STATUS for the vertical emittance feedback
+        if self._enable_emittance:
             name = "SR-DI-EMIT-01:STATUS"
             record_data = RecordData(
                 "mbbi",
@@ -338,7 +335,6 @@ class VirtacServer:
                     self._pv_dict[name] = pv
 
     def _create_mirror_records(self, mirror_csv):
-        # Create a dictionary of monitored_pv: [pvs_affected]
         """Create all the mirror records from the .csv file at the location
         passed, see create_csv.py for more information.
 
@@ -410,7 +406,7 @@ class VirtacServer:
 
                     self._pv_dict[out_pv_name] = output_pv
 
-    def setup_tune_feedback(self, tune_csv=None):
+    def _setup_tune_feedback(self, tune_csv):
         """Read the tune feedback .csv and find the associated offset PVs,
         before starting monitoring them for a change to mimic the behaviour of
         the quadrupoles used by the tune feedback system on the live machine.
@@ -422,16 +418,14 @@ class VirtacServer:
             tune_csv (str): A path to a tune feedback .csv file to be used
                              instead of the default filepath passed at startup.
         """
-        if tune_csv is not None:
-            self._tune_fb_csv_path = tune_csv
-        if self._tune_fb_csv_path is None:
+        if tune_csv is None:
             raise ValueError(
                 "No tune feedback .csv file was given at "
                 "start-up, please provide one now; i.e. "
                 "server.start_tune_feedback('<path_to_csv>')"
             )
-        self.tune_feedback_enabled = True
-        with open(self._tune_fb_csv_path) as f:
+        self._enable_tunefb = True
+        with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
                 set_record = self._pv_dict[line["set_pv"]]
@@ -552,8 +546,7 @@ class VirtacServer:
 
         print("Virtac stats:")
         print(
-            f"\t Tune feedbacks is "
-            f"{('enabled' if self.tune_feedback_enabled else 'disabled')}"
+            f"\t Tune feedbacks is {('enabled' if self._enable_tunefb else 'disabled')}"
         )
         print(
             f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
