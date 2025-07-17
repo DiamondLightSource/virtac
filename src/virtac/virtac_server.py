@@ -12,12 +12,13 @@ from .pv import (
     PV,
     CaPV,
     CollationPV,
-    DirectPV,
     InversePV,
     MonitorPV,
     OffsetPV,
+    ReadbackPV,
     RecordData,
     RefreshPV,
+    SetpointPV,
     SummationPV,
 )
 
@@ -38,7 +39,8 @@ class VirtacServer:
            _pv_monitoring (bool): Whether the mirrored PVs are being monitored.
            _tune_fb_csv_path (str): The path to the tune feedback .csv file.
            _pv_dict (dict): A dictionary containing every PV created by the virtac
-                with the PV name as the key and PV object as the item in a 1 to 1 mapping.
+                with the PV name as the key and PV object as the item in a 1 to 1
+                mapping.
            _readback_pvs_dict (dict): A dictionary containing the subset of pvs from
                 _pv_dict which need updating whenever the pytac lattice changes.
 
@@ -100,7 +102,7 @@ class VirtacServer:
 
         print("Selecting PVs to update after lattice recalculation.")
         for name, pv in self._pv_dict.items():
-            if pv.update_from_lattice:
+            if isinstance(pv, ReadbackPV):
                 self._readback_pvs_dict[name] = pv
 
     def update_pvs(self):
@@ -133,19 +135,9 @@ class VirtacServer:
         pytac fields. Several assumptions have been made for simplicity and
         efficiency, these are:
 
-            - That bend elements all share a single PV, and are the only
-               element family to do so.
-            - That every field that has an out type record (SP) will also have
-               an in type record (RB).
-            - That all lattice fields are never setpoint and so only in records
-               need to be created for them.
-            - That only (RB) records without a corresponding (SP) need to be updated
-               when the pytac lattice is recalculated. The other (RB) records are only
-               updated from their (SP) record.
-
         Args:
-            limits_csv (str): The filepath to the .csv file from which to
-                                    load the pv limits.
+            limits_csv (str): The filepath to the .csv file from which to load pv field
+                              data to configure softioc records with.
         """
         limits_dict = {}
         if limits_csv is not None:
@@ -168,22 +160,47 @@ class VirtacServer:
         self._create_lattice_pvs(limits_dict)
 
     def _create_element_pvs(self, limits_dict):
+        """Create a PV for each simulated field on each pytac lattice element.
+
+            .. Note:: The one exception to the rule of one PV per field is for the bend
+                      magnets. Each of the 50 bend magnets shares the same PV and has
+                      the same current value.
+            .. Note:: For fields which have an in type record (RB) and an out type
+                      record (SP) we create SetpointPVs (or a derivative). SetpointPVs
+                      are used to set the pytac element with their SP record, the RB
+                      record merely reflects the set value.
+            .. Note:: For fields which only have an (RB) record and no (SP) record we
+                      just create regular PVs and we set their update_from_lattice to
+                      true. This means that when the pytac lattice is recalculated,
+                      these PVs read their value from the lattice.
+
+        Args:
+            limits_csv (str): The filepath to the .csv file from which to load pv field
+                              data to configure softioc records with.
+        """
         bend_in_record = None
         for element in self.lattice:
-            # There is only 1 bend PV in the lattice, if it has already been defined and
-            # we have another bend element, then just register this element with the
-            # existing pv. Otherwise create a new PV for the element
+            # There is only 1 bend PV for all bend magnets, each bend element is added
+            # to this PV
             if element.type_.upper() == "BEND" and bend_in_record is not None:
                 bend_in_record.append_pytac_element(element)
             else:
                 for field in element.get_fields()[pytac.SIM]:
+                    readback_only_pv = False
                     value = element.get_value(
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
-                    get_pv_name = element.get_pv_name(field, pytac.RB)
+                    read_pv_name = element.get_pv_name(field, pytac.RB)
+                    try:
+                        set_pv_name = element.get_pv_name(field, pytac.SP)
+                    except HandleException:
+                        # Only update the pv when the pytac lattice is recalculated
+                        # if the RB has no corresponding SP
+                        readback_only_pv = True
+
                     upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
-                            get_pv_name, (None, None, None, None, None, None)
+                            read_pv_name, (None, None, None, None, None, None)
                         )
                     )
                     record_data = RecordData(
@@ -196,21 +213,18 @@ class VirtacServer:
                         initial_value=value,
                         scan=scan,
                     )
-                    in_pv = PV(get_pv_name, record_data)
-                    in_pv.append_pytac_element(element)
-                    in_pv.set_pytac_field(field)
-                    self._pv_dict[get_pv_name] = in_pv
-
-                    try:
-                        set_pv_name = element.get_pv_name(field, pytac.SP)
-                    except HandleException:
-                        # Only update the pv when the pytac lattice is recalculated
-                        # if the RB has no corresponding SP
-                        in_pv.update_from_lattice = True
+                    if readback_only_pv:
+                        read_pv = ReadbackPV(read_pv_name, record_data)
                     else:
+                        read_pv = PV(read_pv_name, record_data)
+                    read_pv.append_pytac_element(element)
+                    read_pv.set_pytac_field(field)
+                    self._pv_dict[read_pv_name] = read_pv
+
+                    if not readback_only_pv:
                         upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
-                                get_pv_name, (None, None, None, None, None, None)
+                                set_pv_name, (None, None, None, None, None, None)
                             )
                         )
                         record_data = RecordData(
@@ -225,18 +239,36 @@ class VirtacServer:
                         )
                         # TODO, this is a fudge and wants improving
                         # For tunefb the quadrapole SETI records need to be OffsetPVs
-                        # isntead of DirectPVs, but as tunefb is an extension module it
-                        # is a bit awkward
+                        # instead of SetpointPVs, but as tunefb is an extension module
+                        # it is a bit awkward
                         if self._enable_tunefb and field == "b1":
-                            out_pv = OffsetPV(set_pv_name, record_data, in_pv)
+                            set_pv = OffsetPV(set_pv_name, record_data, read_pv)
                         else:
-                            out_pv = DirectPV(set_pv_name, record_data, in_pv)
+                            set_pv = SetpointPV(set_pv_name, record_data, read_pv)
 
-                        self._pv_dict[set_pv_name] = out_pv
+                        self._pv_dict[set_pv_name] = set_pv
                         if element.type_.upper() == "BEND" and bend_in_record is None:
-                            bend_in_record = in_pv
+                            bend_in_record = read_pv
 
     def _create_lattice_pvs(self, limits_dict):
+        """Create a PV for each simulated field on each pytac lattice element.
+
+            .. Note:: The one exception to the rule of one PV per field is for the bend
+                      magnets. Each of the 50 bend magnets shares the same PV and has
+                      the same current value.
+            .. Note:: For fields which have an in type record (RB) and an out type
+                      record (SP) we create SetpointPVs (or a derivative). SetpointPVs
+                      are used to set the pytac element with their SP record, the RB
+                      record merely reflects the set value.
+            .. Note:: For fields which only have an (RB) record and no (SP) record we
+                      just create regular PVs and we set their update_from_lattice to
+                      true. This means that when the pytac lattice is recalculated,
+                      these PVs read their value from the lattice.
+
+        Args:
+            limits_csv (str): The filepath to the .csv file from which to load pv field
+                              data to configure softioc records with.
+        """
         lat_fields = self.lattice.get_fields()
         lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
         if not self._enable_emittance:
@@ -259,10 +291,9 @@ class VirtacServer:
                     scan=scan,
                     initial_value=value,
                 )
-                in_pv = PV(get_pv_name, record_data)
+                in_pv = ReadbackPV(get_pv_name, record_data)
                 in_pv.append_pytac_element(self.lattice)
                 in_pv.set_pytac_field(field)
-                in_pv.update_from_lattice = True
                 self._pv_dict[get_pv_name] = in_pv
 
     def _create_bba_records(self, bba_csv):
@@ -513,6 +544,7 @@ class VirtacServer:
             [
                 "num_ca_pvs",
                 "num_pvs",
+                "num_readback_pvs",
                 "num_direct_pvs",
                 "num_offset_pvs",
                 "num_monitor_pvs",
@@ -529,7 +561,9 @@ class VirtacServer:
                 num_pvs_dict["num_ca_pvs"] += 1
             elif type(pv) is PV:
                 num_pvs_dict["num_pvs"] += 1
-            elif type(pv) is DirectPV:
+            elif type(pv) is ReadbackPV:
+                num_pvs_dict["num_readback_pvs"] += 1
+            elif type(pv) is SetpointPV:
                 num_pvs_dict["num_direct_pvs"] += 1
             elif type(pv) is OffsetPV:
                 num_pvs_dict["num_offset_pvs"] += 1
@@ -554,6 +588,7 @@ class VirtacServer:
         print(f"\t Total pvs: {total_num_pvs}")
         print(f"\t\t CA pvs: {num_pvs_dict['num_ca_pvs']}")
         print(f"\t\t PV pvs: {num_pvs_dict['num_pvs']}")
+        print(f"\t\t Readback pvs: {num_pvs_dict['num_readback_pvs']}")
         print(f"\t\t Direct pvs: {num_pvs_dict['num_direct_pvs']}")
         print(f"\t\t Offset pvs: {num_pvs_dict['num_offset_pvs']}")
         print(f"\t\t Monitor pvs: {num_pvs_dict['num_monitor_pvs']}")
@@ -561,11 +596,6 @@ class VirtacServer:
         print(f"\t\t Inverse pvs: {num_pvs_dict['num_inverse_pvs']}")
         print(f"\t\t Summation pvs: {num_pvs_dict['num_summation_pvs']}")
         print(f"\t\t Refresh pvs: {num_pvs_dict['num_refresh_pvs']}")
-
-        print(
-            "\t PVs updated after each lattice recalculation: "
-            f"{len(self._readback_pvs_dict)}"
-        )
 
         if verbosity >= 1:
             print("\tAvailable PVs")

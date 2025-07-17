@@ -37,9 +37,6 @@ class PV:
         self._record = None
         self._pytac_elements: list = []
         self._pytac_field = None
-        # Any PV with update_from_lattice as true, will have its value updated when the pytac
-        # lattice is updated
-        self.update_from_lattice = False
         if record_data is not None:
             self.create_softioc_record(record_data)
 
@@ -129,7 +126,16 @@ class PV:
         return self._record.set(value)
 
 
-class DirectPV(PV):
+class ReadbackPV(PV):
+    """A PV which is automatically updated when its connected pytac elements
+    change value after a lattice recalculation."""
+
+    def __init__(self, name, record_data: RecordData):
+        super().__init__(name, record_data)
+        self.update_from_lattice = False
+
+
+class SetpointPV(PV):
     """When this PV has its value updated, we do two things. We update its
     paired in_record with value"""
 
@@ -166,7 +172,7 @@ class DirectPV(PV):
             )
 
 
-class OffsetPV(DirectPV):
+class OffsetPV(SetpointPV):
     def __init__(
         self,
         name,
