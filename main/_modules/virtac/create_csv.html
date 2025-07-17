@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.create_csv &#8212; atip 0.1.dev394+gf570406 documentation</title>
+    <title>virtac.create_csv &#8212; virtac 0.1.dev412+gb958b92 documentation</title>
   
   
   
@@ -29,7 +29,7 @@
   <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=37940537"></script>
+    <script src="../../_static/documentation_options.js?v=1b74b0d8"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/virtac/create_csv';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/atip/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -129,7 +129,7 @@
     <img src="../../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">atip</p>
+    <p class="title logo__title">virtac</p>
   
 </a></div>
     
@@ -208,7 +208,7 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/atip" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
@@ -220,7 +220,7 @@
           
           
           
-          <a href="https://pypi.org/project/atip" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
             <span class="sr-only">PyPI</span></a>
         </li>
 </ul></div>
@@ -345,7 +345,7 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/atip" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
@@ -357,7 +357,7 @@
           
           
           
-          <a href="https://pypi.org/project/atip" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
             <span class="sr-only">PyPI</span></a>
         </li>
 </ul></div>
@@ -446,20 +446,19 @@
 <span class="sd">default EPICS port for the live machine not 6064.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pytac</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cothread.catools</span><span class="w"> </span><span class="kn">import</span> <span class="n">FORMAT_CTRL</span><span class="p">,</span> <span class="n">caget</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">atip</span>
+<span class="kn">import</span> <span class="nn">atip</span>
+<span class="kn">import</span> <span class="nn">numpy</span>
+<span class="kn">import</span> <span class="nn">pytac</span>
+<span class="kn">from</span> <span class="nn">cothread.catools</span> <span class="kn">import</span> <span class="n">FORMAT_CTRL</span><span class="p">,</span> <span class="n">caget</span>
 
 
 <div class="viewcode-block" id="generate_feedback_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_feedback_pvs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_feedback_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">generate_feedback_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get feedback pvs. Also get families for tune feedback</span>
 <span class="sd">    Args:</span>
 <span class="sd">        all_elements (list): a list of elements</span>
@@ -527,7 +526,7 @@
 
 <div class="viewcode-block" id="generate_bba_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_bba_pvs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_bba_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">symmetry</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">generate_bba_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">symmetry</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data to be written is stored as a list of tuples each with structure:</span>
 <span class="sd">    element index (int), field (str), pv (str), value (int), record_type (str).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -601,7 +600,7 @@
 
 <div class="viewcode-block" id="generate_pv_limits">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_pv_limits">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_pv_limits</span><span class="p">(</span><span class="n">lattice</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">generate_pv_limits</span><span class="p">(</span><span class="n">lattice</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the control limits and precision values from the live machine for</span>
 <span class="sd">    all normal PVS.</span>
 
@@ -646,13 +645,13 @@
 
 <div class="viewcode-block" id="generate_mirrored_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_mirrored_pvs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_mirrored_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">generate_mirrored_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Structure of data:</span>
 
 <span class="sd">    output type:</span>
 <span class="sd">        The type of output record to create, only &#39;aIn&#39;, &#39;longIn&#39;,</span>
 <span class="sd">        &#39;Waveform&#39; types are currently supported; if &#39;&#39; then output to an</span>
-<span class="sd">        existing in record already created in ATIPServer, &#39;caput&#39; is also a</span>
+<span class="sd">        existing in record already created in VirtacServer, &#39;caput&#39; is also a</span>
 <span class="sd">        special case it creates a mask for cothread.catools.caput calling</span>
 <span class="sd">        set(value) on this mask will call caput with the output PV and the</span>
 <span class="sd">        passed value.</span>
@@ -782,7 +781,7 @@
 
 <div class="viewcode-block" id="generate_tune_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_tune_pvs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_tune_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">generate_tune_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the PVs associated with the tune feedback system, the structure of</span>
 <span class="sd">    data is:</span>
 <span class="sd">    set pv: The PV to set the offset to.</span>
@@ -809,7 +808,7 @@
 
 <div class="viewcode-block" id="write_data_to_file">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.write_data_to_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ring_mode</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">ring_mode</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the collected data to a .csv file with the given name. If the file</span>
 <span class="sd">    already exists it will be overwritten.</span>
 
@@ -832,7 +831,7 @@
 
 <div class="viewcode-block" id="parse_arguments">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.parse_arguments">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parse_arguments</span><span class="p">():</span>
+<span class="k">def</span> <span class="nf">parse_arguments</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The arguments passed to this script to configure how the csv is to be created&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Generate CSV file to define the PVs served by the &quot;</span>

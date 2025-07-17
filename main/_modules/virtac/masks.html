@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.masks &#8212; atip 0.1.dev394+gf570406 documentation</title>
+    <title>virtac.masks &#8212; virtac 0.1.dev412+gb958b92 documentation</title>
   
   
   
@@ -29,7 +29,7 @@
   <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=37940537"></script>
+    <script src="../../_static/documentation_options.js?v=1b74b0d8"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/virtac/masks';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/atip/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -129,7 +129,7 @@
     <img src="../../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">atip</p>
+    <p class="title logo__title">virtac</p>
   
 </a></div>
     
@@ -208,7 +208,7 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/atip" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
@@ -220,7 +220,7 @@
           
           
           
-          <a href="https://pypi.org/project/atip" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
             <span class="sr-only">PyPI</span></a>
         </li>
 </ul></div>
@@ -345,7 +345,7 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/atip" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
@@ -357,7 +357,7 @@
           
           
           
-          <a href="https://pypi.org/project/atip" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
             <span class="sr-only">PyPI</span></a>
         </li>
 </ul></div>
@@ -442,18 +442,18 @@
                 <article class="bd-article">
                   
   <h1>Source code for virtac.masks</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cothread.catools</span><span class="w"> </span><span class="kn">import</span> <span class="n">caget</span><span class="p">,</span> <span class="n">caput</span>
+<span></span><span class="kn">from</span> <span class="nn">cothread.catools</span> <span class="kn">import</span> <span class="n">caget</span><span class="p">,</span> <span class="n">caput</span>
 
 
 <div class="viewcode-block" id="callback_offset">
 <a class="viewcode-back" href="../../_api/virtac.masks.html#virtac.masks.callback_offset">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">callback_offset</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">callback_offset</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to hold a method to be passed as a callback to camonitor.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">quad_pv</span><span class="p">,</span> <span class="n">offset_record</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">server</span><span class="p">,</span> <span class="n">quad_pv</span><span class="p">,</span> <span class="n">offset_record</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            server (atip_server.ATIPServer): The server object on which to</span>
+<span class="sd">            server (virtac_server.VirtacServer): The server object on which to</span>
 <span class="sd">                                              refresh the PVs.</span>
 <span class="sd">            quad_pv (str): The name of the PV to refresh so it can have the new</span>
 <span class="sd">                            offset applied, in the case of tune feedback this</span>
@@ -467,7 +467,7 @@
 
 <div class="viewcode-block" id="callback_offset.callback">
 <a class="viewcode-back" href="../../_api/virtac.masks.html#virtac.masks.callback_offset.callback">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;When called set the passed value to the held offset record and</span>
 <span class="sd">        refresh the held quadrupole PV so the new offset is applied.</span>
 
@@ -483,10 +483,10 @@
 
 <div class="viewcode-block" id="callback_set">
 <a class="viewcode-back" href="../../_api/virtac.masks.html#virtac.masks.callback_set">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">callback_set</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">callback_set</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A class to hold a method to be passed as a callback to camonitor.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            output (list): A list of output records to set to.</span>
@@ -495,7 +495,7 @@
 
 <div class="viewcode-block" id="callback_set.callback">
 <a class="viewcode-back" href="../../_api/virtac.masks.html#virtac.masks.callback_set.callback">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;When called set the passed value to all held output records.</span>
 
 <span class="sd">        Args:</span>
@@ -510,10 +510,10 @@
 
 <div class="viewcode-block" id="caget_mask">
 <a class="viewcode-back" href="../../_api/virtac.masks.html#virtac.masks.caget_mask">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">caget_mask</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">caget_mask</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A mask for caget so it can comply with the record.get() syntax.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pv</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pv</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            pv (str): The PV to call caget on.</span>
@@ -521,17 +521,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">pv</span> <span class="o">=</span> <span class="n">pv</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">pv</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">caget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pv</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="caput_mask">
 <a class="viewcode-back" href="../../_api/virtac.masks.html#virtac.masks.caput_mask">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">caput_mask</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">caput_mask</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A mask for caput so it can comply with the record.set(value) syntax.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pv</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pv</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            pv (str): The PV to call caput on.</span>
@@ -541,7 +541,7 @@
 
 <div class="viewcode-block" id="caput_mask.set">
 <a class="viewcode-back" href="../../_api/virtac.masks.html#virtac.masks.caput_mask.set">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            value (number): The value to caput to the PV.</span>

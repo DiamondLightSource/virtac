@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>virtac.create_csv &#8212; atip 0.1.dev394+gf570406 documentation</title>
+    <title>virtac.create_csv &#8212; virtac 0.1.dev412+gb958b92 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=37940537"></script>
+    <script src="../_static/documentation_options.js?v=1b74b0d8"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,7 +50,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = '_api/virtac.create_csv';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/atip/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -59,7 +59,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="virtac.masks" href="virtac.masks.html" />
-    <link rel="prev" title="virtac.atip_server" href="virtac.atip_server.html" />
+    <link rel="prev" title="virtac.virtac_server" href="virtac.virtac_server.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="main" />
@@ -132,7 +132,7 @@
     <img src="../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">atip</p>
+    <p class="title logo__title">virtac</p>
   
 </a></div>
     
@@ -211,7 +211,7 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/atip" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
@@ -223,7 +223,7 @@
           
           
           
-          <a href="https://pypi.org/project/atip" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
             <span class="sr-only">PyPI</span></a>
         </li>
 </ul></div>
@@ -350,7 +350,7 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/atip" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
         <li class="nav-item">
@@ -362,7 +362,7 @@
           
           
           
-          <a href="https://pypi.org/project/atip" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
+          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
             <span class="sr-only">PyPI</span></a>
         </li>
 </ul></div>
@@ -397,23 +397,15 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 has-children"><a class="reference internal" href="atip.html">Atip API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l2"><a class="reference internal" href="atip.load_sim.html"><code class="docutils literal notranslate"><span class="pre">atip.load_sim</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="atip.sim_data_sources.html"><code class="docutils literal notranslate"><span class="pre">atip.sim_data_sources</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="atip.simulator.html"><code class="docutils literal notranslate"><span class="pre">atip.simulator</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="atip.utils.html"><code class="docutils literal notranslate"><span class="pre">atip.utils</span></code></a></li>
-</ul>
-</details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="virtac.html">Virtac API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="virtac.atip_ioc_entry.html"><code class="docutils literal notranslate"><span class="pre">virtac.atip_ioc_entry</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="virtac.atip_server.html"><code class="docutils literal notranslate"><span class="pre">virtac.atip_server</span></code></a></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="virtac.html">API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="virtac.virtac_server.html"><code class="docutils literal notranslate"><span class="pre">virtac.virtac_server</span></code></a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">virtac.create_csv</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="virtac.masks.html"><code class="docutils literal notranslate"><span class="pre">virtac.masks</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="virtac.mirror_objects.html"><code class="docutils literal notranslate"><span class="pre">virtac.mirror_objects</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/DiamondLightSource/atip/releases">Release Notes</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/DiamondLightSource/virtac/releases">Release Notes</a></li>
 </ul>
 </div>
 </nav></div>
@@ -556,7 +548,7 @@ all normal PVS.</p>
 <dl class="simple">
 <dt>output type:</dt><dd><p>The type of output record to create, only ‘aIn’, ‘longIn’,
 ‘Waveform’ types are currently supported; if ‘’ then output to an
-existing in record already created in ATIPServer, ‘caput’ is also a
+existing in record already created in VirtacServer, ‘caput’ is also a
 special case it creates a mask for cothread.catools.caput calling
 set(value) on this mask will call caput with the output PV and the
 passed value.</p>
@@ -641,12 +633,12 @@ already exists it will be overwritten.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="virtac.atip_server.html"
+       href="virtac.virtac_server.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">virtac.atip_server</span></code></p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">virtac.virtac_server</span></code></p>
       </div>
     </a>
     <a class="right-next"
@@ -691,7 +683,7 @@ already exists it will be overwritten.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/atip/edit/main/docs/_api/virtac.create_csv.rst">
+    <a href="https://github.com/DiamondLightSource/virtac/edit/main/docs/_api/virtac.create_csv.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
