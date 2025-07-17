@@ -5,16 +5,12 @@ default EPICS port for the live machine not 6064.
 import argparse
 import csv
 import os
+import sys
 
 import atip
 import numpy
 import pytac
 from cothread.catools import FORMAT_CTRL, caget
-
-# Set the default string printing options for numpy arrays so that they are properly
-# formatted when outputting them to the csv file
-numpy.set_printoptions(threshold=100000)
-numpy.set_printoptions(linewidth=100000)
 
 
 def generate_feedback_pvs(all_elements, lattice):
@@ -447,21 +443,24 @@ def parse_arguments():
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
-    lattice = atip.utils.loader(args.ring_mode)
-    all_elements = atip.utils.preload(lattice)
-    print("Creating feedback PVs CSV file.")
-    data = generate_feedback_pvs(all_elements, lattice)
-    write_data_to_file(data, args.feedback, args.ring_mode)
-    print("Creating BBA PVs CSV file.")
-    data = generate_bba_pvs(all_elements, lattice.symmetry)
-    write_data_to_file(data, args.bba, args.ring_mode)
-    print("Creating limits PVs CSV file.")
-    data = generate_pv_limits(lattice)
-    write_data_to_file(data, args.limits, args.ring_mode)
-    print("Creating mirrored PVs CSV file.")
-    data = generate_mirrored_pvs(lattice)
-    write_data_to_file(data, args.mirrored, args.ring_mode)
-    print("Creating tune PVs CSV file.")
-    data = generate_tune_pvs(lattice)
-    write_data_to_file(data, args.tune, args.ring_mode)
+    # Set the default string printing options for numpy arrays so that they are properly
+    # formatted when outputting them to the csv file
+    with numpy.printoptions(threshold=sys.maxsize, linewidth=100000):
+        args = parse_arguments()
+        lattice = atip.utils.loader(args.ring_mode)
+        all_elements = atip.utils.preload(lattice)
+        print("Creating feedback PVs CSV file.")
+        data = generate_feedback_pvs(all_elements, lattice)
+        write_data_to_file(data, args.feedback, args.ring_mode)
+        print("Creating BBA PVs CSV file.")
+        data = generate_bba_pvs(all_elements, lattice.symmetry)
+        write_data_to_file(data, args.bba, args.ring_mode)
+        print("Creating limits PVs CSV file.")
+        data = generate_pv_limits(lattice)
+        write_data_to_file(data, args.limits, args.ring_mode)
+        print("Creating mirrored PVs CSV file.")
+        data = generate_mirrored_pvs(lattice)
+        write_data_to_file(data, args.mirrored, args.ring_mode)
+        print("Creating tune PVs CSV file.")
+        data = generate_tune_pvs(lattice)
+        write_data_to_file(data, args.tune, args.ring_mode)
