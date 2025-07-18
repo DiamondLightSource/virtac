@@ -12,7 +12,7 @@ from .pv import (
     PV,
     CaPV,
     CollationPV,
-    InversePV,
+    InversionPV,
     MonitorPV,
     OffsetPV,
     ReadbackPV,
@@ -183,7 +183,7 @@ class VirtacServer:
             # There is only 1 bend PV for all bend magnets, each bend element is added
             # to this PV
             if element.type_.upper() == "BEND" and bend_in_record is not None:
-                bend_in_record.append_pytac_element(element)
+                bend_in_record.append_pytac_item(element)
             else:
                 for field in element.get_fields()[pytac.SIM]:
                     readback_only_pv = False
@@ -217,7 +217,7 @@ class VirtacServer:
                         read_pv = ReadbackPV(read_pv_name, record_data)
                     else:
                         read_pv = PV(read_pv_name, record_data)
-                    read_pv.append_pytac_element(element)
+                    read_pv.append_pytac_item(element)
                     read_pv.set_pytac_field(field)
                     self._pv_dict[read_pv_name] = read_pv
 
@@ -237,10 +237,9 @@ class VirtacServer:
                             initial_value=value,
                             always_update=True,
                         )
-                        # TODO, this is a fudge and wants improving
+
                         # For tunefb the quadrapole SETI records need to be OffsetPVs
-                        # instead of SetpointPVs, but as tunefb is an extension module
-                        # it is a bit awkward
+                        # instead of SetpointPVs
                         if self._enable_tunefb and field == "b1":
                             set_pv = OffsetPV(set_pv_name, record_data, read_pv)
                         else:
@@ -292,7 +291,7 @@ class VirtacServer:
                     initial_value=value,
                 )
                 in_pv = ReadbackPV(get_pv_name, record_data)
-                in_pv.append_pytac_element(self.lattice)
+                in_pv.append_pytac_item(self.lattice)
                 in_pv.set_pytac_field(field)
                 self._pv_dict[get_pv_name] = in_pv
 
@@ -362,7 +361,7 @@ class VirtacServer:
                     pv = PV(name, record_data)
                     # TODO: Add some checks of csv data here?
                     pv.set_pytac_field(line["field"])
-                    pv.append_pytac_element(self.lattice[int(line["index"]) - 1])
+                    pv.append_pytac_item(self.lattice[int(line["index"]) - 1])
                     self._pv_dict[name] = pv
 
     def _create_mirror_records(self, mirror_csv):
@@ -423,7 +422,7 @@ class VirtacServer:
                     if line["mirror_type"] == "basic":
                         output_pv = MonitorPV(out_pv_name, record_data, input_records)
                     elif line["mirror_type"] == "inverse":
-                        output_pv = InversePV(out_pv_name, record_data, input_records)
+                        output_pv = InversionPV(out_pv_name, record_data, input_records)
                     elif line["mirror_type"] == "summate":
                         output_pv = SummationPV(out_pv_name, record_data, input_records)
                     elif line["mirror_type"] == "collate":
@@ -461,17 +460,20 @@ class VirtacServer:
             for line in csv_reader:
                 set_record = self._pv_dict[line["set_pv"]]
                 old_offset_record = self._pv_dict[line["offset_pv"]]
-                elements, field = old_offset_record.get_pytac_data()
                 # we are overwriting the old_offset_record with the new one which has
                 # the additional tunefb stuff, idk if this is how we should be doing it
                 # or not
+                # The refresh PVs monitor the tunefb pvs which change the offset and
+                # store this offset as their own value, then they poke the actual seti
+                # PV to make it process so it can update its own value by getting the
+                # offset from this PV. But do we actually need this intermediate step?
+                # Do we need these RefreshPV/offset pvs? Cant the SETI PVs just monitor
+                # the tunefb pvs and add this read offset to themselves?
                 new_offset_record = RefreshPV(
                     line["offset_pv"],
                     line["delta_pv"],
                     set_record,
-                    elements,
-                    field,
-                    old_offset_record.get_record(),
+                    old_offset_record,
                 )
                 set_record.attach_offset_record(new_offset_record)
                 self._pv_dict[line["offset_pv"]] = new_offset_record
@@ -571,7 +573,7 @@ class VirtacServer:
                 num_pvs_dict["num_monitor_pvs"] += 1
             elif type(pv) is CollationPV:
                 num_pvs_dict["num_collation_pvs"] += 1
-            elif type(pv) is InversePV:
+            elif type(pv) is InversionPV:
                 num_pvs_dict["num_inverse_pvs"] += 1
             elif type(pv) is SummationPV:
                 num_pvs_dict["num_summation_pvs"] += 1
