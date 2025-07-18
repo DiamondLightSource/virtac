@@ -8,6 +8,7 @@ import os
 import sys
 
 import atip
+import cothread
 import numpy
 import pytac
 from cothread.catools import FORMAT_CTRL, caget
@@ -149,63 +150,83 @@ def generate_bba_pvs(all_elements, symmetry):
     return data
 
 
-def generate_pv_limits(lattice):
+def get_element_pv_data(
+    pytac_item: pytac.lattice.Lattice | pytac.element.Element,
+    pvs: list[str],
+    data,
+):
     """Get the control limits and precision values from the live machine for
     all normal PVS.
 
     Args:
-        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
-        machine
+        pytac_item (pytac.element.Element | pytac.lattice.Lattice): An element of the
+            pytac lattice or the lattice itself
+        pvs (list[str]): A list of pv names which we have already found
+        data (CSVData): A list of tuples, with each tuple being a collection of data
+            about one pv.
     """
-    data: list[tuple] = [
-        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")
-    ]
-    pvs: str = []
-    all_elements = list(lattice)
-    all_elements.insert(0, lattice)
+    field_data: dict = pytac_item.get_fields()
+    lat_fields: set[str] = set(field_data[pytac.LIVE]).intersection(
+        set(field_data[pytac.SIM])
+    )
     # These pvs need to be configured with their SCAN fields set to 1 second. This is
     # different to the SCAN field in the LIVE pv, so we cant just caget it.
-    refresh_pvs = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
-    for element in all_elements:
-        lat_fields = element.get_fields()
-        # Only get the fields that exist in the LIVE and SIM pytac lattices
-        lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
-        for field in lat_fields:
-            if not isinstance(element.get_device(field), pytac.device.SimpleDevice):
-                rb_pv = element.get_pv_name(field, pytac.RB)
-                if rb_pv not in pvs:
-                    pvs.append(rb_pv)
-                    ctrl = caget(rb_pv, format=FORMAT_CTRL)
-                    data.append(
-                        (
-                            rb_pv,
-                            ctrl.upper_ctrl_limit,
-                            ctrl.lower_ctrl_limit,
-                            ctrl.precision,
-                            ctrl.upper_disp_limit,
-                            ctrl.lower_disp_limit,
-                            "1 second" if rb_pv in refresh_pvs else "I/O Intr",
-                        )
+    scan_pvs: list[str] = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
+    for field in lat_fields:
+        if not isinstance(pytac_item.get_device(field), pytac.device.SimpleDevice):
+            rb_pv: str = pytac_item.get_pv_name(field, pytac.RB)
+            if rb_pv not in pvs:
+                ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
+                pvs.append(rb_pv)
+                data.append(
+                    (
+                        rb_pv,
+                        ctrl.upper_ctrl_limit,
+                        ctrl.lower_ctrl_limit,
+                        ctrl.precision,
+                        ctrl.upper_disp_limit,
+                        ctrl.lower_disp_limit,
+                        "1 second" if rb_pv in scan_pvs else "I/O Intr",
                     )
-                    try:
-                        sp_pv = element.get_pv_name(field, pytac.SP)
-                    except pytac.exceptions.HandleException:
-                        pass
-                    else:
-                        if sp_pv not in pvs:
-                            pvs.append(sp_pv)
-                            ctrl = caget(sp_pv, format=FORMAT_CTRL)
-                            data.append(
-                                (
-                                    sp_pv,
-                                    ctrl.upper_ctrl_limit,
-                                    ctrl.lower_ctrl_limit,
-                                    ctrl.precision,
-                                    ctrl.upper_disp_limit,
-                                    ctrl.lower_disp_limit,
-                                    "1 second" if sp_pv in refresh_pvs else "I/O Intr",
-                                )
+                )
+                try:
+                    sp_pv: str = pytac_item.get_pv_name(field, pytac.SP)
+                except pytac.exceptions.HandleException:
+                    pass
+                else:
+                    if sp_pv not in pvs:
+                        ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
+                        data.append(
+                            (
+                                sp_pv,
+                                ctrl.upper_ctrl_limit,
+                                ctrl.lower_ctrl_limit,
+                                ctrl.precision,
+                                ctrl.upper_disp_limit,
+                                ctrl.lower_disp_limit,
+                                "1 second" if sp_pv in scan_pvs else "I/O Intr",
                             )
+                        )
+
+
+def generate_pv_limits(lattice: pytac.lattice.Lattice):
+    """Loop through each element in the lattice and spawn a cothread which will then
+    do a caget to get pv data for the element.
+
+    Args:
+        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
+            machine
+    """
+    data = [("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")]
+    pvs: list[str] = []
+    caget_handles: list[cothread.Spawn] = []
+    # Add limits for PVs connected to lattice element and the lattice itself
+    pytac_items: list[pytac.lattice.Lattice | pytac.element.Element] = list(lattice)
+    pytac_items.insert(0, lattice)
+    for item in pytac_items:
+        caget_handles.append(cothread.Spawn(get_element_pv_data, item, pvs, data))
+    for caget_handle in caget_handles:
+        caget_handle.Wait()
     return data
 
 
