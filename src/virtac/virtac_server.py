@@ -1,7 +1,6 @@
 import csv
 import logging
 import typing
-from warnings import warn
 
 import atip
 import numpy
@@ -88,7 +87,7 @@ class VirtacServer:
         self._readback_pvs_dict: dict[str, PV] = {}
         print("Starting PV creation.")
         self._create_core_pvs(limits_csv)
-        
+
         if bba_csv is not None:
             self._create_bba_records(bba_csv)
         if feedback_csv is not None:
@@ -103,6 +102,7 @@ class VirtacServer:
             if isinstance(pv, ReadbackPV):
                 self._readback_pvs_dict[name] = pv
 
+    # TODO: Reset all correctors to default method?
 
     def update_pvs(self):
         """The callback function passed to ATSimulator during lattice creation,
@@ -289,7 +289,6 @@ class VirtacServer:
                     scan=scan,
                     initial_value=value,
                 )
-        print("~*~*Woah, we're halfway there, Wo-oah...*~*~")
                 in_pv = ReadbackPV(get_pv_name, record_data)
                 in_pv.append_pytac_item(self.lattice)
                 in_pv.set_pytac_field(field)
@@ -465,6 +464,7 @@ class VirtacServer:
                 set_record.attach_offset_record(new_offset_record)
                 self._pv_dict[line["offset_pv"]] = new_offset_record
 
+    # TODO: Needs fixing from refactor, is this function needed?
     def set_feedback_record(self, index, field, value):
         """Set a value to the feedback in records.
 
