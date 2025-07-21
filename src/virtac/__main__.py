@@ -127,6 +127,7 @@ def main():
     # Start the IOC.
     builder.LoadDatabase()
     softioc.iocInit()
+    # server.monitor_mirrored_pvs()
 
     context = globals() | {"server": server}
     softioc.interactive_ioc(context)

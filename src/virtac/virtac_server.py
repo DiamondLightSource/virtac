@@ -532,3 +532,67 @@ class VirtacServer:
                 if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
                     pv.toggle_monitoring(True)
             self._pv_monitoring = True
+
+    def print_virtac_stats(self, verbosity: int = 0):
+        """Print helpful statistics based on passed verbosity level"""
+        num_pvs_dict = dict.fromkeys(
+            [
+                "num_ca_pvs",
+                "num_pvs",
+                "num_readback_pvs",
+                "num_direct_pvs",
+                "num_offset_pvs",
+                "num_monitor_pvs",
+                "num_collation_pvs",
+                "num_inverse_pvs",
+                "num_summation_pvs",
+                "num_refresh_pvs",
+            ],
+            0,
+        )
+        total_num_pvs = len(self._pv_dict)
+        for pv in self._pv_dict.values():
+            if type(pv) is CaPV:
+                num_pvs_dict["num_ca_pvs"] += 1
+            elif type(pv) is PV:
+                num_pvs_dict["num_pvs"] += 1
+            elif type(pv) is ReadbackPV:
+                num_pvs_dict["num_readback_pvs"] += 1
+            elif type(pv) is SetpointPV:
+                num_pvs_dict["num_direct_pvs"] += 1
+            elif type(pv) is OffsetPV:
+                num_pvs_dict["num_offset_pvs"] += 1
+            elif type(pv) is MonitorPV:
+                num_pvs_dict["num_monitor_pvs"] += 1
+            elif type(pv) is CollationPV:
+                num_pvs_dict["num_collation_pvs"] += 1
+            elif type(pv) is InversionPV:
+                num_pvs_dict["num_inverse_pvs"] += 1
+            elif type(pv) is SummationPV:
+                num_pvs_dict["num_summation_pvs"] += 1
+            elif type(pv) is RefreshPV:
+                num_pvs_dict["num_refresh_pvs"] += 1
+
+        print("Virtac stats:")
+        print(
+            f"\t Tune feedbacks is {('enabled' if self._enable_tunefb else 'disabled')}"
+        )
+        print(
+            f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
+        )
+        print(f"\t Total pvs: {total_num_pvs}")
+        print(f"\t\t CA pvs: {num_pvs_dict['num_ca_pvs']}")
+        print(f"\t\t PV pvs: {num_pvs_dict['num_pvs']}")
+        print(f"\t\t Readback pvs: {num_pvs_dict['num_readback_pvs']}")
+        print(f"\t\t Direct pvs: {num_pvs_dict['num_direct_pvs']}")
+        print(f"\t\t Offset pvs: {num_pvs_dict['num_offset_pvs']}")
+        print(f"\t\t Monitor pvs: {num_pvs_dict['num_monitor_pvs']}")
+        print(f"\t\t Collation pvs: {num_pvs_dict['num_collation_pvs']}")
+        print(f"\t\t Inverse pvs: {num_pvs_dict['num_inverse_pvs']}")
+        print(f"\t\t Summation pvs: {num_pvs_dict['num_summation_pvs']}")
+        print(f"\t\t Refresh pvs: {num_pvs_dict['num_refresh_pvs']}")
+
+        if verbosity >= 1:
+            print("\tAvailable PVs")
+            for pv in self._pv_dict.values():
+                print(f"\t\t{pv.name}, {type(pv)}")
