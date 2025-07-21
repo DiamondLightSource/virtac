@@ -290,13 +290,6 @@ class VirtacServer:
                     initial_value=value,
                 )
         print("~*~*Woah, we're halfway there, Wo-oah...*~*~")
-    def _on_update(self, value, name):
-        """The callback function passed to out records, it is called after
-        successful record processing has been completed. It updates the out
-        record's corresponding in record with the value that has been set and
-        then sets the value to the Pytac lattice.
-
-        This functions needs to be kept FAST as it can be called rapidly by CA clients.
                 in_pv = ReadbackPV(get_pv_name, record_data)
                 in_pv.append_pytac_item(self.lattice)
                 in_pv.set_pytac_field(field)
