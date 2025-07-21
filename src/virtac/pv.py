@@ -2,6 +2,7 @@ import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
+from typing import TypeAlias
 
 import cothread
 import numpy
@@ -10,8 +11,8 @@ from cothread.catools import _Subscription, ca_nothing, caget, camonitor, caput
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
-RecordValue = int | float | numpy.typing.NDArray
-PytacItem = pytac.lattice.Lattice | pytac.element.Element
+RecordValue: TypeAlias = int | float | numpy.typing.NDArray
+PytacItem: TypeAlias = pytac.lattice.Lattice | pytac.element.Element
 
 
 @dataclass
@@ -28,7 +29,7 @@ class RecordData:
     zrst: str | None = None
     scan: str = "I/O Intr"
     pini: str = "YES"
-    always_update: str | None = False
+    always_update: bool | None = False
     initial_value: RecordValue = 0
 
 
@@ -38,7 +39,8 @@ class PV:
 
     Args:
         name (str): Used to set self.name
-        record_data (RecordData): Dataclass used to create this PVs softioc record.
+        record_data (RecordData | None): Dataclass used to create this PVs softioc
+            record.
 
     Attributes:
         self.name (str): The name used to get both the PV and its softioc record.
@@ -51,13 +53,14 @@ class PV:
 
     """
 
-    def __init__(self, name: str, record_data: RecordData):
+    def __init__(self, name: str, record_data: RecordData | None):
         logging.debug(f"Creating PV {name}")
         self.name: str = name
         self._record: RecordWrapper = None
         self._pytac_items: list[PytacItem] = []
-        self._pytac_field: str = None
-        self.create_softioc_record(record_data)
+        self._pytac_field: str = ""
+        if record_data is not None:
+            self.create_softioc_record(record_data)
 
     def _on_update(self, value: RecordValue, name: str):
         """The callback function called when the softioc record updates.
@@ -245,14 +248,14 @@ class OffsetPV(SetpointPV):
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
         in_pv (PV): The PV object to pass to _in_pv
-        offset_pv (PV): The PV object to pass to _offset_pv. It is optional to pass this
-            at initialisation, but if not passed, it must be later attached using the
-            attach_offset_record method.
+        offset_pv (PV | None): The PV object to pass to _offset_pv. It is optional to
+            pass this at initialisation, but if not passed, it must be later attached
+            using the attach_offset_record method.
 
     Attributes:
         _in_pv (PV): The PV which is to be updated when the SetpointPV's
             softioc record processes.
-        _offset_pv (PV): The PV which we get a value from to use as an offset
+        _offset_pv (PV | None): The PV which we get a value from to use as an offset
             during _on_update.
     """
 
@@ -264,7 +267,7 @@ class OffsetPV(SetpointPV):
         offset_pv: PV | None = None,
     ):
         super().__init__(name, record_data, in_pv)
-        self._offset_record: PV = offset_pv
+        self._offset_record: PV | None = offset_pv
 
     def _on_update(self, value: RecordValue, name: str):
         """This function sets value to self._in_pv._record and also sets value (with an
@@ -332,12 +335,12 @@ class MonitorPV(PV):
     def __init__(
         self,
         name: str,
-        record_data: RecordData | None,
+        record_data: RecordData,
         monitored_pvs: list[PV] | list[str],
         callbacks: list[Callable] | None = None,
     ):
         super().__init__(name, record_data)
-        self._monitor_list: list[tuple[PV, Callable] | tuple[str, Callable]] = []
+        self._monitor_list: list[tuple[PV | str, Callable]] = []
         self._camonitor_handles: list[_Subscription] = []
         if callbacks is None:
             callbacks = [self.set]
