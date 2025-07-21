@@ -6,8 +6,9 @@ from dataclasses import dataclass
 import cothread
 import numpy
 import pytac
-from cothread.catools import _Subscription, caget, camonitor, caput
+from cothread.catools import _Subscription, ca_nothing, caget, camonitor, caput
 from softioc import builder
+from softioc.pythonSoftIoc import RecordWrapper
 
 RecordValue = int | float | numpy.typing.NDArray
 PytacItem = pytac.lattice.Lattice | pytac.element.Element
@@ -41,9 +42,9 @@ class PV:
 
     Attributes:
         self.name (str): The name used to get both the PV and its softioc record.
-        self._record (softioc.record): This softioc record is the heart of the PV
-            class, the main purpose of PV objects is to manage the setting and getting
-            of these records.
+        self._record (softioc.pythonSoftIoc.RecordWrapper): This softioc record is the
+            heart of the PV class, the main purpose of PV objects is to manage the
+            setting and getting of these records.
         self._pytac_items (list[PytacItem]): An optional list of pytac elements or the
             pytac lattice itself which can be set/get from this PV.
         self._pytac_field (str): The field on the element(s) to set/get
@@ -53,13 +54,12 @@ class PV:
     def __init__(self, name: str, record_data: RecordData):
         logging.debug(f"Creating PV {name}")
         self.name: str = name
-        self._record = None
-        self._pytac_items: list = []
-        self._pytac_field = None
-        if record_data is not None:
-            self.create_softioc_record(record_data)
+        self._record: RecordWrapper = None
+        self._pytac_items: list[PytacItem] = []
+        self._pytac_field: str = None
+        self.create_softioc_record(record_data)
 
-    def _on_update(self, value, name):
+    def _on_update(self, value: RecordValue, name: str):
         """The callback function called when the softioc record updates.
 
         This functions needs to be kept FAST as it can be called rapidly by CA clients.
@@ -70,36 +70,30 @@ class PV:
         """
         logging.info(f"PV {name} changed to: {value}")
 
-    def get_pytac_data(self):
+    def get_pytac_data(self) -> tuple[list[PytacItem], str]:
         """Return the list of pytac elements and the field defined for this PV"""
         return self._pytac_items, self._pytac_field
 
-    def append_pytac_item(self, pytac_item):
+    def append_pytac_item(self, pytac_item: PytacItem):
         """Append a pytac item to the list of pytac items defined for this PV
 
         Args:
             pytac_item (list[PytacItem]): The pytac element or lattice to append."""
         self._pytac_items.append(pytac_item)
 
-    def set_pytac_field(self, field):
+    def set_pytac_field(self, field: str):
         """Set this PVs pytac field to the passed value
 
         Args:
             field (str): The pytac field to the value to."""
         self._pytac_field = field
 
-    def get_record(self):
-        """Return this PVs softioc record.
-
-        Care should be taken when manipulating the returned record."""
-        return self._record
-
-    def set_record_field(self, field, value):
+    def set_record_field(self, field: str, value: str | RecordData):
         """Set a field on this PVs softioc record
 
         Args:
             field (softioc.field): The EPICS field to set on the softioc record
-            value (str | int): The value to set to the EPICS field"""
+            value (str | RecordData): The value to set to the EPICS field"""
         self._record.set_field(field, value)
 
     def create_softioc_record(
@@ -152,21 +146,28 @@ class PV:
             )
         else:
             raise ValueError(
-                f"Failed to create PV with record type: {record_data.record_type}"
+                "Failed to create softioc record with record type: "
+                f"{record_data.record_type}"
             )
 
-    def get(self):
+    def get_record(self) -> RecordWrapper:
+        """Return this PVs softioc record.
+
+        Care should be taken when manipulating the returned record."""
+        return self._record
+
+    def get(self) -> RecordValue:
         """Get the value stored in this PVs softioc record"""
         return self._record.get()
 
-    def set(self, value):
+    def set(self, value: RecordValue):
         """Set a value to this PVs softioc record.
 
         Args:
             value (RecordValue): The value to set to the softioc record.
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
-        return self._record.set(value)
+        self._record.set(value)
 
 
 class ReadbackPV(PV):
@@ -184,7 +185,7 @@ class ReadbackPV(PV):
         record_data (RecordData): Dataclass used to create this PVs softioc record.
     """
 
-    def __init__(self, name, record_data: RecordData):
+    def __init__(self, name: str, record_data: RecordData):
         super().__init__(name, record_data)
 
 
@@ -201,11 +202,11 @@ class SetpointPV(PV):
             softioc record processes.
     """
 
-    def __init__(self, name, record_data: RecordData, in_pv: PV):
+    def __init__(self, name: str, record_data: RecordData, in_pv: PV):
         super().__init__(name, record_data)
-        self._in_pv = in_pv
+        self._in_pv: PV = in_pv
 
-    def _on_update(self, value, name):
+    def _on_update(self, value: RecordValue, name: str):
         """This function sets value to self._in_pv._record and also sets value to the
         pytac item and field configured for self._in_pv.
 
@@ -222,8 +223,8 @@ class SetpointPV(PV):
 
         # TODO: This functionality should really be done from the _in_records set
         # function.
-        pytac_item, field = self._in_pv.get_pytac_data()
-        for item in pytac_item:
+        pytac_items, field = self._in_pv.get_pytac_data()
+        for item in pytac_items:
             # Some elements such as bend magnets share a single PV which is used to
             # update them all to the same value
             logging.debug(f"Updating lattice for pv: {self._in_pv.name} to val {value}")
@@ -257,15 +258,15 @@ class OffsetPV(SetpointPV):
 
     def __init__(
         self,
-        name,
+        name: str,
         record_data: RecordData,
         in_pv: PV,
         offset_pv: PV | None = None,
     ):
         super().__init__(name, record_data, in_pv)
-        self._offset_record = offset_pv
+        self._offset_record: PV = offset_pv
 
-    def _on_update(self, value, name):
+    def _on_update(self, value: RecordValue, name: str):
         """This function sets value to self._in_pv._record and also sets value (with an
         additional offset from self._offset_pv) to the pytac item and field configured
         for self._in_pv.
@@ -281,7 +282,7 @@ class OffsetPV(SetpointPV):
         logging.debug("Read value %s on pv %s", value, name)
         self._in_pv.set(value)
 
-        offset = self._offset_record.get()
+        offset: RecordValue = self._offset_record.get()
         value += offset
 
         elements, field = self._in_pv.get_pytac_data()
@@ -315,8 +316,9 @@ class MonitorPV(PV):
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
         monitored_pvs (list[PV] | list[str]): A list of PVs used to setup camonitoring.
-        callbacks (list | None): A list of functions to be called when the monitored
-            PVs return.
+        callbacks (list[Callable] | None): A list of functions to be called when the
+            monitored PVs return. If none, then this PVs set function is called as the
+            callback.
 
     Attributes:
         _monitor_list (list[tuple[PV, Callable]] | list[tuple[str, Callable]]): Used to
@@ -329,13 +331,12 @@ class MonitorPV(PV):
 
     def __init__(
         self,
-        name,
+        name: str,
         record_data: RecordData | None,
         monitored_pvs: list[PV] | list[str],
-        callbacks=None,
+        callbacks: list[Callable] | None = None,
     ):
         super().__init__(name, record_data)
-        self._monitored_pv_names: list[str] = []
         self._monitor_list: list[tuple[PV, Callable] | tuple[str, Callable]] = []
         self._camonitor_handles: list[_Subscription] = []
         if callbacks is None:
@@ -410,7 +411,7 @@ class MonitorPV(PV):
             for handle in self._camonitor_handles:
                 handle.close()
 
-    def set(self, value, index=None):
+    def set(self, value: RecordValue, index: int | None = None):
         """Set a value to this PVs softioc record.
 
         For the MonitorPV, the set function is called when a camonitor returns, if we
@@ -456,11 +457,11 @@ class RefreshPV(MonitorPV):
         self, name, monitored_pv: PV | str, record_to_refresh: PV, pv_to_cannibalise: PV
     ):
         super().__init__(name, None, [monitored_pv], [self.refresh])
-        self._record_to_refresh = record_to_refresh
-        self._record = pv_to_cannibalise.get_record()
+        self._record_to_refresh: PV = record_to_refresh
+        self._record: RecordWrapper = pv_to_cannibalise.get_record()
         self._pytac_items, self._pytac_field = pv_to_cannibalise.get_pytac_data()
 
-    def refresh(self, value, index):
+    def refresh(self, value: RecordValue, index: int | None = None):
         """Set the value returned from the monitored PV to this PVs _record and then
         force an update of _record_to_refresh.
 
@@ -493,17 +494,17 @@ class InversionPV(MonitorPV):
         _invert_pvs (list[PV]): Same as invert_pvs argument.
     """
 
-    def __init__(self, name, record_data: RecordData, invert_pvs: list[PV]):
+    def __init__(self, name: str, record_data: RecordData, invert_pvs: list[PV]):
         super().__init__(name, record_data, invert_pvs, [self.invert])
-        self._invert_pvs = invert_pvs
+        self._invert_pvs: list[PV] = invert_pvs
 
-    def invert(self, value, index=None):
+    def invert(self, value: int | None = None, index: int | None = None):
         """Triggers this PV to caget the boolean values of all of its _invert_pv(s) and
             then invert them and set the result to _record.
 
         Args:
-            value (RecordValue): This is ignored
-            index (int): This is ignored
+            value (RecordValue | None): This is ignored
+            index (int | None): This is ignored
         """
         logging.debug(f"InversionPV: {self.name} inverting data")
         if (len(self._invert_pvs)) == 1:
@@ -539,7 +540,7 @@ class SummationPV(MonitorPV):
         super().__init__(name, record_data, summate_pvs, [self.summate])
         self._summate_pvs = summate_pvs
 
-    def summate(self, value, index=None):
+    def summate(self, value: RecordValue | None = None, index: int | None = None):
         """Caget a list of PV values and set the result to self._record
 
         Args:
@@ -578,12 +579,12 @@ class CollationPV(MonitorPV):
             5Hz.
     """
 
-    def __init__(self, name, record_data: RecordData, collate_pvs: list[PV]):
+    def __init__(self, name: str, record_data: RecordData, collate_pvs: list[PV]):
         super().__init__(name, record_data, collate_pvs, [self._set_update_required])
-        self._last_update_time = time.time()
-        self._collate_pvs = collate_pvs
-        self._update_required = False
-        self._minimum_time_between_updates = 0.2
+        self._last_update_time: float = time.time()
+        self._collate_pvs: list[PV] = collate_pvs
+        self._update_required: bool = False
+        self._minimum_time_between_updates: float = 0.2
         cothread.Spawn(self._periodic_update)
 
     def _periodic_update(self):
@@ -594,10 +595,17 @@ class CollationPV(MonitorPV):
             else:
                 cothread.Sleep(self._minimum_time_between_updates)
 
-    def _set_update_required(self, value, index=None):
+    def _set_update_required(
+        self, value: RecordValue | None = None, index: int | None = None
+    ):
         """Callback function executed when this PVs monitored PVs change value, rather
         than immediately doing the collation, we set this flag with the collation being
-        triggered by the self._periodic_update polling loop."""
+        triggered by the self._periodic_update polling loop.
+
+        Args:
+            value (RecordValue | None): This is ignored
+            index (int | None): This is ignored
+        """
         self._update_required = True
 
     def collate(self):
@@ -630,14 +638,14 @@ class CaPV:
     def __init__(self, name: str):
         self.name = name
 
-    def get(self):
+    def get(self) -> RecordValue:
         """Caget a value from an EPICS PV."""
 
         value = caget(self.name)
         logging.debug(f"Cagetting from PV: {self.name}, value: {value}")
         return value
 
-    def set(self, value):
+    def set(self, value) -> ca_nothing | list[ca_nothing]:
         """Caput a value to an EPICS PV.
 
         Args:
