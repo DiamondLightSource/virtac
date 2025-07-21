@@ -60,13 +60,14 @@ class VirtacServer:
 
     def __init__(
         self,
-        ring_mode,
-        limits_csv=None,
-        bba_csv=None,
-        feedback_csv=None,
-        mirror_csv=None,
-        tune_csv=None,
-        disable_emittance=False,
+        ring_mode: str,
+        limits_csv: str = None,
+        bba_csv: str = None,
+        feedback_csv: str = None,
+        mirror_csv: str = None,
+        tune_csv: str = None,
+        enable_emittance: bool = True,
+        enable_tunefb: bool = False,
     ):
         """
         Args:
@@ -88,10 +89,7 @@ class VirtacServer:
                                 information see create_csv.py.
             disable_emittance (bool): Whether the emittance should be disabled.
         """
-        self.lattice = atip.utils.loader(ring_mode, self.update_pvs, disable_emittance)
-        self.tune_feedback_status = False
         self._pv_monitoring = False
-        self._tune_fb_csv_path = tune_csv
         self._in_records = {}
         self._out_records = {}
         self._rb_only_records = []
@@ -103,13 +101,21 @@ class VirtacServer:
         self._record_names = {}
         print("Starting record creation.")
         self._create_records(limits_csv, disable_emittance)
+        self._enable_emittance: bool = enable_emittance
+        self._enable_tunefb: bool = enable_tunefb
+        # TODO: Need to update ATIP to use enable_emittance instead of disable_emittance
+        self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
+            ring_mode, self.update_pvs, not self._enable_emittance
+        )
         if bba_csv is not None:
             self._create_bba_records(bba_csv)
         if feedback_csv is not None:
-            self._create_feedback_records(feedback_csv, disable_emittance)
+            self._create_feedback_records(feedback_csv)
         if mirror_csv is not None:
             self._create_mirror_records(mirror_csv)
         print(f"Finished creating all {len(self._record_names)} records.")
+        if enable_tunefb and tune_csv is not None:
+            self._setup_tune_feedback(tune_csv)
 
     def _update_record_names(self, records):
         """Updates _record_names using the supplied list of softioc record objects."""
@@ -223,10 +229,13 @@ class VirtacServer:
                         if element.type_.upper() == "BEND" and bend_in_record is None:
                             bend_in_record = in_record
 
-        # Now for lattice fields.
+        Args:
+            limits_csv (str): The filepath to the .csv file from which to load pv field
+                              data to configure softioc records with.
+        """
         lat_fields = self.lattice.get_fields()
         lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
-        if disable_emittance:
+        if not self._enable_emittance:
             lat_fields -= {"emittance_x", "emittance_y"}
         for field in lat_fields:
             # Ignore basic devices as they do not have PVs.
@@ -294,7 +303,7 @@ class VirtacServer:
         self._bba_records = self._create_feedback_or_bba_records_from_csv(bba_csv)
         self._update_record_names(self._bba_records.values())
 
-    def _create_feedback_records(self, feedback_csv, disable_emittance):
+    def _create_feedback_records(self, feedback_csv: str):
         """Create all the feedback records from the .csv file at the location
         passed, see create_csv.py for more information; records for one edge
         case are also created.
@@ -302,8 +311,6 @@ class VirtacServer:
         Args:
             feedback_csv (str): The filepath to the .csv file to load the
                                     records in accordance with.
-            disable_emittance (bool): Whether the emittance related PVs should be
-                                        created or not.
         """
         # Create standard records from csv
         self._feedback_records = self._create_feedback_or_bba_records_from_csv(
@@ -312,12 +319,12 @@ class VirtacServer:
 
         # We can choose to not calculate emittance as it is not always required,
         # which decreases computation time.
-        if not disable_emittance:
             # Special case: EMIT STATUS for the vertical emittance feedback, since
             # we cannot currently create mbbIn records via CSV.
             builder.SetDeviceName("SR-DI-EMIT-01")
             emit_status_record = builder.mbbIn(
                 "STATUS", initial_value=0, ZRVL=0, ZRST="Successful", PINI="YES"
+        if self._enable_emittance:
             )
             self._feedback_records[(0, "emittance_status")] = emit_status_record
 
@@ -514,7 +521,7 @@ class VirtacServer:
         else:
             record.set(record.get())
 
-    def setup_tune_feedback(self, tune_csv=None):
+    def _setup_tune_feedback(self, tune_csv: str):
         """Read the tune feedback .csv and find the associated offset PVs,
         before starting monitoring them for a change to mimic the behaviour of
         the quadrupoles used by the tune feedback system on the live machine.
@@ -526,15 +533,14 @@ class VirtacServer:
             tune_csv (str): A path to a tune feedback .csv file to be used
                              instead of the default filepath passed at startup.
         """
-        if tune_csv is not None:
-            self._tune_fb_csv_path = tune_csv
-        if self._tune_fb_csv_path is None:
+        if tune_csv is None:
             raise ValueError(
                 "No tune feedback .csv file was given at "
                 "start-up, please provide one now; i.e. "
                 "server.start_tune_feedback('<path_to_csv>')"
             )
-        with open(self._tune_fb_csv_path) as f:
+        self._enable_tunefb = True
+        with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
             if not self._pv_monitoring:
                 self.monitor_mirrored_pvs()
