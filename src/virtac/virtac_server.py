@@ -100,6 +100,7 @@ class VirtacServer:
         """
         self._enable_emittance: bool = enable_emittance
         self._enable_tunefb: bool = enable_tunefb
+        self._pv_monitoring: bool = True
         # TODO: Need to update ATIP to use enable_emittance instead of disable_emittance
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
             ring_mode, self.update_pvs, not self._enable_emittance
@@ -483,17 +484,7 @@ class VirtacServer:
         self._enable_tunefb = True
         with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
-            if not self._pv_monitoring:
-                self.monitor_mirrored_pvs()
-            self.tune_feedback_status = True
             for line in csv_reader:
-
-    def stop_all_monitoring(self):
-        """Stop monitoring mirrored records and tune feedback offsets."""
-        for subscription in self._monitored_pvs.values():
-            subscription.close()
-        self.tune_feedback_status = False
-        self._pv_monitoring = False
                 set_record: OffsetPV = self._pv_dict[line["set_pv"]]
                 old_offset_record = self._pv_dict[line["offset_pv"]]
                 # We overwrite the old_offset_record with the new RefreshPV which has
@@ -542,3 +533,29 @@ class VirtacServer:
                     f"Simulated element {self.lattice[index]} does not have "
                     f"field {field}."
                 ) from exc
+
+    # Is this needed? It essentially just pauses a subset of the virtacs functionality
+    def disable_monitoring(self):
+        """Disable monitoring for all MonitorPV derived PVs. This will disable
+        tune feedback and vertical emittance feedback"""
+        if not self._pv_monitoring:
+            logging.warning("PV monitoring is already disabled, nothing to do.")
+        else:
+            logging.info("Disabling PV monitoring")
+            for _, pv in self._pv_dict.items():
+                if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
+                    pv.toggle_monitoring(False)
+            self._pv_monitoring = False
+
+    def enable_monitoring(self):
+        """Enable monitoring for all MonitorPV derived PVs. This will allow
+        tune feedback and vertical emittance feedback to work again"""
+        if self._pv_monitoring:
+            logging.warning("PV monitoring is already enabled, nothing to do.")
+        else:
+            logging.info("Enabling PV monitoring")
+            for pv in self._pv_dict.values():
+                if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
+                    pv.toggle_monitoring(True)
+            self._pv_monitoring = True
+
