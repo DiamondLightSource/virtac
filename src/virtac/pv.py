@@ -314,13 +314,14 @@ class MonitorPV(PV):
     Args:
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
-        monitored_pvs (list[PV]): A list of PVs used to setup camonitoring.
+        monitored_pvs (list[PV] | list[str]): A list of PVs used to setup camonitoring.
         callbacks (list | None): A list of functions to be called when the monitored
             PVs return.
 
     Attributes:
-        _monitor_list (list[tuple[PV, Callable]]): Used to keep track of which PVs we
-            are monitoring and which functions the camonitor calls when the change.
+        _monitor_list (list[tuple[PV, Callable]] | list[tuple[str, Callable]]): Used to
+            keep track of which PVs we are monitoring and which functions the camonitor
+            calls when they change value.
         _camonitor_handles (list[_Subscription]): Used to close camonitors if the a
             command is sent to pause monitoring.
 
@@ -330,42 +331,64 @@ class MonitorPV(PV):
         self,
         name,
         record_data: RecordData | None,
-        monitored_pvs: list[PV],
+        monitored_pvs: list[PV] | list[str],
         callbacks=None,
     ):
         super().__init__(name, record_data)
-        self._monitor_list: list[tuple[PV, Callable]] = []
+        self._monitored_pv_names: list[str] = []
+        self._monitor_list: list[tuple[PV, Callable] | tuple[str, Callable]] = []
         self._camonitor_handles: list[_Subscription] = []
         if callbacks is None:
             callbacks = [self.set]
-        self.monitor_pvs(list(monitored_pvs), callbacks)
+        self.monitor_pvs(monitored_pvs, callbacks)
 
-    def monitor_pvs(self, pvs: list[PV], callbacks: list[Callable]):
+    def monitor_pvs(self, pvs: list[PV] | list[str], callbacks: list[Callable]):
         """Setup camonitoring using the passed PVs and callbacks.
 
         Note: If len(callbacks) == 1 all pvs will use callbacks[0]. If len(callbacks) >1
             then pvs[i] will use callbacks[i] and len(callbacks) must equal len(pvs)
 
         Args:
-            pvs (list[PV]): A list of EPICS PVs to monitor using channal access.
+            pvs (list[PV] | list[str]): A list of EPICS PVs to monitor using channal
+                access.
             callbacks (list[Callable]): A list of functions to execute when the
                 associated PV changes value.
         """
+        pv_names: list[str] = []
+        with_pv_as_str = False
         if len(callbacks) > 1:
             assert len(pvs) == len(callbacks)
 
+        if isinstance(pvs[0], PV) or issubclass(type(pvs[0]), PV):
+            pv_names = [pv.name for pv in pvs]
+        elif isinstance(pvs[0], str):
+            pv_names = pvs
+            with_pv_as_str = True
+        else:
+            raise (
+                ValueError(
+                    "Monitored PV list must be filled with either str or PV type"
+                )
+            )
+
         if len(callbacks) == 1:
             # Use the same callback for all pvs
-            pv_names = []
             callback = callbacks[0]
             for pv in pvs:
                 self._monitor_list.append((pv, callback))
-                pv_names.append(pv.name)
-            self._camonitor_handles.extend(camonitor(pv_names, callback))
+
+            if with_pv_as_str:
+                self._camonitor_handles.extend(camonitor(pv_names, callback))
+            else:
+                self._camonitor_handles.extend(camonitor(pv_names, callback))
         else:
+            # Use the specified callback for each pv
             for pv, callback in zip(pvs, callbacks, strict=True):
                 self._monitor_list.append((pv, callback))
-                self._camonitor_handles.append(camonitor(pv.name, callback))
+                if with_pv_as_str:
+                    self._camonitor_handles.extend(camonitor(pv, callback))
+                else:
+                    self._camonitor_handles.extend(camonitor(pv.name, callback))
 
     def toggle_monitoring(self, enable):
         """Used to switch off this PVs monitoring by closing camonitor subscriptions or
@@ -400,7 +423,7 @@ class MonitorPV(PV):
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
         self._record.set(value)
-        self._record.set_field("PROC", 1)
+        # self._record.set_field("PROC", 1)
 
 
 class RefreshPV(MonitorPV):
@@ -419,7 +442,7 @@ class RefreshPV(MonitorPV):
 
     Args:
         name (str): Used to set self.name
-        monitored_pv (PV): A PV to monitor and trigger refreshing.
+        monitored_pv (PV | str): A PV to monitor and trigger refreshing.
         record_to_refresh (PV): The PV to pass to _recrod_to_refresh
         pv_to_cannibalise (PV): We take relevant variables from this PV, after which it
             should be discarded. TODO: It would be better if we didnt have to
@@ -430,16 +453,14 @@ class RefreshPV(MonitorPV):
     """
 
     def __init__(
-        self, name, monitored_pv: PV, record_to_refresh: PV, pv_to_cannibalise: PV
+        self, name, monitored_pv: PV | str, record_to_refresh: PV, pv_to_cannibalise: PV
     ):
-        super().__init__(name, None, list(monitored_pv), list(self.refresh))
+        super().__init__(name, None, [monitored_pv], [self.refresh])
         self._record_to_refresh = record_to_refresh
         self._record = pv_to_cannibalise.get_record()
-        self._pytac_field = pv_to_cannibalise.pytac_field
-        self._pytac_items = pv_to_cannibalise.pytac_elements
-        camonitor(monitored_pv, self.refresh)
+        self._pytac_items, self._pytac_field = pv_to_cannibalise.get_pytac_data()
 
-    def refresh(self, value):
+    def refresh(self, value, index):
         """Set the value returned from the monitored PV to this PVs _record and then
         force an update of _record_to_refresh.
 
@@ -451,7 +472,7 @@ class RefreshPV(MonitorPV):
             f"{self._record_to_refresh.name} to process "
         )
         self._record.set(value)
-        self._record.set_field("PROC", 1)
+        # self._record.set_field("PROC", 1)
         self._record_to_refresh.get_record().set_field("PROC", 1)
 
 
@@ -484,7 +505,7 @@ class InversionPV(MonitorPV):
             value (RecordValue): This is ignored
             index (int): This is ignored
         """
-        logging.debug(f"InverseionPV: {self.name} inverting data")
+        logging.debug(f"InversionPV: {self.name} inverting data")
         if (len(self._invert_pvs)) == 1:
             # Invert a single waveform record
             value = numpy.asarray(value, dtype=bool)
@@ -532,7 +553,7 @@ class SummationPV(MonitorPV):
         # our waveform record. This is true for CollateionPV and InversionPV too.
         value = sum([pv.get() for pv in self._summate_pvs])
         self._record.set(value)
-        self._record.set_field("PROC", 1)
+        # self._record.set_field("PROC", 1)
 
 
 class CollationPV(MonitorPV):
