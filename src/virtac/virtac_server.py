@@ -28,43 +28,41 @@ class VirtacServer:
     """The soft-ioc server which contains the configuration and PVs for the VIRTAC.
     It allows ATIP to be interfaced using EPICS, in the same manner as the live machine.
 
-    **Attributes**
+    Args:
+        ring_mode (str): The ring mode to create the lattice in.
+        limits_csv (str): The filepath to the .csv file from which to
+                                load the pv limits, for more information
+                                see create_csv.py.
+        bba_csv (str): The filepath to the .csv file from which to
+                                load the bba records, for more
+                                information see create_csv.py.
+        feedback_csv (str): The filepath to the .csv file from which to
+                                load the feedback records, for more
+                                information see create_csv.py.
+        mirror_csv (str): The filepath to the .csv file from which to
+                                load the mirror records, for more information
+                                see create_csv.py.
+        tune_csv (str): The filepath to the .csv file from which to
+                            load the tune feedback records, for more
+                            information see create_csv.py.
+        _enable_emittance (bool): Whether emittance should be enabled.
+        _enable_tunefb (bool): Whether the VIRTAC should be configured to allow
+            tunefb to work.
 
     Attributes:
         lattice (pytac.lattice.Lattice): An instance of a Pytac lattice with a
                                           simulator data source.
-        tune_feedback_status (bool): A boolean indicating whether the tune
+        tune_feedback_enabled (bool): A boolean indicating whether the tune
                                       feedback records have been created and
                                       the monitoring systems are running.
-    .. Private Attributes:
-           _pv_monitoring (bool): Whether the mirrored PVs are being monitored.
-           _tune_fb_csv_path (str): The path to the tune feedback .csv file.
-           _in_records (dict): A dictionary containing all the created in
-                                records, a list of associated element indexes and
-                                Pytac field, i.e. {in_record: [[index], field]}.
-           _out_records (dict): A dictionary containing the names of all the
-                                 created out records and their associated in
-                                 records, i.e. {out_record.name: in_record}.
-           _rb_only_records (list): A list of all the in records that do not
-                                     have an associated out record.
-           _feedback_records (dict): A dictionary containing all the feedback
-                                      related records, in the same format as
-                                      _in_records because they are all readback
-                                      only.
-           _mirrored_records (dict): A dictionary containing the PVs that the
-                                      mirrored records monitor for a change
-                                      and the associated mirror, in the form
-                                      {monitored PV: mirror record/object}.
-           _monitored_pvs (dict): A dictionary of all the PVs that are being
-                                   monitored for a change and the associated
-                                   camonitor object, in the form
-                                   {monitored PV: camonitor object}.
-           _offset_pvs (dict): A dictionary of the PVs to apply offset to and
-                                their associated offset records from which to
-                                get the offset from.
-            _record_names (dict[str: softioc.builder.record]): A dictonary
-                                containing the name of every pv created by the
-                                virtual accelerator and the pv object itself.
+        _pv_monitoring (bool): Whether the mirrored PVs are being monitored.
+        _tune_fb_csv_path (str): The path to the tune feedback .csv file.
+        _pv_dict (dict[PV | CaPV]): A dictionary containing every PV created by the
+            virtac with the PV name as the key and PV object as the item in a 1 to 1
+            mapping.
+        _readback_pvs_dict (dict[PV]): A dictionary containing the subset of pvs from
+            _pv_dict which need updating whenever the pytac lattice changes.
+
     """
 
     def __init__(
@@ -78,26 +76,6 @@ class VirtacServer:
         enable_emittance: bool = True,
         enable_tunefb: bool = False,
     ):
-        """
-        Args:
-            ring_mode (str): The ring mode to create the lattice in.
-            limits_csv (str): The filepath to the .csv file from which to
-                                    load the pv limits, for more information
-                                    see create_csv.py.
-            bba_csv (str): The filepath to the .csv file from which to
-                                    load the bba records, for more
-                                    information see create_csv.py.
-            feedback_csv (str): The filepath to the .csv file from which to
-                                    load the feedback records, for more
-                                    information see create_csv.py.
-            mirror_csv (str): The filepath to the .csv file from which to
-                                  load the mirror records, for more information
-                                  see create_csv.py.
-            tune_csv (str): The filepath to the .csv file from which to
-                                load the tune feedback records, for more
-                                information see create_csv.py.
-            disable_emittance (bool): Whether the emittance should be disabled.
-        """
         self._enable_emittance: bool = enable_emittance
         self._enable_tunefb: bool = enable_tunefb
         self._pv_monitoring: bool = True
@@ -131,6 +109,10 @@ class VirtacServer:
         which is called each time a calculation of physics data is completed and
         updates all the in records that do not have a corresponding out record
         with the latest values from the simulator.
+
+            - Note that a PV can have multiple elements, specifically for the bend
+              magnets. Currently we just have 1 PV for all bends and it takes its
+              value from element[0]. This could be a target for future improvement.
         """
         logging.debug("Updating output PVs")
         for name, pv in self._readback_pvs_dict.items():
@@ -151,20 +133,12 @@ class VirtacServer:
         """Create the core records required for the virtac from both lattice and element
         pytac fields. Several assumptions have been made for simplicity and
         efficiency, these are:
-            - That bend elements all share a single PV, and are the only
-               element family to do so.
-            - That every field that has an out type record (SP) will also have
-               an in type record (RB).
-            - That all lattice fields are never setpoint and so only in records
-               need to be created for them.
 
         Args:
-            limits_csv (str): The filepath to the .csv file from which to
-                                    load the pv limits.
-            disable_emittance (bool): Whether the emittance related PVs should be
-                                        created or not.
+            limits_csv (str): The filepath to the .csv file from which to load pv field
+                              data to configure softioc records with.
         """
-        limits_dict = {}
+        limits_dict: dict = {}
         if limits_csv is not None:
             with open(limits_csv) as f:
                 csv_reader = csv.DictReader(f)
@@ -558,4 +532,3 @@ class VirtacServer:
                 if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
                     pv.toggle_monitoring(True)
             self._pv_monitoring = True
-
