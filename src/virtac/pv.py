@@ -371,7 +371,11 @@ class MonitorPV(PV):
         if len(callbacks) > 1:
             assert len(pvs) == len(callbacks)
 
-        if isinstance(pvs[0], PV) or issubclass(type(pvs[0]), PV):
+        if (
+            isinstance(pvs[0], PV)
+            or issubclass(type(pvs[0]), PV)
+            or isinstance(pvs[0], CaPV)
+        ):
             pv_names = [pv.name for pv in pvs]
         elif isinstance(pvs[0], str):
             pv_names = pvs
