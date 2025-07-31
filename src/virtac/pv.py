@@ -32,6 +32,14 @@ class RecordData:
     always_update: bool | None = False
     initial_value: RecordValue = 0
 
+    def __post_init__(self):
+        if not isinstance(self.record_type, str):
+            raise ValueError("Record field `record_type` must be of integer type")
+        if not isinstance(self.scan, str):
+            raise ValueError("Record field `scan` must be of integer type")
+        if not isinstance(self.pini, str):
+            raise ValueError("Record field `pini` must be of integer type")
+
 
 class PV:
     """Stores variables and functions related to an EPICS PV which
