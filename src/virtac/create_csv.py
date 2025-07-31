@@ -11,7 +11,7 @@ import atip
 import cothread
 import numpy
 import pytac
-from cothread.catools import FORMAT_CTRL, caget
+from cothread.catools import FORMAT_CTRL, ca_nothing, caget
 
 # Type alias for data to be stored in VIRTAC csv files
 CSVData = list[tuple[str | int, ...]]
@@ -180,41 +180,45 @@ def get_element_pv_data(
     # These pvs need to be configured with their SCAN fields set to 1 second. This is
     # different to the SCAN field in the LIVE pv, so we cant just caget it.
     scan_pvs: list[str] = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
-    for field in lat_fields:
-        if not isinstance(pytac_item.get_device(field), pytac.device.SimpleDevice):
-            rb_pv: str = pytac_item.get_pv_name(field, pytac.RB)
-            if rb_pv not in pvs:
-                ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
-                pvs.append(rb_pv)
-                data.append(
-                    (
-                        rb_pv,
-                        ctrl.upper_ctrl_limit,
-                        ctrl.lower_ctrl_limit,
-                        ctrl.precision,
-                        ctrl.upper_disp_limit,
-                        ctrl.lower_disp_limit,
-                        "1 second" if rb_pv in scan_pvs else "I/O Intr",
-                    )
-                )
-                try:
-                    sp_pv: str = pytac_item.get_pv_name(field, pytac.SP)
-                except pytac.exceptions.HandleException:
-                    pass
-                else:
-                    if sp_pv not in pvs:
-                        ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
-                        data.append(
-                            (
-                                sp_pv,
-                                ctrl.upper_ctrl_limit,
-                                ctrl.lower_ctrl_limit,
-                                ctrl.precision,
-                                ctrl.upper_disp_limit,
-                                ctrl.lower_disp_limit,
-                                "1 second" if sp_pv in scan_pvs else "I/O Intr",
-                            )
+    try:
+        for field in lat_fields:
+            if not isinstance(pytac_item.get_device(field), pytac.device.SimpleDevice):
+                rb_pv: str = pytac_item.get_pv_name(field, pytac.RB)
+                if rb_pv not in pvs:
+                    ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
+                    pvs.append(rb_pv)
+                    data.append(
+                        (
+                            rb_pv,
+                            ctrl.upper_ctrl_limit,
+                            ctrl.lower_ctrl_limit,
+                            ctrl.precision,
+                            ctrl.upper_disp_limit,
+                            ctrl.lower_disp_limit,
+                            "1 second" if rb_pv in scan_pvs else "I/O Intr",
                         )
+                    )
+                    try:
+                        sp_pv: str = pytac_item.get_pv_name(field, pytac.SP)
+                    except pytac.exceptions.HandleException:
+                        pass
+                    else:
+                        if sp_pv not in pvs:
+                            ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
+                            data.append(
+                                (
+                                    sp_pv,
+                                    ctrl.upper_ctrl_limit,
+                                    ctrl.lower_ctrl_limit,
+                                    ctrl.precision,
+                                    ctrl.upper_disp_limit,
+                                    ctrl.lower_disp_limit,
+                                    "1 second" if sp_pv in scan_pvs else "I/O Intr",
+                                )
+                            )
+    except ca_nothing:
+        # print(e)
+        pass
 
 
 def generate_pv_limits(lattice: pytac.lattice.Lattice) -> CSVData:
