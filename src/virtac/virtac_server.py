@@ -199,7 +199,7 @@ class VirtacServer:
 
                     upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
-                            read_pv_name, (None, None, None, None, None, None)
+                            read_pv_name, (None, None, None, None, None, "I/O Intr")
                         )
                     )
                     record_data = RecordData(
@@ -223,7 +223,7 @@ class VirtacServer:
                     if not readback_only_pv:
                         upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
-                                set_pv_name, (None, None, None, None, None, None)
+                                set_pv_name, (None, None, None, None, None, "I/O Intr")
                             )
                         )
                         record_data = RecordData(
@@ -276,7 +276,7 @@ class VirtacServer:
             if not isinstance(self.lattice.get_device(field), SimpleDevice):
                 get_pv_name = self.lattice.get_pv_name(field, pytac.RB)
                 upper, lower, precision, drive_high, drive_low, scan = limits_dict.get(
-                    get_pv_name, (None, None, None, None, None, None)
+                    get_pv_name, (None, None, None, None, None, "I/O Intr")
                 )
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
