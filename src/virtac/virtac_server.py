@@ -178,10 +178,30 @@ class VirtacServer:
                 for field in cast(
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
                 ):
-                    value = element.get_value(
-                        field, units=pytac.ENG, data_source=pytac.SIM
-                    )
+                    readback_only_pv = False
+                    try:
+                        value = element.get_value(
+                            field, units=pytac.ENG, data_source=pytac.SIM
+                        )
+                    except pytac.exceptions.UnitsException as e:
+                        # For D2 the conversion is not currently working as AP has not
+                        # yet updated their 'calibration_Data' matlab structure with
+                        # realistic values. This means that when we attempt conversion
+                        # we get halfway through, and then have the wrong values and
+                        # the converted value becomes too large for the limits.
+                        value = 0
+                        print(e)
                     read_pv_name = cast(str, element.get_pv_name(field, pytac.RB))
+
+                    if read_pv_name in self._pv_dict.keys():
+                        print(f"PV: {read_pv_name} already exists! Dupe!")
+                        continue
+                    try:
+                        set_pv_name = element.get_pv_name(field, pytac.SP)
+                    except HandleException:
+                        # Only update the pv when the pytac lattice is recalculated
+                        # if the RB has no corresponding SP
+                        readback_only_pv = True
 
                     upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
