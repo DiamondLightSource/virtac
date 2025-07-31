@@ -97,10 +97,12 @@ class VirtacServer:
         if enable_tunefb and tune_csv is not None:
             self._setup_tune_feedback(tune_csv)
 
-        print("Selecting PVs to update after lattice recalculation.")
+        # Collect the PVs that need updating after lattice recalculation.
         for name, pv in self._pv_dict.items():
             if isinstance(pv, ReadbackPV):
                 self._readback_pvs_dict[name] = pv
+
+        print(self.print_virtac_stats())
 
     # TODO: Reset all correctors to default method?
 
