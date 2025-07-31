@@ -173,7 +173,6 @@ class VirtacServer:
                 bend_in_record.append_pytac_item(element)
             else:
                 for field in element.get_fields()[pytac.SIM]:
-                    readback_only_pv = False
                     try:
                         value = element.get_value(
                             field, units=pytac.ENG, data_source=pytac.SIM
