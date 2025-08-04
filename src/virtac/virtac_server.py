@@ -428,7 +428,9 @@ class VirtacServer:
                         line["output_type"], initial_value=val, scan=line["scan"]
                     )
                     if line["mirror_type"] == "basic":
-                        output_pv = MonitorPV(out_pv_name, record_data, input_records)
+                        output_pv = MonitorPV(
+                            out_pv_name, record_data, [pv.name for pv in input_records]
+                        )
                     elif line["mirror_type"] == "inverse":
                         output_pv = InversionPV(out_pv_name, record_data, input_records)
                     elif line["mirror_type"] == "summate":
