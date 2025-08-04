@@ -342,30 +342,31 @@ class MonitorPV(PV):
         self,
         name: str,
         record_data: RecordData,
-        monitored_pvs: list[str],
+        monitored_pv_names: list[str],
         callbacks: list[Callable] | None = None,
     ):
         super().__init__(name, record_data)
         self._monitor_data: list[tuple[str, Callable]] = []
         self._camonitor_handles: list[_Subscription] = []
-        if callbacks is None:
-            callbacks = [self.set]
-        self.setup_pv_monitoring(monitored_pvs, callbacks)
+        self.setup_pv_monitoring(monitored_pv_names, callbacks)
 
-    def setup_pv_monitoring(self, pv_names: list[str], callbacks: list[Callable]):
+    def setup_pv_monitoring(self, pv_names, callbacks):
         """Setup camonitoring using the passed PV names and callbacks.
 
-        Note: If len(callbacks) == 1 all pvs will use callbacks[0]. If len(callbacks) >1
-            then pv_names[i] will use callbacks[i] and len(callbacks) must equal
-            len(pv_names)
+        If len(callbacks)>1 then a camonitor is created for each pv_name, callback pair.
+        i.e pv_names[i] will trigger callbacks[i] on update.
+
+        If len(callbacks)==1 then a single camonitor is created for all pv_names which
+        will call the callback function with an additional index to identify which pc
+        changed value.
 
         Args:
             pv_names (list[str]): A list of PV names to monitor using channel access.
             callbacks (list[Callable]): A list of functions to execute when the
                 associated PV changes value.
         """
-        if len(callbacks) > 1:
-            assert len(pv_names) == len(callbacks)
+        if callbacks is None:
+            callbacks = [self.set]
 
         for pv_name in pv_names:
             if not isinstance(pv_name, str):
@@ -377,15 +378,21 @@ class MonitorPV(PV):
                 pv_names.remove(pv_name)
 
         if len(callbacks) == 1:
-            # Use the same callback for all pvs
-            for pv_name in pv_names:
-                self._monitor_data.append((pv_name, callbacks[0]))
-            self._camonitor_handles.extend(camonitor(pv_names, callbacks[0]))
+            self._setup_pv_monitoring_group(pv_names, callbacks[0])
         else:
-            # Use the specified callback for each pv
-            for pv_name, callback in zip(pv_names, callbacks, strict=True):
-                self._monitor_data.append((pv_name, callback))
-                self._camonitor_handles.append(camonitor(pv_name, callback))
+            self._setup_pv_monitoring_individual(pv_names, callbacks)
+
+    def _setup_pv_monitoring_individual(
+        self, pv_names: list[str], callbacks: list[Callable]
+    ):
+        for pv_name, callback in zip(pv_names, callbacks, strict=True):
+            self._monitor_data.append((pv_name, callback))
+            self._camonitor_handles.append(camonitor(pv_name, callback))
+
+    def _setup_pv_monitoring_group(self, pv_names: list[str], callback: Callable):
+        for pv_name in pv_names:
+            self._monitor_data.append((pv_name, callback))
+        self._camonitor_handles.extend(camonitor(pv_names, callback))
 
     def toggle_monitoring(self, enable):
         """Used to switch off this PVs monitoring by closing camonitor subscriptions or
@@ -406,6 +413,7 @@ class MonitorPV(PV):
             logging.debug(f"Disabling monitoring for PV {self.name}")
             for handle in self._camonitor_handles:
                 handle.close()
+            self._camonitor_handles.clear()
 
     def set(self, value: RecordValue, index: int | None = None):
         """Set a value to this PVs softioc record.
