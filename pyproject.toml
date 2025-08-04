@@ -18,14 +18,14 @@ dependencies = [
     "pytac>=0.3.0",
     "cothread",
     "softioc",
-    "atip",
+    "atip>=0.2.0",
     "epicscorelibs<=7.0.7.99.1.2a1",
 ]
 
 dynamic = ["version"]
 license.file = "LICENSE"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [project.optional-dependencies]
 dev = [
