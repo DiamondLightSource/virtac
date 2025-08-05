@@ -15,8 +15,10 @@ from .pv import (
     InversionPV,
     MonitorPV,
     OffsetPV,
+    PVType,
     ReadbackPV,
     RecordData,
+    RecordValueType,
     RefreshPV,
     SetpointPV,
     SummationPV,
@@ -55,22 +57,22 @@ class VirtacServer:
                                       the monitoring systems are running.
         _pv_monitoring (bool): Whether the mirrored PVs are being monitored.
         _tune_fb_csv_path (str): The path to the tune feedback .csv file.
-        _pv_dict (dict[PV | CaPV]): A dictionary containing every PV created by the
+        _pv_dict (dict[PVType]): A dictionary containing every PV created by the
             virtac with the PV name as the key and PV object as the item in a 1 to 1
             mapping.
-        _readback_pvs_dict (dict[PV]): A dictionary containing the subset of pvs from
-            _pv_dict which need updating whenever the pytac lattice changes.
+        _readback_pvs_dict (dict[PVType]): A dictionary containing the subset of
+            pvs from _pv_dict which need updating whenever the pytac lattice changes.
 
     """
 
     def __init__(
         self,
         ring_mode: str,
-        limits_csv: str = None,
-        bba_csv: str = None,
-        feedback_csv: str = None,
-        mirror_csv: str = None,
-        tune_csv: str = None,
+        limits_csv: str,
+        bba_csv: str | None = None,
+        feedback_csv: str | None = None,
+        mirror_csv: str | None = None,
+        tune_csv: str | None = None,
         disable_emittance: bool = False,
         disable_tunefb: bool = False,
     ):
@@ -82,7 +84,7 @@ class VirtacServer:
             ring_mode, self.update_pvs, self._disable_emittance
         )
 
-        self._pv_dict: dict[str, PV] = {}
+        self._pv_dict: dict[str, PVType] = {}
         self._readback_pvs_dict: dict[str, PV] = {}
         print("Starting PV creation.")
         self._create_core_pvs(limits_csv)
@@ -214,9 +216,9 @@ class VirtacServer:
                         scan=scan,
                     )
                     if readback_only_pv:
-                        read_pv = ReadbackPV(read_pv_name, record_data)
+                        read_pv = ReadbackPV(read_pv_name, record_data)  # type: ignore[assignment]
                     else:
-                        read_pv = PV(read_pv_name, record_data)
+                        read_pv = PV(read_pv_name, record_data)  # type: ignore[assignment]
                     read_pv.append_pytac_item(element)
                     read_pv.set_pytac_field(field)
                     self._pv_dict[read_pv_name] = read_pv
@@ -241,9 +243,9 @@ class VirtacServer:
                         # For tunefb the quadrapole SETI records need to be OffsetPVs
                         # instead of SetpointPVs
                         if not self._disable_tunefb and field == "b1":
-                            set_pv = OffsetPV(set_pv_name, record_data, read_pv)
+                            set_pv = OffsetPV(set_pv_name, record_data, read_pv)  # type: ignore[assignment]
                         else:
-                            set_pv = SetpointPV(set_pv_name, record_data, read_pv)
+                            set_pv = SetpointPV(set_pv_name, record_data, read_pv)  # type: ignore[assignment]
 
                         self._pv_dict[set_pv_name] = set_pv
                         if element.type_.upper() == "BEND" and bend_in_record is None:
@@ -322,7 +324,7 @@ class VirtacServer:
             name = "SR-DI-EMIT-01:STATUS"
             record_data = RecordData(
                 "mbbi",
-                zrvl=0,
+                zrvl="0",
                 zrst="Successful",
             )
             emit_status_pv = PV(name, record_data)
@@ -371,15 +373,16 @@ class VirtacServer:
                                     records in accordance with.
         """
         with open(mirror_csv) as f:
+            val: RecordValueType = 0
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
                 # Get a list of input pvs, these are all virtac owned pvs
-                input_pvs = line["in_pv"].split(", ")
-                if (len(input_pvs) > 1) and (line["mirror_type"] in ["basic"]):
+                input_pv_names = line["in_pv"].split(", ")
+                if (len(input_pv_names) > 1) and (line["mirror_type"] in ["basic"]):
                     raise IndexError(
                         "Transformation mirror type takes only one input PV."
                     )
-                elif (len(input_pvs) < 2) and (
+                elif (len(input_pv_names) < 2) and (
                     line["mirror_type"] in ["collate", "summate"]
                 ):
                     raise IndexError(
@@ -387,8 +390,8 @@ class VirtacServer:
                         "PVs."
                     )
                 # Convert input pvs to record objects
-                input_records = []
-                for pv in input_pvs:
+                input_records: list[PVType] = []
+                for pv in input_pv_names:
                     try:
                         # Lookup pv in our dictionary of softioc records
                         input_records.append(self._pv_dict[pv])
@@ -453,8 +456,13 @@ class VirtacServer:
         with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
-                set_record: OffsetPV = self._pv_dict[line["set_pv"]]
-                old_offset_record = self._pv_dict[line["offset_pv"]]
+                assert isinstance(
+                    self._pv_dict[line["set_pv"]], OffsetPV
+                )  # The PV which does the offsetting
+                self._pv_dict[line["offset_pv"]]  # The PV which stores the offset value
+                set_record: OffsetPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
+                old_offset_record: OffsetPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
+
                 # We overwrite the old_offset_record with the new RefreshPV which has
                 # the required capabilities for tunefb
                 new_offset_record = RefreshPV(
