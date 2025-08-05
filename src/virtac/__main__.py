@@ -28,14 +28,14 @@ def parse_arguments():
     )
     parser.add_argument(
         "-e",
-        "--enable-emittance",
+        "--disable-emittance",
         help="Enable the simulator's time-consuming emittance calculation",
         action="store_true",
-        default=True,
+        default=False,
     )
     parser.add_argument(
         "-t",
-        "--enable-tfb",
+        "--disable-tfb",
         help="Simulate extra dummy hardware to be used by the Tune Feedback system",
         action="store_true",
         default=False,
@@ -87,8 +87,8 @@ def main():
         DATADIR / ring_mode / "feedback.csv",
         DATADIR / ring_mode / "mirrored.csv",
         DATADIR / ring_mode / "tunefb.csv",
-        args.enable_emittance,
-        args.enable_tfb,
+        args.disable_emittance,
+        args.disable_tfb,
     )
 
     # Warn if set to default EPICS port(s) as this will likely cause PV conflicts.
@@ -127,7 +127,6 @@ def main():
     # Start the IOC.
     builder.LoadDatabase()
     softioc.iocInit()
-    # server.monitor_mirrored_pvs()
 
     context = globals() | {"server": server}
     softioc.interactive_ioc(context)
