@@ -44,9 +44,8 @@ class VirtacServer:
         tune_csv (str): The filepath to the .csv file from which to
                             load the tune feedback records, for more
                             information see create_csv.py.
-        _enable_emittance (bool): Whether emittance should be enabled.
-        _enable_tunefb (bool): Whether the VIRTAC should be configured to allow
-            tunefb to work.
+        _disable_emittance (bool): Whether emittance should be disabled.
+        _disable_tunefb (bool): Whether tune feedback should be disabled.
 
     Attributes:
         lattice (pytac.lattice.Lattice): An instance of a Pytac lattice with a
@@ -72,15 +71,15 @@ class VirtacServer:
         feedback_csv: str = None,
         mirror_csv: str = None,
         tune_csv: str = None,
-        enable_emittance: bool = True,
-        enable_tunefb: bool = False,
+        disable_emittance: bool = False,
+        disable_tunefb: bool = False,
     ):
-        self._enable_emittance: bool = enable_emittance
-        self._enable_tunefb: bool = enable_tunefb
+        self._disable_emittance: bool = disable_emittance
+        self._disable_tunefb: bool = disable_tunefb
         self._pv_monitoring: bool = True
         # TODO: Need to update ATIP to use enable_emittance instead of disable_emittance
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
-            ring_mode, self.update_pvs, not self._enable_emittance
+            ring_mode, self.update_pvs, self._disable_emittance
         )
 
         self._pv_dict: dict[str, PV] = {}
@@ -94,7 +93,7 @@ class VirtacServer:
             self._create_feedback_records(feedback_csv)
         if mirror_csv is not None:
             self._create_mirror_records(mirror_csv)
-        if enable_tunefb and tune_csv is not None:
+        if not disable_tunefb and tune_csv is not None:
             self._setup_tune_feedback(tune_csv)
 
         # Collect the PVs that need updating after lattice recalculation.
@@ -102,7 +101,7 @@ class VirtacServer:
             if isinstance(pv, ReadbackPV):
                 self._readback_pvs_dict[name] = pv
 
-        print(self.print_virtac_stats())
+        self.print_virtac_stats()
 
     # TODO: Reset all correctors to default method?
 
@@ -241,7 +240,7 @@ class VirtacServer:
 
                         # For tunefb the quadrapole SETI records need to be OffsetPVs
                         # instead of SetpointPVs
-                        if self._enable_tunefb and field == "b1":
+                        if not self._disable_tunefb and field == "b1":
                             set_pv = OffsetPV(set_pv_name, record_data, read_pv)
                         else:
                             set_pv = SetpointPV(set_pv_name, record_data, read_pv)
@@ -271,7 +270,7 @@ class VirtacServer:
         """
         lat_fields = self.lattice.get_fields()
         lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
-        if not self._enable_emittance:
+        if self._disable_emittance:
             lat_fields -= {"emittance_x", "emittance_y"}
         for field in lat_fields:
             # Ignore basic devices as they do not have PVs.
@@ -319,7 +318,7 @@ class VirtacServer:
 
         # We can choose to not calculate emittance as it is not always required,
         # which decreases computation time.
-        if self._enable_emittance:
+        if not self._disable_emittance:
             name = "SR-DI-EMIT-01:STATUS"
             record_data = RecordData(
                 "mbbi",
@@ -451,7 +450,6 @@ class VirtacServer:
                 "start-up, please provide one now; i.e. "
                 "server.start_tune_feedback('<path_to_csv>')"
             )
-        self._enable_tunefb = True
         with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
@@ -572,7 +570,12 @@ class VirtacServer:
 
         print("Virtac stats:")
         print(
-            f"\t Tune feedbacks is {('enabled' if self._enable_tunefb else 'disabled')}"
+            "\t Tune feedbacks is "
+            f"{('disabled' if self._disable_tunefb else 'enabled')}"
+        )
+        print(
+            "\t Emittance calculations are "
+            f"{('disabled' if self._disable_emittance else 'enabled')}"
         )
         print(
             f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
