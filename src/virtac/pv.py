@@ -444,7 +444,6 @@ class MonitorPV(PV):
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
         self._record.set(value)
-        # self._record.set_field("PROC", 1)
 
 
 class RefreshPV(MonitorPV):
@@ -497,8 +496,7 @@ class RefreshPV(MonitorPV):
             f"{self._record_to_refresh.name} to process "
         )
         self._record.set(value)
-        # self._record.set_field("PROC", 1)
-        self._record_to_refresh.get_record().set_field("PROC", 1)
+        self._record_to_refresh.set_record_field("PROC", 1)
 
 
 class InversionPV(MonitorPV):
@@ -543,7 +541,7 @@ class InversionPV(MonitorPV):
         else:
             raise Exception
         self._record.set(value)
-        self._record.set_field("PROC", 1)
+        self.set_record_field("PROC", 1)
 
 
 class SummationPV(MonitorPV):
@@ -576,7 +574,7 @@ class SummationPV(MonitorPV):
         # our waveform record. This is true for CollateionPV and InversionPV too.
         value = sum([pv.get() for pv in self._summate_pvs])
         self._record.set(value)
-        # self._record.set_field("PROC", 1)
+        self.set_record_field("PROC", 1)
 
 
 class CollationPV(MonitorPV):
@@ -645,7 +643,8 @@ class CollationPV(MonitorPV):
         value = numpy.array([record.get() for record in self._collate_pvs])
 
         self._record.set(value)
-        self._record.set_field("PROC", 1)
+        self.set_record_field("PROC", 1)
+
         self._last_update_time = time.time()
         self._update_required = False
 
