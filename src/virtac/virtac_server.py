@@ -225,7 +225,7 @@ class VirtacServer:
                     if not readback_only_pv:
                         upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
-                                set_pv_name, (None, None, None, None, None, "I/O Intr")
+                                set_pv_name, (None, None, None, None, None, "Passive")
                             )
                         )
                         record_data = RecordData(
