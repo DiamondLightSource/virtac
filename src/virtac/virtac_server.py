@@ -413,7 +413,9 @@ class VirtacServer:
                 else:
                     out_pv_name = line["out_pv"]
                     record_data = RecordData(
-                        line["output_type"], initial_value=val, scan=line["scan"]
+                        line["output_type"],
+                        initial_value=val,
+                        scan=line["scan"],
                     )
                     if line["mirror_type"] == "basic":
                         output_pv = MonitorPV(
