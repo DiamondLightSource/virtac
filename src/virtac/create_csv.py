@@ -344,18 +344,8 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     data.append(
         (
             "wfm",
-            "collate",
-            ", ".join(bpm_enabled_pvs),
-            "EBPM-ENABLED:INTERIM",
-            str(numpy.zeros(len(bpm_enabled_pvs))),
-            "I/O Intr",
-        )
-    )
-    data.append(
-        (
-            "wfm",
             "inverse",
-            "EBPM-ENABLED:INTERIM",
+            ", ".join(bpm_enabled_pvs),
             "SR-DI-EBPM-01:ENABLED",
             str(numpy.zeros(len(bpm_enabled_pvs))),
             "I/O Intr",
