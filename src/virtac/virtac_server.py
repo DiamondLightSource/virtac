@@ -62,7 +62,6 @@ class VirtacServer:
             mapping.
         _readback_pvs_dict (dict[PVType]): A dictionary containing the subset of
             pvs from _pv_dict which need updating whenever the pytac lattice changes.
-
     """
 
     def __init__(
@@ -514,7 +513,8 @@ class VirtacServer:
     # Is this needed? It essentially just pauses a subset of the virtacs functionality
     def disable_monitoring(self):
         """Disable monitoring for all MonitorPV derived PVs. This will disable
-        tune feedback and vertical emittance feedback"""
+        tune feedback and vertical emittance feedback
+        """
         if not self._pv_monitoring:
             logging.warning("PV monitoring is already disabled, nothing to do.")
         else:
@@ -526,7 +526,8 @@ class VirtacServer:
 
     def enable_monitoring(self):
         """Enable monitoring for all MonitorPV derived PVs. This will allow
-        tune feedback and vertical emittance feedback to work again"""
+        tune feedback and vertical emittance feedback to work again
+        """
         if self._pv_monitoring:
             logging.warning("PV monitoring is already enabled, nothing to do.")
         else:

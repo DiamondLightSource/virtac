@@ -41,16 +41,16 @@ class RecordData:
     zrst: str | None = None
     scan: str = "I/O Intr"
     pini: str = "YES"
-    always_update: bool | None = False
+    always_update: bool = False
     initial_value: RecordValueType = 0
 
     def __post_init__(self):
         if not isinstance(self.record_type, str):
-            raise ValueError("Record field `record_type` must be of integer type")
+            raise ValueError("Record field `record_type` must be of string type")
         if not isinstance(self.scan, str):
-            raise ValueError("Record field `scan` must be of integer type")
+            raise ValueError("Record field `scan` must be of string type")
         if not isinstance(self.pini, str):
-            raise ValueError("Record field `pini` must be of integer type")
+            raise ValueError("Record field `pini` must be of string type")
 
 
 class PV:
@@ -91,7 +91,7 @@ class PV:
             value (RecordValue): The value that has just been set to the record.
             name (str): The name of the softioc record that has just been set to.
         """
-        logging.info(f"PV {name} changed to: {value}")
+        logging.debug("Read value %s on pv %s", value, name)
 
     def get_pytac_data(self) -> tuple[list[PytacItemType], str]:
         """Return the list of pytac elements and the field defined for this PV"""
@@ -101,14 +101,16 @@ class PV:
         """Append a pytac item to the list of pytac items defined for this PV
 
         Args:
-            pytac_item (list[PytacItem]): The pytac element or lattice to append."""
+            pytac_item (list[PytacItem]): The pytac element or lattice to append.
+        """
         self._pytac_items.append(pytac_item)
 
     def set_pytac_field(self, field: str):
         """Set this PVs pytac field to the passed value
 
         Args:
-            field (str): The pytac field to the value to."""
+            field (str): The pytac field to the value to.
+        """
         self._pytac_field = field
 
     def set_record_field(self, field: str, value: str | RecordData):
@@ -176,7 +178,8 @@ class PV:
     def get_record(self) -> RecordWrapper:
         """Return this PVs softioc record.
 
-        Care should be taken when manipulating the returned record."""
+        Care should be taken when manipulating the returned record.
+        """
         return self._record
 
     def get(self) -> RecordValueType:
@@ -326,7 +329,8 @@ class OffsetPV(SetpointPV):
 
         Args:
             offset_pv (PV): The PV object to be used during this PVs' records' on_update
-            function."""
+            function.
+        """
         logging.debug(f"Attaching offset record: {offset_pv} to PV: {self.name}")
         self._offset_record = offset_pv
 
@@ -632,7 +636,8 @@ class CollationPV(MonitorPV):
 
     def collate(self):
         """Get the current value of every PV in self._collate_pvs, collate them into
-        a numpy array and set the result to this record."""
+        a numpy array and set the result to this record.
+        """
 
         logging.debug(f"CollationPV: {self.name} collating data")
         if time.time() - self._last_update_time < self._minimum_time_between_updates:
