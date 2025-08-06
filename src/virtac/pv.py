@@ -153,7 +153,14 @@ class PV:
                 always_update=record_data.always_update,
                 on_update_name=self._on_update,
             )
-        elif record_data.record_type == "wfm":
+        elif record_data.record_type == "wfmi":
+            self._record = builder.WaveformIn(
+                self.name,
+                initial_value=record_data.initial_value,
+                PINI=record_data.pini,
+                SCAN=record_data.scan,
+            )
+        elif record_data.record_type == "wfmo":
             self._record = builder.WaveformOut(
                 self.name,
                 initial_value=record_data.initial_value,
@@ -541,7 +548,6 @@ class InversionPV(MonitorPV):
         else:
             raise Exception
         self._record.set(value)
-        self.set_record_field("PROC", 1)
 
 
 class SummationPV(MonitorPV):
@@ -574,7 +580,6 @@ class SummationPV(MonitorPV):
         # our waveform record. This is true for CollateionPV and InversionPV too.
         value = sum([pv.get() for pv in self._summate_pvs])
         self._record.set(value)
-        self.set_record_field("PROC", 1)
 
 
 class CollationPV(MonitorPV):
@@ -643,7 +648,6 @@ class CollationPV(MonitorPV):
         value = numpy.array([record.get() for record in self._collate_pvs])
 
         self._record.set(value)
-        self.set_record_field("PROC", 1)
 
         self._last_update_time = time.time()
         self._update_required = False
