@@ -11,7 +11,7 @@ from cothread.catools import _Subscription, ca_nothing, caget, camonitor, caput
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
-RecordValueType: TypeAlias = int | float | numpy.typing.NDArray | str
+RecordValueType: TypeAlias = int | float | numpy.typing.NDArray
 PytacItemType: TypeAlias = pytac.lattice.Lattice | pytac.element.Element
 RecordPVType: TypeAlias = Union[
     "PV",
@@ -113,12 +113,12 @@ class PV:
         """
         self._pytac_field = field
 
-    def set_record_field(self, field: str, value: RecordValueType):
+    def set_record_field(self, field: str, value: RecordValueType | str):
         """Set a field on this PVs softioc record
 
         Args:
             field (softioc.field): The EPICS field to set on the softioc record
-            value (RecordValueType): The value to set to the EPICS field"""
+            value (RecordValueType | str): The value to set to the EPICS field"""
         self._record.set_field(field, value)
 
     def create_softioc_record(
@@ -522,6 +522,10 @@ class InversionPV(MonitorPV):
 
     Note: This class can either invert a single waveform record or a list of ai
         records. If invert_pvs contains more than 1 PV, then we assume the latter.
+
+    Note: In the current implementation of VIRTAC, this PV is being used to invert a
+        list of SR01C-DI-EBPM-01:CF:ENABLED_S PVs, each containing a boolean value into
+        a single waveform.
 
     Args:
         name (str): Used to set self.name
