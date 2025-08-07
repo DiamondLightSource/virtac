@@ -522,7 +522,7 @@ class VirtacServer:
         else:
             logging.info("Disabling PV monitoring")
             for _, pv in self._pv_dict.items():
-                if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
+                if isinstance(pv, MonitorPV):
                     pv.toggle_monitoring(False)
             self._pv_monitoring = False
 
@@ -535,7 +535,7 @@ class VirtacServer:
         else:
             logging.info("Enabling PV monitoring")
             for pv in self._pv_dict.values():
-                if isinstance(pv, MonitorPV) or issubclass(type(pv), MonitorPV):
+                if isinstance(pv, MonitorPV):
                     pv.toggle_monitoring(True)
             self._pv_monitoring = True
 
