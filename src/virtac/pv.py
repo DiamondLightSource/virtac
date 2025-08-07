@@ -370,9 +370,10 @@ class MonitorPV(PV):
             callback.
 
     Attributes:
-        _monitor_data ((list[str], Callable)): Used to keep track of which PVs we are
-            monitoring and which functions the camonitor calls when they change value.
-        _camonitor_handles (list[_Subscription]): Used to close camonitors if the a
+        _monitor_data ((list[tuple[list[str], list[Callable]]])): Used to keep track of
+            which PVs we are monitoring and which functions the camonitor calls when
+            they change value.
+        _camonitor_handles (list[_Subscription]): Used to close camonitors if a
             command is sent to pause monitoring.
     """
 
@@ -384,7 +385,7 @@ class MonitorPV(PV):
         callbacks: list[Callable] | None = None,
     ):
         super().__init__(name, record_data)
-        self._monitor_data: list[tuple[str, Callable]] = []
+        self._monitor_data: list[tuple[list[str], list[Callable]]] = []
         self._camonitor_handles: list[_Subscription] = []
         self.setup_pv_monitoring(monitored_pv_names, callbacks)
 
@@ -416,7 +417,7 @@ class MonitorPV(PV):
                 pv_names.remove(pv_name)
 
         if len(callbacks) == 1:
-            self._setup_pv_monitoring_group(pv_names, callbacks[0])
+            self._setup_pv_monitoring_group(pv_names, callbacks)
         else:
             self._setup_pv_monitoring_individual(pv_names, callbacks)
 
@@ -424,13 +425,12 @@ class MonitorPV(PV):
         self, pv_names: list[str], callbacks: list[Callable]
     ):
         for pv_name, callback in zip(pv_names, callbacks, strict=True):
-            self._monitor_data.append((pv_name, callback))
+            self._monitor_data.append(([pv_name], [callback]))
             self._camonitor_handles.append(camonitor(pv_name, callback))
 
-    def _setup_pv_monitoring_group(self, pv_names: list[str], callback: Callable):
-        for pv_name in pv_names:
-            self._monitor_data.append((pv_name, callback))
-        self._camonitor_handles.extend(camonitor(pv_names, callback))
+    def _setup_pv_monitoring_group(self, pv_names: list[str], callback: list[Callable]):
+        self._monitor_data.append((pv_names, callback))
+        self._camonitor_handles.extend(camonitor(pv_names, callback[0]))
 
     def toggle_monitoring(self, enable):
         """Used to switch off this PVs monitoring by closing camonitor subscriptions or
@@ -441,12 +441,11 @@ class MonitorPV(PV):
         """
         if enable:
             logging.debug(f"Enabling monitoring for PV {self.name}")
-            pv_names = []
-            callback_list = []
-            for pv, callback in self._monitor_data:
-                pv_names.append(pv)
-                callback_list.append(callback)
-            self.setup_pv_monitoring(pv_names, callback_list)
+            # We create a copy of monitor data, as set_pv_monitoring can append to this
+            # original.
+            monitor_data = self._monitor_data.copy()
+            for pv_list, callback in monitor_data:
+                self.setup_pv_monitoring(pv_list, callback)
         else:
             logging.debug(f"Disabling monitoring for PV {self.name}")
             for handle in self._camonitor_handles:
