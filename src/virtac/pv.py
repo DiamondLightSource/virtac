@@ -1,10 +1,8 @@
 import logging
-import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TypeAlias, Union
 
-import cothread
 import numpy
 import pytac
 from cothread.catools import _Subscription, camonitor
@@ -539,28 +537,30 @@ class InversionPV(MonitorPV):
         )
         self._invert_pvs: list[PVType] = invert_pvs
 
-    def invert(self, value: RecordValueType | None = None, index: int | None = None):
+    def invert(self, value: RecordValueType, index: int | None = None):
         """Triggers this PV to caget the boolean values of all of its _invert_pv(s) and
             then invert them and set the result to _record.
 
         Args:
-            value (RecordValue | None): This is ignored
-            index (int | None): This is ignored
+            value (RecordValue): The value to invert and save to this PVs record
+            index (int | None): This is ignored if only a single invert_pv is being
+                monitored.
         """
-        logging.debug(f"InversionPV: {self.name} inverting data")
         if (len(self._invert_pvs)) == 1:
             # Invert a single waveform record
             value = numpy.asarray(value, dtype=bool)
             value = numpy.asarray(numpy.invert(value), dtype=int)
         elif (len(self._invert_pvs)) > 1:
-            # Invert a list of ai records
-            value = numpy.array(
-                [record.get() for record in self._invert_pvs], dtype=bool
-            )
-            value = numpy.asarray(numpy.invert(value), dtype=int)
-        else:
-            raise Exception
-        self._record.set(value)
+            # Invert the single element which changed
+            record_data = numpy.copy(self._record.get())
+            record_data[index] = not value
+            self._record.set(record_data)
+        elif (len(self._invert_pvs)) == 0:
+            raise AttributeError("InversionPV was not provided with any PVs to invert")
+
+        logging.debug(
+            f"InversionPV: {self.name} inverting data. New data: {record_data}"
+        )
 
 
 class SummationPV(MonitorPV):
@@ -587,33 +587,20 @@ class SummationPV(MonitorPV):
             index (int): This is ignored
         """
 
-        logging.debug(f"SummationPV: {self.name} summing data")
-        # TODO: This could be done more efficiently. We dont actually need to get all of
-        # pvs, only self._summate_pvs[index], then we could modify only that index in
-        # our waveform record. This is true for CollateionPV and InversionPV too.
         value = sum([pv.get() for pv in self._summate_pvs])
         self._record.set(value)
+        logging.debug(f"SummationPV: {self.name} summing data. New value: {value}")
 
 
 class CollationPV(MonitorPV):
     """Used to collate values from a list of PVs into an array, with the result set to
     this PVs _record.
 
-    Note: Typically all pvs in collate_pvs will change at the same time and this can
-    happen every time the simulation updates. This can result in a lot of unnecessary
-    work, so we limit the update rate to 5Hz.
-
     Args:
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
         collate_pvs (list[PVType]): A list of PVs to monitor and then collate when they
             change value.
-
-    Attributes:
-        _update_required (bool): Tracks whether an update of the collation record is
-            waiting to process.
-        _minimum_time_between_updates (float): Used to force a maximum update rate of
-            5Hz.
     """
 
     def __init__(self, name: str, record_data: RecordData, collate_pvs: list[PVType]):
@@ -621,46 +608,15 @@ class CollationPV(MonitorPV):
             name,
             record_data,
             [pv.name for pv in collate_pvs],
-            [self._set_update_required],
+            [self.collate],
         )
-        self._last_update_time: float = time.time()
         self._collate_pvs: list[PVType] = collate_pvs
-        self._update_required: bool = False
-        self._minimum_time_between_updates: float = 0.2
-        cothread.Spawn(self._periodic_update)
 
-    def _periodic_update(self):
-        """Limit the rate at which we collate to 1/self._minimum_time_between_updates"""
-        while True:
-            if self._update_required:
-                self.collate()
-            else:
-                cothread.Sleep(self._minimum_time_between_updates)
-
-    def _set_update_required(
-        self, value: RecordValueType | None = None, index: int | None = None
-    ):
-        """Callback function executed when this PVs monitored PVs change value, rather
-        than immediately doing the collation, we set this flag with the collation being
-        triggered by the self._periodic_update polling loop.
-
-        Args:
-            value (RecordValue | None): This is ignored
-            index (int | None): This is ignored
-        """
-        self._update_required = True
-
-    def collate(self):
-        """Get the current value of every PV in self._collate_pvs, collate them into
-        a numpy array and set the result to this record.
-        """
-
-        logging.debug(f"CollationPV: {self.name} collating data")
-        if time.time() - self._last_update_time < self._minimum_time_between_updates:
-            cothread.Sleep(time.time() - self._last_update_time)
-        value = numpy.array([record.get() for record in self._collate_pvs])
-
-        self._record.set(value)
-
-        self._last_update_time = time.time()
-        self._update_required = False
+    def collate(self, value: RecordValueType, index: int):
+        """Update this PVs waveform record using the given value and index"""
+        record_data = numpy.copy(self._record.get())
+        record_data[index] = value
+        self._record.set(record_data)
+        logging.debug(
+            f"CollationPV: {self.name} collating data. New data: {record_data}"
+        )
