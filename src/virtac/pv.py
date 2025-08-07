@@ -7,13 +7,13 @@ from typing import TypeAlias, Union
 import cothread
 import numpy
 import pytac
-from cothread.catools import _Subscription, ca_nothing, caget, camonitor, caput
+from cothread.catools import _Subscription, camonitor
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
 RecordValueType: TypeAlias = int | float | numpy.typing.NDArray
 PytacItemType: TypeAlias = pytac.lattice.Lattice | pytac.element.Element
-RecordPVType: TypeAlias = Union[
+PVType: TypeAlias = Union[
     "PV",
     "CollationPV",
     "InversionPV",
@@ -24,7 +24,6 @@ RecordPVType: TypeAlias = Union[
     "SetpointPV",
     "SummationPV",
 ]
-PVType: TypeAlias = RecordPVType | "CaPV"
 
 
 @dataclass
@@ -228,13 +227,13 @@ class SetpointPV(PV):
     Args:
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
-        in_pv (RecordPVType): The PV which is to be updated when the SetpointPV's
+        in_pv (PVType): The PV which is to be updated when the SetpointPV's
             softioc record processes.
     """
 
-    def __init__(self, name: str, record_data: RecordData, in_pv: RecordPVType):
+    def __init__(self, name: str, record_data: RecordData, in_pv: PVType):
         super().__init__(name, record_data)
-        self._in_pv: RecordPVType = in_pv
+        self._in_pv: PVType = in_pv
 
     def _on_update(self, value: RecordValueType, name: str):
         """This function sets value to self._in_pv._record and also sets value to the
@@ -280,7 +279,7 @@ class OffsetPV(SetpointPV):
     Args:
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
-        in_pv (RecordPVType): The PV object to pass to _in_pv
+        in_pv (PVType): The PV object to pass to _in_pv
         offset_pv (PVType | None): The PV object to pass to _offset_pv. It is optional
             to pass this at initialisation, but if not passed, it must be later attached
             using the attach_offset_record method.
@@ -296,7 +295,7 @@ class OffsetPV(SetpointPV):
         self,
         name: str,
         record_data: RecordData,
-        in_pv: RecordPVType,
+        in_pv: PVType,
         offset_pv: PVType | None = None,
     ):
         super().__init__(name, record_data, in_pv)
@@ -481,7 +480,7 @@ class RefreshPV(MonitorPV):
         name (str): Used to set self.name
         monitored_pv_name (str): A PV to monitor and trigger refreshing.
         record_to_refresh (PVType): The PV to pass to _record_to_refresh
-        pv_to_cannibalise (RecordPVType): We take relevant variables from this PV, after
+        pv_to_cannibalise (PVType): We take relevant variables from this PV, after
             which it should be discarded. TODO: It would be better if we didnt have to.
             cannibalise an existing PV and could just create a new one.
 
@@ -493,11 +492,11 @@ class RefreshPV(MonitorPV):
         self,
         name,
         monitored_pv_name: str,
-        record_to_refresh: RecordPVType,
-        pv_to_cannibalise: RecordPVType,
+        record_to_refresh: PVType,
+        pv_to_cannibalise: PVType,
     ):
         super().__init__(name, None, [monitored_pv_name], [self.refresh])
-        self._record_to_refresh: RecordPVType = record_to_refresh
+        self._record_to_refresh: PVType = record_to_refresh
         self._record: RecordWrapper = pv_to_cannibalise.get_record()
         self._pytac_items, self._pytac_field = pv_to_cannibalise.get_pytac_data()
 
@@ -665,35 +664,3 @@ class CollationPV(MonitorPV):
 
         self._last_update_time = time.time()
         self._update_required = False
-
-
-class CaPV:
-    """Uses channel access to get and set an EPICS PV to a value. This PV does not need
-    a softioc record.
-
-    Args:
-        name (str): Used to set self.name
-
-    Attributes:
-        self.name (str): The name used to define this PV and the name of the EPICS
-            record to caget/caput.
-    """
-
-    def __init__(self, name: str):
-        self.name = name
-
-    def get(self) -> RecordValueType:
-        """Caget a value from an EPICS PV."""
-
-        value = caget(self.name)
-        logging.debug(f"Cagetting from PV: {self.name}, value: {value}")
-        return value
-
-    def set(self, value) -> ca_nothing | list[ca_nothing]:
-        """Caput a value to an EPICS PV.
-
-        Args:
-            value (number): The value to caput to the PV.
-        """
-        logging.debug(f"Caputting to PV: {self.name}, value: {value}")
-        return caput(self.name, value)

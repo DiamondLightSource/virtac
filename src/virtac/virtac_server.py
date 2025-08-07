@@ -10,7 +10,6 @@ from pytac.exceptions import FieldException, HandleException
 
 from .pv import (
     PV,
-    CaPV,
     CollationPV,
     InversionPV,
     MonitorPV,
@@ -408,8 +407,7 @@ class VirtacServer:
                         # Lookup pv in our dictionary of softioc records
                         input_records.append(self._pv_dict[pv])
                     except KeyError:
-                        # If not owned by us, then we get it from CA
-                        input_records.append(CaPV(pv))
+                        logging.exception(f"PV {pv} does not exist")
                 # Update the mirror dictionary.
                 try:
                     # Waveform records may have values stored as a list such as: [5 1 3]
@@ -556,7 +554,6 @@ class VirtacServer:
         """Print helpful statistics based on passed verbosity level"""
         num_pvs_dict = dict.fromkeys(
             [
-                "num_ca_pvs",
                 "num_pvs",
                 "num_readback_pvs",
                 "num_direct_pvs",
@@ -571,9 +568,7 @@ class VirtacServer:
         )
         total_num_pvs = len(self._pv_dict)
         for pv in self._pv_dict.values():
-            if type(pv) is CaPV:
-                num_pvs_dict["num_ca_pvs"] += 1
-            elif type(pv) is PV:
+            if type(pv) is PV:
                 num_pvs_dict["num_pvs"] += 1
             elif type(pv) is ReadbackPV:
                 num_pvs_dict["num_readback_pvs"] += 1
@@ -605,7 +600,6 @@ class VirtacServer:
             f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
         )
         print(f"\t Total pvs: {total_num_pvs}")
-        print(f"\t\t CA pvs: {num_pvs_dict['num_ca_pvs']}")
         print(f"\t\t PV pvs: {num_pvs_dict['num_pvs']}")
         print(f"\t\t Readback pvs: {num_pvs_dict['num_readback_pvs']}")
         print(f"\t\t Direct pvs: {num_pvs_dict['num_direct_pvs']}")
