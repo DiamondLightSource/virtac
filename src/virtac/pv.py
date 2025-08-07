@@ -11,7 +11,7 @@ from cothread.catools import _Subscription, ca_nothing, caget, camonitor, caput
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
-RecordValueType: TypeAlias = int | float | numpy.typing.NDArray
+RecordValueType: TypeAlias = int | float | numpy.typing.NDArray | str
 PytacItemType: TypeAlias = pytac.lattice.Lattice | pytac.element.Element
 RecordPVType: TypeAlias = Union[
     "PV",
@@ -113,12 +113,12 @@ class PV:
         """
         self._pytac_field = field
 
-    def set_record_field(self, field: str, value: str | RecordData):
+    def set_record_field(self, field: str, value: RecordValueType):
         """Set a field on this PVs softioc record
 
         Args:
             field (softioc.field): The EPICS field to set on the softioc record
-            value (str | RecordData): The value to set to the EPICS field"""
+            value (RecordValueType): The value to set to the EPICS field"""
         self._record.set_field(field, value)
 
     def create_softioc_record(
@@ -254,10 +254,16 @@ class SetpointPV(PV):
         # TODO: This functionality should really be done from the _in_records set
         # function.
         pytac_items, field = self._in_pv.get_pytac_data()
+        # Some PVs such as the bend magnet PV have multiple pytac elements which
+        # are updated from the same PV value.
         for item in pytac_items:
-            # Some elements such as bend magnets share a single PV which is used to
-            # update them all to the same value
-            logging.debug(f"Updating lattice for pv: {self._in_pv.name} to val {value}")
+            logging.debug(
+                "Updating field %s on lattice element %s for pv: %s to val: %s",
+                field,
+                item,
+                self._in_pv.name,
+                value,
+            )
             item.set_value(
                 field,
                 value,
@@ -315,15 +321,24 @@ class OffsetPV(SetpointPV):
         if self._offset_record is not None:
             offset: RecordValueType = self._offset_record.get()
             value += offset
+            logging.debug("Adding offset of: %s new value is: %s", offset, value)
         else:
-            raise ValueError(f"No offset record specified for OffsetPV: {self.name}")
+            raise AttributeError(
+                f"No offset record specified for OffsetPV: {self.name}"
+            )
 
-        elements, field = self._in_pv.get_pytac_data()
-        for element in elements:
-            # Some elements such as bend magnets share a single PV which is used to
-            # update them all to the same value
-            logging.debug(f"Updating lattice for pv: {self._in_pv.name} to val {value}")
-            element.set_value(
+        pytac_items, field = self._in_pv.get_pytac_data()
+        # Some PVs such as the bend magnet PV have multiple pytac elements which
+        # are updated from the same PV value.
+        for item in pytac_items:
+            logging.debug(
+                "Updating field %s on lattice element %s for pv: %s to val: %s",
+                field,
+                item,
+                self._in_pv.name,
+                value,
+            )
+            item.set_value(
                 field,
                 value,
                 units=pytac.ENG,
