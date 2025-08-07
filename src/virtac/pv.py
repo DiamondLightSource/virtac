@@ -432,25 +432,21 @@ class MonitorPV(PV):
         self._monitor_data.append((pv_names, callback))
         self._camonitor_handles.extend(camonitor(pv_names, callback[0]))
 
-    def toggle_monitoring(self, enable):
-        """Used to switch off this PVs monitoring by closing camonitor subscriptions or
-        to re-enable monitoring by re-creating the subscriptions.
+    def enable_monitoring(self):
+        """Used to re-enable monitoring of this PV by re-creating the subscriptions."""
+        logging.debug(f"Enabling monitoring for PV {self.name}")
+        # We create a copy of monitor data, as set_pv_monitoring can append to this
+        # original.
+        monitor_data = self._monitor_data.copy()
+        for pv_list, callback in monitor_data:
+            self.setup_pv_monitoring(pv_list, callback)
 
-          Args:
-            enable (bool): If true, we start monitoring, if false we stop it.
-        """
-        if enable:
-            logging.debug(f"Enabling monitoring for PV {self.name}")
-            # We create a copy of monitor data, as set_pv_monitoring can append to this
-            # original.
-            monitor_data = self._monitor_data.copy()
-            for pv_list, callback in monitor_data:
-                self.setup_pv_monitoring(pv_list, callback)
-        else:
-            logging.debug(f"Disabling monitoring for PV {self.name}")
-            for handle in self._camonitor_handles:
-                handle.close()
-            self._camonitor_handles.clear()
+    def disable_monitoring(self):
+        """Used to switch off this PVs monitoring by closing camonitor subscriptions."""
+        logging.debug(f"Disabling monitoring for PV {self.name}")
+        for handle in self._camonitor_handles:
+            handle.close()
+        self._camonitor_handles.clear()
 
     def set(self, value: RecordValueType, index: int | None = None):
         """Set a value to this PVs softioc record.

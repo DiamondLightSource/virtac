@@ -525,6 +525,19 @@ class VirtacServer:
                     f"field {field}."
                 ) from exc
 
+    def enable_monitoring(self):
+        """Enable monitoring for all MonitorPV derived PVs. This will allow
+        tune feedback and vertical emittance feedback to work again
+        """
+        if self._pv_monitoring:
+            logging.warning("PV monitoring is already enabled, nothing to do.")
+        else:
+            logging.info("Enabling PV monitoring")
+            for pv in self._pv_dict.values():
+                if isinstance(pv, MonitorPV):
+                    pv.enable_monitoring()
+            self._pv_monitoring = True
+
     # Is this needed? It essentially just pauses a subset of the virtacs functionality
     def disable_monitoring(self):
         """Disable monitoring for all MonitorPV derived PVs. This will disable
@@ -536,21 +549,8 @@ class VirtacServer:
             logging.info("Disabling PV monitoring")
             for _, pv in self._pv_dict.items():
                 if isinstance(pv, MonitorPV):
-                    pv.toggle_monitoring(False)
+                    pv.disable_monitoring()
             self._pv_monitoring = False
-
-    def enable_monitoring(self):
-        """Enable monitoring for all MonitorPV derived PVs. This will allow
-        tune feedback and vertical emittance feedback to work again
-        """
-        if self._pv_monitoring:
-            logging.warning("PV monitoring is already enabled, nothing to do.")
-        else:
-            logging.info("Enabling PV monitoring")
-            for pv in self._pv_dict.values():
-                if isinstance(pv, MonitorPV):
-                    pv.toggle_monitoring(True)
-            self._pv_monitoring = True
 
     def print_virtac_stats(self, verbosity: int = 0):
         """Print helpful statistics based on passed verbosity level"""
