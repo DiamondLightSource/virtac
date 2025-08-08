@@ -27,16 +27,18 @@ def parse_arguments():
         help="The ring mode to be used, e.g., IO4 or DIAD",
     )
     parser.add_argument(
-        "-d",
+        "-e",
         "--disable-emittance",
-        help="Disable the simulator's time-consuming emittance calculation",
+        help="Enable the simulator's time-consuming emittance calculation",
         action="store_true",
+        default=False,
     )
     parser.add_argument(
         "-t",
-        "--enable-tfb",
+        "--disable-tfb",
         help="Simulate extra dummy hardware to be used by the Tune Feedback system",
         action="store_true",
+        default=False,
     )
     parser.add_argument(
         "-v",
@@ -129,14 +131,13 @@ def main():
         DATADIR / ring_mode / "mirrored.csv",
         DATADIR / ring_mode / "tunefb.csv",
         args.disable_emittance,
+        args.disable_tfb,
     )
 
     # Start the IOC.
     builder.LoadDatabase()
     softioc.iocInit()
-    server.monitor_mirrored_pvs()
-    if args.enable_tfb:
-        server.setup_tune_feedback()
+
     context = globals() | {"server": server}
     softioc.interactive_ioc(context)
 

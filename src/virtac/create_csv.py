@@ -75,7 +75,7 @@ def generate_feedback_pvs(all_elements, lattice: pytac.lattice.Lattice) -> CSVDa
             "bpm_id",
             "SR-DI-EBPM-01:BPMID",
             bpm_ids,
-            "wfm",
+            "wfmi",
         )
     )
 
@@ -111,7 +111,7 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
                 f"cell_{padded_cell}_excite_start_times",
                 f"{pv_stem}:EXCITE:START_TIMES",
                 str(numpy.zeros(18)),
-                "wfm",
+                "wfmo",
             )
         )
         data.append(
@@ -120,7 +120,7 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
                 f"cell_{padded_cell}_excite_amps",
                 f"{pv_stem}:EXCITE:AMPS",
                 str(numpy.zeros(18)),
-                "wfm",
+                "wfmo",
             )
         )
         data.append(
@@ -129,7 +129,7 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
                 f"cell_{padded_cell}_excite_deltas",
                 f"{pv_stem}:EXCITE:DELTAS",
                 str(numpy.zeros(18)),
-                "wfm",
+                "wfmo",
             )
         )
         data.append(
@@ -138,7 +138,7 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
                 f"cell_{padded_cell}_excite_ticks",
                 f"{pv_stem}:EXCITE:TICKS",
                 str(numpy.zeros(18)),
-                "wfm",
+                "wfmo",
             )
         )
         # ao record
@@ -208,7 +208,7 @@ def get_element_pv_data(
                                 ctrl.precision,
                                 ctrl.upper_disp_limit,
                                 ctrl.lower_disp_limit,
-                                "1 second" if sp_pv in scan_pvs else "I/O Intr",
+                                "1 second" if sp_pv in scan_pvs else "Passive",
                             )
                         )
 
@@ -339,19 +339,9 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     )
     data.append(
         (
-            "wfm",
-            "collate",
-            ", ".join(bpm_enabled_pvs),
-            "EBPM-ENABLED:INTERIM",
-            str(numpy.zeros(len(bpm_enabled_pvs))),
-            "I/O Intr",
-        )
-    )
-    data.append(
-        (
-            "wfm",
+            "wfmi",
             "inverse",
-            "EBPM-ENABLED:INTERIM",
+            ", ".join(bpm_enabled_pvs),
             "SR-DI-EBPM-01:ENABLED",
             str(numpy.zeros(len(bpm_enabled_pvs))),
             "I/O Intr",
@@ -361,7 +351,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     bpm_x_pvs: list[str] = lattice.get_element_pv_names("BPM", "x", pytac.RB)
     data.append(
         (
-            "wfm",
+            "wfmi",
             "collate",
             ", ".join(bpm_x_pvs),
             "SR-DI-EBPM-01:SA:X",
@@ -373,7 +363,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     bpm_y_pvs: list[str] = lattice.get_element_pv_names("BPM", "y", pytac.RB)
     data.append(
         (
-            "wfm",
+            "wfmi",
             "collate",
             ", ".join(bpm_y_pvs),
             "SR-DI-EBPM-01:SA:Y",
