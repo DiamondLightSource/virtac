@@ -1,6 +1,5 @@
 [![CI](https://github.com/DiamondLightSource/virtac/actions/workflows/ci.yml/badge.svg)](https://github.com/DiamondLightSource/virtac/actions/workflows/ci.yml)
 [![Coverage](https://codecov.io/gh/DiamondLightSource/virtac/branch/main/graph/badge.svg)](https://codecov.io/gh/DiamondLightSource/virtac)
-[![PyPI](https://img.shields.io/pypi/v/virtac.svg)](https://pypi.org/project/virtac)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 # virtac
@@ -12,7 +11,6 @@ This module contains all of the diamond specific configuration to build the diam
 
 Source          | <https://github.com/DiamondLightSource/virtac>
 :---:           | :---:
-PyPI            | `pip install virtac`
 Docker          | `docker run ghcr.io/diamondlightsource/virtac:latest`
 Documentation   | <https://diamondlightsource.github.io/virtac>
 Installation    | <https://diamondlightsource.github.io/virtac/tutorials/installation>
