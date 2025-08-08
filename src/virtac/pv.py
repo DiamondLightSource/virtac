@@ -190,14 +190,39 @@ class PV:
         """Get the value stored in this PVs softioc record"""
         return self._record.get()
 
-    def set(self, value: RecordValueType):
-        """Set a value to this PVs softioc record.
+    def set(self, value: RecordValueType, offset: RecordValueType | None = None):
+        """Set a value to this PVs softioc record, and then update its pytac element(s)
+            with the same value.
 
         Args:
             value (RecordValue): The value to set to the softioc record.
+            offset (RecordValue): An offset value to add to this PVs pytac element but
+                not to its softioc record.
         """
+
         logging.debug(f"PV: {self.name} changed to: {value}")
         self._record.set(value)
+        if offset is not None:
+            logging.debug("Adding offset of: %s new value is: %s", offset, value)
+            value += offset
+
+        pytac_items, field = self.get_pytac_data()
+        # Some PVs such as the bend magnet PV have multiple pytac elements which
+        # are updated from the same PV value.
+        for item in pytac_items:
+            logging.debug(
+                "Updating field %s on lattice element %s for pv: %s to val: %s",
+                field,
+                item,
+                self.name,
+                value,
+            )
+            item.set_value(
+                field,
+                value,
+                units=pytac.ENG,
+                data_source=pytac.SIM,
+            )
 
 
 class ReadbackPV(PV):
@@ -217,6 +242,14 @@ class ReadbackPV(PV):
 
     def __init__(self, name: str, record_data: RecordData):
         super().__init__(name, record_data)
+
+    def set(self, value: RecordValueType):
+        """Set a value to this PVs softioc record.
+        Args:
+            value (RecordValue): The value to set to the softioc record.
+        """
+        logging.debug(f"PV: {self.name} changed to: {value}")
+        self._record.set(value)
 
 
 class SetpointPV(PV):
@@ -248,31 +281,11 @@ class SetpointPV(PV):
         logging.debug("Read value %s on pv %s", value, name)
         self._in_pv.set(value)
 
-        # TODO: This functionality should really be done from the _in_records set
-        # function.
-        pytac_items, field = self._in_pv.get_pytac_data()
-        # Some PVs such as the bend magnet PV have multiple pytac elements which
-        # are updated from the same PV value.
-        for item in pytac_items:
-            logging.debug(
-                "Updating field %s on lattice element %s for pv: %s to val: %s",
-                field,
-                item,
-                self._in_pv.name,
-                value,
-            )
-            item.set_value(
-                field,
-                value,
-                units=pytac.ENG,
-                data_source=pytac.SIM,
-            )
-
 
 class OffsetPV(SetpointPV):
-    """This PV is similar to SetpointPV, except when it updates another PVs pytac item,
-    it first gets an offset value from a third PV which is added to the value before
-    setting.
+    """This function sets the passed value to self._in_pv._record by calling its set
+        method. The set also sets value to the pytac item and field configured for
+        self._in_pv.
 
     Args:
         name (str): Used to set self.name
@@ -300,9 +313,9 @@ class OffsetPV(SetpointPV):
         self._offset_record: PVType | None = offset_pv
 
     def _on_update(self, value: RecordValueType, name: str):
-        """This function sets value to self._in_pv._record and also sets value (with an
-        additional offset from self._offset_pv) to the pytac item and field configured
-        for self._in_pv.
+        """This function sets the passed value to self._in_pv._record by calling its set
+        method. The set also sets value (with an additional offset from self._offset_pv)
+        to the pytac item and field configured for self._in_pv.
 
         This function is called whenever this PVs softioc record processes. It needs to
         be kept FAST as it can be called rapidly by CA clients which are writing to
@@ -313,34 +326,13 @@ class OffsetPV(SetpointPV):
             name (str): The name of self._record object.
         """
         logging.debug("Read value %s on pv %s", value, name)
-        self._in_pv.set(value)
-
         if self._offset_record is not None:
-            offset: RecordValueType = self._offset_record.get()
-            value += offset
-            logging.debug("Adding offset of: %s new value is: %s", offset, value)
+            offset = self._offset_record.get()
         else:
             raise AttributeError(
                 f"No offset record specified for OffsetPV: {self.name}"
             )
-
-        pytac_items, field = self._in_pv.get_pytac_data()
-        # Some PVs such as the bend magnet PV have multiple pytac elements which
-        # are updated from the same PV value.
-        for item in pytac_items:
-            logging.debug(
-                "Updating field %s on lattice element %s for pv: %s to val: %s",
-                field,
-                item,
-                self._in_pv.name,
-                value,
-            )
-            item.set_value(
-                field,
-                value,
-                units=pytac.ENG,
-                data_source=pytac.SIM,
-            )
+        self._in_pv.set(value, offset)
 
     def attach_offset_record(self, offset_pv: PVType):
         """Used to configure this PV with an offset PV in situations where the offset
@@ -393,7 +385,7 @@ class MonitorPV(PV):
         i.e pv_names[i] will trigger callbacks[i] on update.
 
         If len(callbacks)==1 then a single camonitor is created for all pv_names which
-        will call the callback function with an additional index to identify which pc
+        will call the callback function with an additional index to identify which pv
         changed value.
 
         Args:
