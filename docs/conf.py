@@ -176,13 +176,7 @@ html_theme_options = {
     },
     "use_edit_page_button": True,
     "github_url": f"https://github.com/{github_user}/{github_repo}",
-    "icon_links": [
-        {
-            "name": "PyPI",
-            "url": f"https://pypi.org/project/{project}",
-            "icon": "fas fa-cube",
-        }
-    ],
+    "icon_links": [{}],
     "switcher": {
         "json_url": switcher_json,
         "version_match": version,
