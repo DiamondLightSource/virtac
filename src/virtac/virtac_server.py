@@ -8,21 +8,20 @@ import atip
 import numpy
 import pytac
 from pytac.device import SimpleDevice
-from pytac.exceptions import FieldException, HandleException
+from pytac.exceptions import HandleException
 
 from .pv import (
     BasePV,
     CollationPV,
     InversionPV,
     MonitorPV,
-    OffsetPV,
+    ProxyPV,
     ReadSimPV,
     ReadWriteSimPV,
     RecordData,
     RecordTypes,
     RecordValueType,
     RefreshPV,
-    SetpointPV,
     SummationPV,
 )
 
@@ -248,15 +247,18 @@ class VirtacServer:
                         initial_value=value,
                         scan=scan,
                     )
-                    if readback_only_pv:
-                        read_pv = ReadbackPV(read_pv_name, record_data)  # type: ignore[assignment]
-                    else:
-                        read_pv = PV(read_pv_name, record_data)  # type: ignore[assignment]
-                    read_pv.append_pytac_item(element)
-                    read_pv.set_pytac_field(field)
-                    self._pv_dict[read_pv_name] = read_pv
 
-                    if not readback_only_pv:
+                    if readback_only_pv:
+                        read_pv = ReadSimPV(
+                            read_pv_name, record_data, elements=[element], field=field
+                        )
+                        self._readback_pvs_dict[read_pv_name] = read_pv
+                        self._pv_dict[read_pv_name] = read_pv
+                    else:
+                        read_write_pv = ReadWriteSimPV(
+                            read_pv_name, record_data, elements=[element], field=field
+                        )
+
                         upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
                                 set_pv_name, (None, None, None, None, None, "Passive")
@@ -272,17 +274,12 @@ class VirtacServer:
                             initial_value=value,
                             always_update=True,
                         )
-
-                        # For tunefb the quadrapole SETI records need to be OffsetPVs
-                        # instead of SetpointPVs
-                        if not self._disable_tunefb and field == "b1":
-                            set_pv = OffsetPV(set_pv_name, record_data, read_pv)  # type: ignore[assignment]
-                        else:
-                            set_pv = SetpointPV(set_pv_name, record_data, read_pv)  # type: ignore[assignment]
-
+                        set_pv = ProxyPV(set_pv_name, record_data, read_write_pv)
+                        self._pv_dict[read_pv_name] = read_write_pv
                         self._pv_dict[set_pv_name] = set_pv
+
                         if element.type_.upper() == "BEND" and bend_in_record is None:
-                            bend_in_record = read_pv
+                            bend_in_record = read_write_pv
 
     def _create_lattice_pvs(self, limits_dict: dict):
         """Create a PV for each simulated field on each pytac lattice element.
@@ -325,10 +322,11 @@ class VirtacServer:
                     scan=scan,
                     initial_value=value,
                 )
-                in_pv = ReadbackPV(get_pv_name, record_data)
-                in_pv.append_pytac_item(self.lattice)
-                in_pv.set_pytac_field(field)
-                self._pv_dict[get_pv_name] = in_pv
+                read_pv = ReadSimPV(
+                    get_pv_name, record_data, elements=[self.lattice], field=field
+                )
+                self._pv_dict[get_pv_name] = read_pv
+                self._readback_pvs_dict[get_pv_name] = read_pv
 
     def _create_bba_records(self, bba_csv: str):
         """Create all the beam-based-alignment records from the .csv file at the
