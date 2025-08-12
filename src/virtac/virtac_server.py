@@ -118,7 +118,7 @@ class VirtacServer:
               magnets. Currently we just have 1 PV for all bends and it takes its
               value from element[0]. This could be a target for future improvement.
         """
-        logging.debug("Updating output PVs")
+        logging.info("Updating output PVs")
         for pv in self._readback_pvs_dict.values():
             pv.get()
         logging.debug("Finished updating output PVs")
