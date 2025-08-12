@@ -600,6 +600,6 @@ class CollationPV(MonitorPV):
             record_data = numpy.copy(self._record.get())
             record_data[index] = value
         self._record.set(record_data)
-        logging.debug(
-            f"CollationPV: {self.name} collating data. New data: {record_data}"
-        )
+        # logging.debug(
+        #     f"CollationPV: {self.name} collating data. New value: {value}"
+        # )

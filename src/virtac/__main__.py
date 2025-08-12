@@ -44,7 +44,6 @@ def parse_arguments():
         "-v",
         "--verbose",
         help="Increase logging verbosity",
-        action="store_true",
     )
     parser.add_argument(
         "--version",
@@ -57,7 +56,12 @@ def parse_arguments():
 def main():
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
     args = parse_arguments()
-    log_level = logging.DEBUG if args.verbose else logging.INFO
+    if int(args.verbose) >= 2:
+        log_level = logging.DEBUG
+    elif int(args.verbose) >= 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     # Determine the ring mode
@@ -72,7 +76,7 @@ def main():
                 ring_mode = value.enums[int(value)]
                 logging.warning(
                     f"Ring mode not specified, using value from real "
-                    f"machine as default: {value}"
+                    f"machine as default: {ring_mode}"
                 )
             except ca_nothing:
                 ring_mode = "I04"
