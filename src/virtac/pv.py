@@ -1,7 +1,8 @@
 import logging
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TypeAlias, Union
+from enum import StrEnum
+from typing import TypeAlias
 
 import numpy
 import pytac
@@ -11,17 +12,16 @@ from softioc.pythonSoftIoc import RecordWrapper
 
 RecordValueType: TypeAlias = int | float | numpy.typing.NDArray
 PytacItemType: TypeAlias = pytac.lattice.Lattice | pytac.element.Element
-PVType: TypeAlias = Union[
-    "PV",
-    "CollationPV",
-    "InversionPV",
-    "MonitorPV",
-    "OffsetPV",
-    "ReadbackPV",
-    "RefreshPV",
-    "SetpointPV",
-    "SummationPV",
-]
+
+
+class RecordTypes(StrEnum):
+    """Currently supported EPICS sofioc record types"""
+
+    AI = "ai"
+    AO = "ao"
+    WAVEFORM_OUT = "wfmo"
+    WAVEFORM_IN = "wfmi"
+    MBBI = "mbbi"
 
 
 @dataclass
@@ -129,7 +129,7 @@ class PV:
         """
 
         logging.debug(f"Creating softioc record {self.name}")
-        if record_data.record_type == "ai":
+        if record_data.record_type == RecordTypes.AI:
             self._record = builder.aIn(
                 self.name,
                 PREC=record_data.precision,
@@ -138,7 +138,7 @@ class PV:
                 SCAN=record_data.scan,
                 initial_value=record_data.initial_value,
             )
-        elif record_data.record_type == "ao":
+        elif record_data.record_type == RecordTypes.AO:
             self._record = builder.aOut(
                 self.name,
                 PREC=record_data.precision,
@@ -150,14 +150,14 @@ class PV:
                 always_update=record_data.always_update,
                 on_update_name=self._on_update,
             )
-        elif record_data.record_type == "wfmi":
+        elif record_data.record_type == RecordTypes.WAVEFORM_IN:
             self._record = builder.WaveformIn(
                 self.name,
                 initial_value=record_data.initial_value,
                 PINI=record_data.pini,
                 SCAN=record_data.scan,
             )
-        elif record_data.record_type == "wfmo":
+        elif record_data.record_type == RecordTypes.WAVEFORM_OUT:
             self._record = builder.WaveformOut(
                 self.name,
                 initial_value=record_data.initial_value,
@@ -165,7 +165,7 @@ class PV:
                 SCAN=record_data.scan,
                 always_update=record_data.always_update,
             )
-        elif record_data.record_type == "mbbi":
+        elif record_data.record_type == RecordTypes.MBBI:
             self._record = builder.mbbIn(
                 self.name,
                 initial_value=record_data.initial_value,

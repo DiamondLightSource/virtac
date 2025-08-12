@@ -1,6 +1,7 @@
 import csv
 import logging
 import typing
+from enum import StrEnum
 
 import atip
 import numpy
@@ -17,11 +18,27 @@ from .pv import (
     PVType,
     ReadbackPV,
     RecordData,
+    RecordTypes,
     RecordValueType,
     RefreshPV,
     SetpointPV,
     SummationPV,
 )
+
+
+class MirrorType(StrEnum):
+    BASIC = "basic"
+    INVERSE = "inverse"
+    SUMMATE = "summate"
+    COLLATE = "collate"
+
+
+MIRROR_TYPES = {
+    MirrorType.BASIC: MonitorPV,
+    MirrorType.INVERSE: InversionPV,
+    MirrorType.SUMMATE: SummationPV,
+    MirrorType.COLLATE: CollationPV,
+}
 
 
 class VirtacServer:
@@ -204,7 +221,7 @@ class VirtacServer:
                         )
                     )
                     record_data = RecordData(
-                        "ai",
+                        RecordTypes.AI,
                         lower=lower,
                         upper=upper,
                         precision=precision,
@@ -228,7 +245,7 @@ class VirtacServer:
                             )
                         )
                         record_data = RecordData(
-                            "ao",
+                            RecordTypes.AO,
                             lower=lower,
                             upper=upper,
                             precision=precision,
@@ -283,7 +300,7 @@ class VirtacServer:
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
                 record_data = RecordData(
-                    "ai",
+                    RecordTypes.AI,
                     lower=lower,
                     upper=upper,
                     precision=precision,
@@ -321,7 +338,7 @@ class VirtacServer:
         if not self._disable_emittance:
             name = "SR-DI-EMIT-01:STATUS"
             record_data = RecordData(
-                "mbbi",
+                RecordTypes.MBBI,
                 zrvl="0",
                 zrst="Successful",
             )
@@ -415,22 +432,24 @@ class VirtacServer:
                         initial_value=val,
                         scan=line["scan"],
                     )
-                    if line["mirror_type"] == "basic":
-                        output_pv = MonitorPV(
-                            out_pv_name, record_data, [pv.name for pv in input_records]
-                        )
-                    elif line["mirror_type"] == "inverse":
-                        output_pv = InversionPV(out_pv_name, record_data, input_records)
-                    elif line["mirror_type"] == "summate":
-                        output_pv = SummationPV(out_pv_name, record_data, input_records)
-                    elif line["mirror_type"] == "collate":
-                        output_pv = CollationPV(out_pv_name, record_data, input_records)
-                    else:
+                    try:
+                        mirror_type = MIRROR_TYPES[MirrorType(line["mirror_type"])]
+                        if mirror_type == MIRROR_TYPES[MirrorType.BASIC]:
+                            # MonitorPV requires a list of str rather than a list of PV
+                            output_pv = mirror_type(
+                                out_pv_name,
+                                record_data,
+                                [pv.name for pv in input_records],
+                            )
+                        else:
+                            output_pv = mirror_type(
+                                out_pv_name, record_data, input_records
+                            )
+                    except KeyError as e:
                         raise TypeError(
-                            f"{line['mirror type']} is not a valid mirror type; please "
-                            "enter a currently supported type from: 'basic', 'summate',"
-                            " 'collate' and 'inverse'."
-                        )
+                            f"{line['mirror_type']} is not valid, please use one of: "
+                            f"({', '.join(n.value for n in MirrorType)})"
+                        ) from e
 
                     self._pv_dict[out_pv_name] = output_pv
 
