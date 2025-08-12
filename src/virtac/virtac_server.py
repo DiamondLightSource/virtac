@@ -15,7 +15,6 @@ from .pv import (
     CollationPV,
     InversionPV,
     MonitorPV,
-    ProxyPV,
     ReadSimPV,
     ReadWriteSimPV,
     RecordData,
@@ -120,7 +119,7 @@ class VirtacServer:
         """
         logging.info("Updating output PVs")
         for pv in self._readback_pvs_dict.values():
-            pv.get()
+            pv.update_from_sim()
         logging.debug("Finished updating output PVs")
 
     def _create_core_pvs(self, limits_csv: str):
@@ -184,7 +183,7 @@ class VirtacServer:
                     )
                     read_pv_name = element.get_pv_name(field, pytac.RB)
                     try:
-                        set_pv_name = element.get_pv_name(field, pytac.SP)
+                        read_write_pv_name = element.get_pv_name(field, pytac.SP)
                     except HandleException:
                         # Only update the pv when the pytac lattice is recalculated
                         # if the RB has no corresponding SP
@@ -206,20 +205,21 @@ class VirtacServer:
                         scan=scan,
                     )
 
-                    if readback_only_pv:
-                        read_pv = ReadSimPV(
-                            read_pv_name, record_data, elements=[element], field=field
-                        )
-                        self._readback_pvs_dict[read_pv_name] = read_pv
-                        self._pv_dict[read_pv_name] = read_pv
-                    else:
-                        read_write_pv = ReadWriteSimPV(
-                            read_pv_name, record_data, elements=[element], field=field
-                        )
+                    read_pv = ReadSimPV(
+                        read_pv_name, record_data, elements=[element], field=field
+                    )
+                    self._pv_dict[read_pv_name] = read_pv
 
+                    # Readback PVs which have an associated setpoint PV are set by their
+                    # setpoint PV when it is updated. Readback PVs without a setpoint PV
+                    # must be updated by the simulation directly after recalculation.
+                    if readback_only_pv:
+                        self._readback_pvs_dict[read_pv_name] = read_pv
+                    else:
                         upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
-                                set_pv_name, (None, None, None, None, None, "Passive")
+                                read_write_pv_name,
+                                (None, None, None, None, None, "Passive"),
                             )
                         )
                         record_data = RecordData(
@@ -232,9 +232,14 @@ class VirtacServer:
                             initial_value=value,
                             always_update=True,
                         )
-                        set_pv = ProxyPV(set_pv_name, record_data, read_write_pv)
-                        self._pv_dict[read_pv_name] = read_write_pv
-                        self._pv_dict[set_pv_name] = set_pv
+                        read_write_pv = ReadWriteSimPV(
+                            read_write_pv_name,
+                            record_data,
+                            read_pv,
+                            elements=[element],
+                            field=field,
+                        )
+                        self._pv_dict[read_write_pv_name] = read_write_pv
 
                         if element.type_.upper() == "BEND" and bend_in_record is None:
                             bend_in_record = read_write_pv
@@ -453,11 +458,11 @@ class VirtacServer:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
                 assert isinstance(
-                    self._pv_dict[line["set_pv"]], ProxyPV
+                    self._pv_dict[line["set_pv"]], ReadWriteSimPV
                 )  # The PV which does the offsetting
                 self._pv_dict[line["offset_pv"]]  # The PV which stores the offset value
-                set_record: ProxyPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
-                old_offseter_record: ProxyPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
+                set_record: ReadWriteSimPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
+                old_offseter_record: ReadWriteSimPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
 
                 # We overwrite the old_offseter_record with the new RefreshPV which has
                 # the required capabilities for tunefb
