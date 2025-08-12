@@ -7,6 +7,7 @@ from typing import TypeAlias
 import numpy
 import pytac
 from cothread.catools import _Subscription, camonitor
+from pytac.exceptions import FieldException
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
@@ -333,7 +334,7 @@ class ProxyPV(BasePV):
         self._offset_record = offset_pv
 
 
-class MonitorPV(PV):
+class MonitorPV(BasePV):
     """This type of PV monitors one or more PVs using channal access and does a callback
     when one of the camonitors returns
 
@@ -363,9 +364,9 @@ class MonitorPV(PV):
         super().__init__(name, record_data)
         self._monitor_data: list[tuple[list[str], list[Callable]]] = []
         self._camonitor_handles: list[_Subscription] = []
-        self.setup_pv_monitoring(monitored_pv_names, callbacks)
+        self._setup_pv_monitoring(monitored_pv_names, callbacks)
 
-    def setup_pv_monitoring(self, pv_names, callbacks):
+    def _setup_pv_monitoring(self, pv_names, callbacks):
         """Setup camonitoring using the passed PV names and callbacks.
 
         If len(callbacks)>1 then a camonitor is created for each pv_name, callback pair.
@@ -381,16 +382,16 @@ class MonitorPV(PV):
                 associated PV changes value.
         """
         if callbacks is None:
-            callbacks = [self.set]
+            callbacks = [self._callback]
 
         for pv_name in pv_names:
             if not isinstance(pv_name, str):
                 raise TypeError(f"PV name must be a string, not {type(pv_name)}")
             elif pv_name in self._monitor_data:
                 logging.warning(
-                    f"The provided PV name: {pv_name} is already being monitored."
+                    f"The provided PV name: {pv_name} is already being monitored. It is"
+                    " not recommended to setup multiple camonitors for a single PV."
                 )
-                pv_names.remove(pv_name)
 
         if len(callbacks) == 1:
             self._setup_pv_monitoring_group(pv_names, callbacks)
@@ -415,7 +416,7 @@ class MonitorPV(PV):
         # original.
         monitor_data = self._monitor_data.copy()
         for pv_list, callback in monitor_data:
-            self.setup_pv_monitoring(pv_list, callback)
+            self._setup_pv_monitoring(pv_list, callback)
 
     def disable_monitoring(self):
         """Used to switch off this PVs monitoring by closing camonitor subscriptions."""
@@ -424,7 +425,7 @@ class MonitorPV(PV):
             handle.close()
         self._camonitor_handles.clear()
 
-    def set(self, value: RecordValueType, index: int | None = None):
+    def _callback(self, value: RecordValueType, index: int | None = None):
         """Set a value to this PVs softioc record.
 
         For the MonitorPV, the set function is called when a camonitor returns, if we
@@ -436,7 +437,7 @@ class MonitorPV(PV):
                 which specified which index in the list of PVs returned.
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
-        self._record.set(value)
+        self.set(value)
 
 
 class RefreshPV(MonitorPV):
@@ -456,8 +457,8 @@ class RefreshPV(MonitorPV):
     Args:
         name (str): Used to set self.name
         monitored_pv_name (str): A PV to monitor and trigger refreshing.
-        record_to_refresh (PVType): The PV to pass to _record_to_refresh
-        pv_to_cannibalise (PVType): We take relevant variables from this PV, after
+        record_to_refresh (BasePV): The PV to pass to _record_to_refresh
+        pv_to_cannibalise (BasePV): We take relevant variables from this PV, after
             which it should be discarded. TODO: It would be better if we didnt have to.
             cannibalise an existing PV and could just create a new one.
 
@@ -469,20 +470,20 @@ class RefreshPV(MonitorPV):
         self,
         name,
         monitored_pv_name: str,
-        record_to_refresh: PVType,
-        pv_to_cannibalise: PVType,
+        record_to_refresh: BasePV,
+        pv_to_cannibalise: BasePV,
     ):
-        super().__init__(name, None, [monitored_pv_name], [self.refresh])
-        self._record_to_refresh: PVType = record_to_refresh
+        super().__init__(name, None, [monitored_pv_name], [self._callback])
+        self._record_to_refresh: BasePV = record_to_refresh
         self._record: RecordWrapper = pv_to_cannibalise.get_record()
-        self._pytac_items, self._pytac_field = pv_to_cannibalise.get_pytac_data()
 
-    def refresh(self, value: RecordValueType, index: int | None = None):
+    def _callback(self, value: RecordValueType, index: int | None = None):
         """Set the value returned from the monitored PV to this PVs _record and then
         force an update of _record_to_refresh.
 
         Args:
             value (RecordValue): Value returned from camonitor
+            index (int): This is ignored
         """
         logging.debug(
             f"RefreshPV: {self.name} setting its value to {value} and forcing "
@@ -506,17 +507,19 @@ class InversionPV(MonitorPV):
     Args:
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
-        invert_pvs (list[PVType]): A list of PVs to monitor and then invert when
+        invert_pvs (list[BasePV]): A list of PVs to monitor and then invert when
             they change value.
     """
 
-    def __init__(self, name: str, record_data: RecordData, invert_pvs: list[PVType]):
+    def __init__(self, name: str, record_data: RecordData, invert_pvs: list[BasePV]):
+        if (len(invert_pvs)) == 0:
+            raise AttributeError("InversionPV was not provided with any PVs to invert")
         super().__init__(
-            name, record_data, [pv.name for pv in invert_pvs], [self.invert]
+            name, record_data, [pv.name for pv in invert_pvs], [self._callback]
         )
-        self._invert_pvs: list[PVType] = invert_pvs
+        self._invert_pvs: list[BasePV] = invert_pvs
 
-    def invert(self, value: RecordValueType, index: int | None = None):
+    def _callback(self, value: RecordValueType, index: int | None = None):
         """Triggers this PV to caget the boolean values of all of its _invert_pv(s) and
             then invert them and set the result to _record.
 
@@ -525,17 +528,15 @@ class InversionPV(MonitorPV):
             index (int | None): This is ignored if only a single invert_pv is being
                 monitored.
         """
-        if (len(self._invert_pvs)) == 1:
+        if index is None:
             # Invert a single waveform record
             value = numpy.asarray(value, dtype=bool)
             value = numpy.asarray(numpy.invert(value), dtype=int)
-        elif (len(self._invert_pvs)) > 1:
+        else:
             # Invert the single element which changed
             record_data = numpy.copy(self._record.get())
             record_data[index] = not value
             self._record.set(record_data)
-        elif (len(self._invert_pvs)) == 0:
-            raise AttributeError("InversionPV was not provided with any PVs to invert")
 
         logging.debug(
             f"InversionPV: {self.name} inverting data. New data: {record_data}"
@@ -548,17 +549,17 @@ class SummationPV(MonitorPV):
     Args:
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
-        summate_pvs (list[PVType]): A list of PVs to monitor and then sum when they
+        summate_pvs (list[BasePV]): A list of PVs to monitor and then sum when they
             change value.
     """
 
-    def __init__(self, name, record_data: RecordData, summate_pvs: list[PVType]):
+    def __init__(self, name, record_data: RecordData, summate_pvs: list[BasePV]):
         super().__init__(
-            name, record_data, [pv.name for pv in summate_pvs], [self.summate]
+            name, record_data, [pv.name for pv in summate_pvs], [self._callback]
         )
-        self._summate_pvs: list[PVType] = summate_pvs
+        self._summate_pvs: list[BasePV] = summate_pvs
 
-    def summate(self, value: RecordValueType | None = None, index: int | None = None):
+    def _callback(self, value: RecordValueType | None = None, index: int | None = None):
         """Caget a list of PV values and set the result to self._record
 
         Args:
@@ -578,23 +579,26 @@ class CollationPV(MonitorPV):
     Args:
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
-        collate_pvs (list[PVType]): A list of PVs to monitor and then collate when they
+        collate_pvs (list[BasePV]): A list of PVs to monitor and then collate when they
             change value.
     """
 
-    def __init__(self, name: str, record_data: RecordData, collate_pvs: list[PVType]):
+    def __init__(self, name: str, record_data: RecordData, collate_pvs: list[BasePV]):
         super().__init__(
             name,
             record_data,
             [pv.name for pv in collate_pvs],
-            [self.collate],
+            [self._callback],
         )
-        self._collate_pvs: list[PVType] = collate_pvs
+        self._collate_pvs: list[BasePV] = collate_pvs
 
-    def collate(self, value: RecordValueType, index: int):
+    def _callback(self, value: RecordValueType, index: int | None = None):
         """Update this PVs waveform record using the given value and index"""
-        record_data = numpy.copy(self._record.get())
-        record_data[index] = value
+        if index is None:
+            record_data = value
+        else:
+            record_data = numpy.copy(self._record.get())
+            record_data[index] = value
         self._record.set(record_data)
         logging.debug(
             f"CollationPV: {self.name} collating data. New data: {record_data}"
