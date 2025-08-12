@@ -482,42 +482,6 @@ class VirtacServer:
                 )
                 set_record.attach_offset_record(new_offseter_record)
                 self._pv_dict[line["offset_pv"]] = new_offseter_record
-    # TODO: Needs fixing from refactor, is this function needed?
-    def set_feedback_record(self, index, field, value):
-        """Set a value to the feedback in records.
-
-        possible element fields are:
-            ['error_sum', 'enabled', 'state', 'offset', 'golden_offset', 'bcd_offset',
-             'bba_offset']
-        possible lattice fields are:
-            ['beam_current', 'feedback_status', 'bpm_id', 'emittance_status',
-             'fofb_status', 'cell_<cell_number>_excite_start_times',
-             'cell_<cell_number>_excite_amps', 'cell_<cell_number>_excite_deltas',
-             'cell_<cell_number>_excite_ticks', 'cell_<cell_number>_excite_prime']
-
-        Args:
-            index (int): The index of the element on which to set the value;
-                          starting from 1, 0 is used to set on the lattice.
-            field (str): The field to set the value to.
-            value (number): The value to be set.
-
-        Raises:
-            pytac.FieldException: If the lattice or element does
-                                              not have the specified field.
-        """
-        try:
-            self._feedback_records[(index, field)].set(value)
-            self._bba_records[(index, field)].set(value)
-        except KeyError as exc:
-            if index == 0:
-                raise FieldException(
-                    f"Simulated lattice {self.lattice} does not have field {field}."
-                ) from exc
-            else:
-                raise FieldException(
-                    f"Simulated element {self.lattice[index]} does not have "
-                    f"field {field}."
-                ) from exc
 
     def enable_monitoring(self):
         """Enable monitoring for all MonitorPV derived PVs. This will allow
