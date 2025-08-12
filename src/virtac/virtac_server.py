@@ -45,7 +45,23 @@ class VirtacServer:
     """The soft-ioc server which contains the configuration and PVs for the VIRTAC.
     It allows ATIP to be interfaced using EPICS, in the same manner as the live machine.
 
-    Args:
+    Attributes:
+        lattice (pytac.lattice.Lattice): An instance of a Pytac lattice with a
+                                          simulator data source derived from pyAT.
+    """
+
+    def __init__(
+        self,
+        ring_mode: str,
+        limits_csv: str,
+        bba_csv: str | None = None,
+        feedback_csv: str | None = None,
+        mirror_csv: str | None = None,
+        tune_csv: str | None = None,
+        disable_emittance: bool = False,
+        disable_tunefb: bool = False,
+    ):
+        """Args:
         ring_mode (str): The ring mode to create the lattice in.
         limits_csv (str): The filepath to the .csv file from which to
                                 load the pv limits, for more information
@@ -62,39 +78,12 @@ class VirtacServer:
         tune_csv (str): The filepath to the .csv file from which to
                             load the tune feedback records, for more
                             information see create_csv.py.
-        _disable_emittance (bool): Whether emittance should be disabled.
-        _disable_tunefb (bool): Whether tune feedback should be disabled.
-
-    Attributes:
-        lattice (pytac.lattice.Lattice): An instance of a Pytac lattice with a
-                                          simulator data source.
-        tune_feedback_enabled (bool): A boolean indicating whether the tune
-                                      feedback records have been created and
-                                      the monitoring systems are running.
-        _pv_monitoring (bool): Whether the mirrored PVs are being monitored.
-        _tune_fb_csv_path (str): The path to the tune feedback .csv file.
-        _pv_dict (dict[PVType]): A dictionary containing every PV created by the
-            virtac with the PV name as the key and PV object as the item in a 1 to 1
-            mapping.
-        _readback_pvs_dict (dict[PVType]): A dictionary containing the subset of
-            pvs from _pv_dict which need updating whenever the pytac lattice changes.
-    """
-
-    def __init__(
-        self,
-        ring_mode: str,
-        limits_csv: str,
-        bba_csv: str | None = None,
-        feedback_csv: str | None = None,
-        mirror_csv: str | None = None,
-        tune_csv: str | None = None,
-        disable_emittance: bool = False,
-        disable_tunefb: bool = False,
-    ):
+        disable_emittance (bool): Whether emittance should be disabled.
+        disable_tunefb (bool): Whether tune feedback should be disabled.
+        """
         self._disable_emittance: bool = disable_emittance
         self._disable_tunefb: bool = disable_tunefb
         self._pv_monitoring: bool = True
-        # TODO: Need to update ATIP to use enable_emittance instead of disable_emittance
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
             ring_mode, self.update_pvs, self._disable_emittance
         )
@@ -117,11 +106,6 @@ class VirtacServer:
         if not disable_tunefb and tune_csv is not None:
             self._setup_tune_feedback(tune_csv)
 
-        # Collect the PVs that need updating after lattice recalculation.
-        for name, pv in self._pv_dict.items():
-            if isinstance(pv, ReadbackPV):
-                self._readback_pvs_dict[name] = pv
-
         self.print_virtac_stats()
 
     def update_pvs(self):
@@ -140,9 +124,8 @@ class VirtacServer:
         logging.debug("Finished updating output PVs")
 
     def _create_core_pvs(self, limits_csv: str):
-        """Create the core records required for the virtac from both lattice and element
-        pytac fields. Several assumptions have been made for simplicity and
-        efficiency, these are:
+        """Create the core records required for the virtac using both lattice and
+        element pytac data.
 
         Args:
             limits_csv (str): The filepath to the .csv file from which to load pv field
@@ -333,7 +316,7 @@ class VirtacServer:
                 zrvl="0",
                 zrst="Successful",
             )
-            emit_status_pv = PV(name, record_data)
+            emit_status_pv = BasePV(name, record_data)
             self._pv_dict[name] = emit_status_pv
 
     def _create_feedback_or_bba_records_from_csv(self, csv_file: str):
@@ -345,7 +328,7 @@ class VirtacServer:
                                     records in accordance with.
         """
         # We don't set limits or precision but this shouldn't be an issue as these
-        # records aren't really intended to be set to by a user.
+        # records aren't intended to be set to by a user.
         with open(csv_file) as f:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
@@ -365,9 +348,12 @@ class VirtacServer:
                     ) from exc
                 else:
                     record_data = RecordData(line["record_type"], initial_value=val)
-                    pv = PV(name, record_data)
-                    pv.set_pytac_field(line["field"])
-                    pv.append_pytac_item(self.lattice[int(line["index"]) - 1])
+                    pv = ReadSimPV(
+                        name,
+                        record_data,
+                        self.lattice[int(line["index"]) - 1],
+                        line["field"],
+                    )
                     self._pv_dict[name] = pv
 
     def _create_mirror_records(self, mirror_csv: str):
@@ -395,15 +381,14 @@ class VirtacServer:
                         "collation and summation mirror types take at least two input "
                         "PVs."
                     )
-                # Convert input pvs to record objects
-                input_records: list[PVType] = []
+                input_records: list[BasePV] = []
                 for pv in input_pv_names:
                     try:
                         # Lookup pv in our dictionary of softioc records
                         input_records.append(self._pv_dict[pv])
                     except KeyError:
                         logging.exception(f"PV {pv} does not exist")
-                # Update the mirror dictionary.
+
                 try:
                     # Waveform records may have values stored as a list such as: [5 1 3]
                     # We convert that into a numpy array for initialising the record
@@ -411,11 +396,13 @@ class VirtacServer:
                         val = numpy.fromstring((line["value"])[1:-1], sep=" ")
                     else:
                         val = float(line["value"])
+
                 except (AssertionError, ValueError) as exc:
                     raise ValueError(
                         f"Invalid initial value for {line['output_type']} record: "
                         f"{line['value']}"
                     ) from exc
+
                 else:
                     out_pv_name = line["out_pv"]
                     record_data = RecordData(
@@ -466,23 +453,22 @@ class VirtacServer:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
                 assert isinstance(
-                    self._pv_dict[line["set_pv"]], OffsetPV
+                    self._pv_dict[line["set_pv"]], ProxyPV
                 )  # The PV which does the offsetting
                 self._pv_dict[line["offset_pv"]]  # The PV which stores the offset value
-                set_record: OffsetPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
-                old_offset_record: OffsetPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
+                set_record: ProxyPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
+                old_offseter_record: ProxyPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
 
-                # We overwrite the old_offset_record with the new RefreshPV which has
+                # We overwrite the old_offseter_record with the new RefreshPV which has
                 # the required capabilities for tunefb
-                new_offset_record = RefreshPV(
+                new_offseter_record = RefreshPV(
                     line["offset_pv"],
                     line["delta_pv"],
                     set_record,
-                    old_offset_record,
+                    old_offseter_record,
                 )
-                set_record.attach_offset_record(new_offset_record)
-                self._pv_dict[line["offset_pv"]] = new_offset_record
-
+                set_record.attach_offset_record(new_offseter_record)
+                self._pv_dict[line["offset_pv"]] = new_offseter_record
     # TODO: Needs fixing from refactor, is this function needed?
     def set_feedback_record(self, index, field, value):
         """Set a value to the feedback in records.
@@ -533,7 +519,8 @@ class VirtacServer:
                     pv.enable_monitoring()
             self._pv_monitoring = True
 
-    # Is this needed? It essentially just pauses a subset of the virtacs functionality
+    # TODO: Is this needed? It essentially just pauses a subset of the virtacs
+    # functionality
     def disable_monitoring(self):
         """Disable monitoring for all MonitorPV derived PVs. This will disable
         tune feedback and vertical emittance feedback
