@@ -50,39 +50,35 @@ class RecordData:
             raise ValueError("Record field `pini` must be of string type")
 
 
-class PV:
-    """Stores variables and functions related to an EPICS PV which
-    the VIRTAC requires to control the PV.
+class BasePV:
+    """Stores the attributes and methods which allow the VIRTAC to control an
+    EPICS PV.
 
-    Args:
-        name (str): Used to set self.name
-        record_data (RecordData | None): Dataclass used to create this PVs softioc
-            record.
 
     Attributes:
         self.name (str): The name used to get both the PV and its softioc record.
         self._record (softioc.pythonSoftIoc.RecordWrapper): This softioc record is the
             heart of the PV class, the main purpose of PV objects is to manage the
             setting and getting of these records.
-        self._pytac_items (list[PytacItem]): An optional list of pytac elements or the
-            pytac lattice itself which can be set/get from this PV.
-        self._pytac_field (str): The field on the element(s) to set/get
-
     """
 
     def __init__(self, name: str, record_data: RecordData | None):
-        logging.debug(f"Creating PV {name}")
+        """Args:
+        name (str): Used to identify this PV and its softioc record.
+        record_data (RecordData | None): Dataclass used to create this PVs softioc
+            record.
+        """
+        logging.debug(f"Creating PV: {name}")
         self.name: str = name
         self._record: RecordWrapper = None
-        self._pytac_items: list[PytacItemType] = []
-        self._pytac_field: str = ""
         if record_data is not None:
             self.create_softioc_record(record_data)
 
     def _on_update(self, value: RecordValueType, name: str):
         """The callback function called when the softioc record updates.
 
-        This functions needs to be kept FAST as it can be called rapidly by CA clients.
+        This function and any overrides need to be kept FAST as they can be called
+        rapidly by CA clients.
 
         Args:
             value (RecordValue): The value that has just been set to the record.
@@ -90,43 +86,29 @@ class PV:
         """
         logging.debug("Read value %s on pv %s", value, name)
 
-    def get_pytac_data(self) -> tuple[list[PytacItemType], str]:
-        """Return the list of pytac elements and the field defined for this PV"""
-        return self._pytac_items, self._pytac_field
-
-    def append_pytac_item(self, pytac_item: PytacItemType):
-        """Append a pytac item to the list of pytac items defined for this PV
-
-        Args:
-            pytac_item (list[PytacItem]): The pytac element or lattice to append.
-        """
-        self._pytac_items.append(pytac_item)
-
-    def set_pytac_field(self, field: str):
-        """Set this PVs pytac field to the passed value
-
-        Args:
-            field (str): The pytac field to the value to.
-        """
-        self._pytac_field = field
-
     def set_record_field(self, field: str, value: RecordValueType | str):
-        """Set a field on this PVs softioc record
+        """Set a field on this PVs softioc record.
 
         Args:
             field (softioc.field): The EPICS field to set on the softioc record
-            value (RecordValueType | str): The value to set to the EPICS field"""
+            value (RecordValueType | str): The value to set to the EPICS field
+        """
         self._record.set_field(field, value)
 
     def create_softioc_record(
         self,
         record_data: RecordData,
     ):
-        """Create this PVs softioc record (self._record).
+        """Create this PVs softioc record.
 
         Args:
             record_data (RecordData): Dataclass used to create this PVs softioc record.
         """
+        if self._record is not None:
+            raise AttributeError(
+                f"A softioc record could not be created for PV: {self.name}. It already"
+                "has an attached record."
+            )
 
         logging.debug(f"Creating softioc record {self.name}")
         if record_data.record_type == RecordTypes.AI:
@@ -190,14 +172,78 @@ class PV:
         """Get the value stored in this PVs softioc record"""
         return self._record.get()
 
+    def set(self, value: RecordValueType):
+        """Set a value to this PVs softioc record.
+
+        Args:
+            value (RecordValue): The value to set to the softioc record.
+        """
+        logging.debug(f"PV: {self.name} changed to: {value}")
+        self._record.set(value)
+
+
+class ReadSimPV(BasePV):
+    """This PV is used to read a value from the simulation using the pytac lattice and
+    then set it to a softioc record.
+    """
+
+    def __init__(
+        self, name, record_data: RecordData, elements: PytacItemType, field: str
+    ):
+        """Args:
+        name (str): Used to identify this PV and its softioc record.
+        record_data (RecordData | None): Dataclass used to create this PVs softioc
+            record.
+        elements (PytacItemType):  A list of pytac elements or the pytac lattice
+            itself which should be linked to this PV.
+        pytac_field (str): The field on the pytac item(s) to set/get.
+        """
+        super().__init__(name, record_data)
+        self._pytac_items: list[PytacItemType] = elements
+        self._pytac_field: str = field
+
+    def get_pytac_data(self) -> tuple[list[PytacItemType], str]:
+        """Return the list of pytac elements and the field defined for this PV"""
+        return self._pytac_items, self._pytac_field
+
+    def append_pytac_item(self, pytac_item: PytacItemType):
+        """Append a pytac item to the list of pytac items defined for this PV
+
+        Args:
+            pytac_item (PytacItem): The pytac element or lattice to append.
+        """
+        self._pytac_items.append(pytac_item)
+
+    def get(self) -> RecordValueType:
+        """Get the value from the simulation, update this PVs softioc record and
+        then return the simulation value.
+        """
+        logging.debug(f"Updating pv {self.name}")
+        try:
+            value = self._pytac_items[0].get_value(
+                self._pytac_field, units=pytac.ENG, data_source=pytac.SIM
+            )
+            logging.debug(f"Update_pvs: {self.name} to val {value}")
+            self.set(value)
+        except FieldException as e:
+            logging.exception("PV is missing an expected pytac field")
+            raise (e)
+        return self._record.get()
+
+
+class ReadWriteSimPV(ReadSimPV):
+    """This PV is used to write a value to the simulation from a softioc record using
+    the pytac lattice.
+    """
+
     def set(self, value: RecordValueType, offset: RecordValueType | None = None):
         """Set a value to this PVs softioc record, and then update its pytac element(s)
             with the same value.
 
         Args:
             value (RecordValue): The value to set to the softioc record.
-            offset (RecordValue): An offset value to add to this PVs pytac element but
-                not to its softioc record.
+            offset (RecordValue): An optional offset value to add to this PVs pytac
+            element but NOT to its softioc record.
         """
 
         logging.debug(f"PV: {self.name} changed to: {value}")
@@ -224,32 +270,6 @@ class PV:
                 data_source=pytac.SIM,
             )
 
-
-class ReadbackPV(PV):
-    """This PV type designates that this PVs softioc record should be updated with the
-    value from its connected pytac element(s) and field after a lattice recalculation.
-
-    This PV class in itself does not automatically update, rather ReadbackPVs should be
-    added to a list of PVs which are to be updated by using a callback. Such as in
-    VirtacServer.update_pvs().
-    TODO: Could we automatically have this functionality in this PV rather than relaying
-    on an external callback?
-
-    Args:
-        name (str): Used to set self.name
-        record_data (RecordData): Dataclass used to create this PVs softioc record.
-    """
-
-    def __init__(self, name: str, record_data: RecordData):
-        super().__init__(name, record_data)
-
-    def set(self, value: RecordValueType):
-        """Set a value to this PVs softioc record.
-        Args:
-            value (RecordValue): The value to set to the softioc record.
-        """
-        logging.debug(f"PV: {self.name} changed to: {value}")
-        self._record.set(value)
 
 
 class SetpointPV(PV):
