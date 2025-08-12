@@ -271,53 +271,25 @@ class ReadWriteSimPV(ReadSimPV):
             )
 
 
+class ProxyPV(BasePV):
+    """This PV is used to set a value to another PV which then updates the simulation,
+        an optional offset value may also be passed.
 
-class SetpointPV(PV):
-    """This PV is used to set a value to another PV and its associated pytac item(s).
-
-    Args:
-        name (str): Used to set self.name
-        record_data (RecordData): Dataclass used to create this PVs softioc record.
-        in_pv (PVType): The PV which is to be updated when the SetpointPV's
-            softioc record processes.
-    """
-
-    def __init__(self, name: str, record_data: RecordData, in_pv: PVType):
-        super().__init__(name, record_data)
-        self._in_pv: PVType = in_pv
-
-    def _on_update(self, value: RecordValueType, name: str):
-        """This function sets value to self._in_pv._record and also sets value to the
-        pytac item and field configured for self._in_pv.
-
-        This function is called whenever this PVs softioc record processes. It needs to
-        be kept FAST as it can be called rapidly by CA clients which are writing to
-        self._record.
-
-        Args:
-            value (RecordValue): The value that has just been set to self._record.
-            name (str): The name of self._record object.
-        """
-        logging.debug("Read value %s on pv %s", value, name)
-        self._in_pv.set(value)
-
-
-class OffsetPV(SetpointPV):
-    """This function sets the passed value to self._in_pv._record by calling its set
-        method. The set also sets value to the pytac item and field configured for
-        self._in_pv.
+        Note: This PV is used to mimic the real machine where you would have a set PV
+        which tells the hardware to update and then a readback PV which reflects the
+        changed value. When set to, this PV prompts the readback PV to update.
 
     Args:
         name (str): Used to set self.name
         record_data (RecordData): Dataclass used to create this PVs softioc record.
-        in_pv (PVType): The PV object to pass to _in_pv
-        offset_pv (PVType | None): The PV object to pass to _offset_pv. It is optional
+        pv_to_update (ReadWriteSimPV): The PV object to pass to _pv_to_update
+        offset_pv (BasePV | None): The PV object to pass to _offset_pv. It is optional
             to pass this at initialisation, but if not passed, it must be later attached
             using the attach_offset_record method.
 
     Attributes:
-        _in_pv (PV): The PV which is to be updated when the SetpointPV's
-            softioc record processes.
+        _pv_to_update (ReadWriteSimPV): The PV which is to be updated when the
+            SetpointPV's softioc record processes.
         _offset_pv (PV | None): The PV which we get a value from to use as an offset
             during _on_update.
     """
@@ -326,20 +298,17 @@ class OffsetPV(SetpointPV):
         self,
         name: str,
         record_data: RecordData,
-        in_pv: PVType,
-        offset_pv: PVType | None = None,
+        pv_to_update: ReadWriteSimPV,
+        offset_pv: BasePV | None = None,
     ):
-        super().__init__(name, record_data, in_pv)
-        self._offset_record: PVType | None = offset_pv
+        super().__init__(name, record_data)
+        self._pv_to_update: ReadWriteSimPV = pv_to_update
+        self._offset_record: BasePV | None = offset_pv
 
     def _on_update(self, value: RecordValueType, name: str):
-        """This function sets the passed value to self._in_pv._record by calling its set
-        method. The set also sets value (with an additional offset from self._offset_pv)
-        to the pytac item and field configured for self._in_pv.
-
-        This function is called whenever this PVs softioc record processes. It needs to
-        be kept FAST as it can be called rapidly by CA clients which are writing to
-        self._record.
+        """This function sets the passed value to self._pv_to_update._record by calling
+        its set method. The set also sets value (with an additional offset from
+        self._offset_pv) to the pytac item and field configured for self._pv_to_update.
 
         Args:
             value (RecordValue): The value that has just been set to self._record.
@@ -348,13 +317,11 @@ class OffsetPV(SetpointPV):
         logging.debug("Read value %s on pv %s", value, name)
         if self._offset_record is not None:
             offset = self._offset_record.get()
+            self._pv_to_update.set(value, offset)
         else:
-            raise AttributeError(
-                f"No offset record specified for OffsetPV: {self.name}"
-            )
-        self._in_pv.set(value, offset)
+            self._pv_to_update.set(value, None)
 
-    def attach_offset_record(self, offset_pv: PVType):
+    def attach_offset_record(self, offset_pv: BasePV):
         """Used to configure this PV with an offset PV in situations where the offset
         was created after this PV.
 
