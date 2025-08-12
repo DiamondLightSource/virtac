@@ -11,13 +11,13 @@ from pytac.device import SimpleDevice
 from pytac.exceptions import FieldException, HandleException
 
 from .pv import (
-    PV,
+    BasePV,
     CollationPV,
     InversionPV,
     MonitorPV,
     OffsetPV,
-    PVType,
-    ReadbackPV,
+    ReadSimPV,
+    ReadWriteSimPV,
     RecordData,
     RecordTypes,
     RecordValueType,
@@ -100,8 +100,12 @@ class VirtacServer:
             ring_mode, self.update_pvs, self._disable_emittance
         )
 
-        self._pv_dict: dict[str, PVType] = {}
-        self._readback_pvs_dict: dict[str, PV] = {}
+        # Holding dictionary for all PVs
+        self._pv_dict: dict[str, BasePV] = {}
+        # Dictionary for the PVs which should be automatically updated when the
+        # simulation data is recalculated
+        self._readback_pvs_dict: dict[str, ReadSimPV] = {}
+
         print("Starting PV creation.")
         self._create_core_pvs(limits_csv)
 
