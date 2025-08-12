@@ -197,7 +197,7 @@ class VirtacServer:
                         print(f"PV: {read_pv_name} already exists! Dupe!")
                         continue
                     try:
-                        set_pv_name = element.get_pv_name(field, pytac.SP)
+                        read_write_pv_name = element.get_pv_name(field, pytac.SP)
                     except HandleException:
                         # Only update the pv when the pytac lattice is recalculated
                         # if the RB has no corresponding SP
