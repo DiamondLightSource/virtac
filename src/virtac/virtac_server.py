@@ -124,31 +124,19 @@ class VirtacServer:
 
         self.print_virtac_stats()
 
-    # TODO: Reset all correctors to default method?
-
     def update_pvs(self):
         """The callback function passed to ATSimulator during lattice creation,
         which is called each time a calculation of physics data is completed and
         updates all the in records that do not have a corresponding out record
         with the latest values from the simulator.
 
-            - Note that a PV can have multiple elements, specifically for the bend
+            - Note that a PV can have multiple elements, as is the case for bend
               magnets. Currently we just have 1 PV for all bends and it takes its
               value from element[0]. This could be a target for future improvement.
         """
         logging.debug("Updating output PVs")
-        for name, pv in self._readback_pvs_dict.items():
-            logging.debug(f"Updating pv {name}")
-            elements, field = pv.get_pytac_data()
-            try:
-                value = elements[0].get_value(
-                    field, units=pytac.ENG, data_source=pytac.SIM
-                )
-                logging.debug(f"Update_pvs: {name} to val {value}")
-                pv.set(value)
-            except FieldException as e:
-                print("PV is missing an expected pytac field")
-                raise (e)
+        for pv in self._readback_pvs_dict.values():
+            pv.get()
         logging.debug("Finished updating output PVs")
 
     def _create_core_pvs(self, limits_csv: str):
