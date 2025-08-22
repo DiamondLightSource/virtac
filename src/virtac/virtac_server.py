@@ -177,17 +177,10 @@ class VirtacServer:
                 bend_in_record.append_pytac_item(element)
             else:
                 for field in element.get_fields()[pytac.SIM]:
-                    readback_only_pv = False
                     value = element.get_value(
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
                     read_pv_name = element.get_pv_name(field, pytac.RB)
-                    try:
-                        read_write_pv_name = element.get_pv_name(field, pytac.SP)
-                    except HandleException:
-                        # Only update the pv when the pytac lattice is recalculated
-                        # if the RB has no corresponding SP
-                        readback_only_pv = True
 
                     upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
@@ -210,10 +203,14 @@ class VirtacServer:
                     )
                     self._pv_dict[read_pv_name] = read_pv
 
-                    # Readback PVs which have an associated setpoint PV are set by their
-                    # setpoint PV when it is updated. Readback PVs without a setpoint PV
-                    # must be updated by the simulation directly after recalculation.
-                    if readback_only_pv:
+                    # Readback PVs without a setpoint PV are updated from the simulation
+                    # after recalculation. Readback PVs with a setpoint PV are updated
+                    # when their associated setpoint PV is updated.
+                    try:
+                        read_write_pv_name = element.get_pv_name(field, pytac.SP)
+                    except HandleException:
+                        # Only triggered if this element has an RB PV but no SP PV.
+                        # Add to list of PVs to be updated from the simulation
                         self._readback_pvs_dict[read_pv_name] = read_pv
                     else:
                         upper, lower, precision, drive_high, drive_low, scan = (
