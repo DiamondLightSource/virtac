@@ -474,23 +474,22 @@ class VirtacServer:
         with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
-                assert isinstance(
-                    self._pv_dict[line["set_pv"]], ReadWriteSimPV
-                )  # The PV which does the offsetting
-                self._pv_dict[line["offset_pv"]]  # The PV which stores the offset value
-                set_record: ReadWriteSimPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
-                old_offseter_record: ReadWriteSimPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
+                assert isinstance(self._pv_dict[line["set_pv"]], ReadWriteSimPV)
 
-                # We overwrite the old_offseter_record with the new RefreshPV which has
+                self._pv_dict[line["offset_pv"]]
+                set_record: ReadWriteSimPV = self._pv_dict[line["set_pv"]]
+                old_set_record: ReadWriteSimPV = self._pv_dict[line["offset_pv"]]
+
+                # We overwrite the old_set_record with the new RefreshPV which has
                 # the required capabilities for tunefb
-                new_offseter_record = RefreshPV(
+                new_set_record = RefreshPV(
                     line["offset_pv"],
                     line["delta_pv"],
                     set_record,
-                    old_offseter_record,
+                    old_set_record,
                 )
-                set_record.attach_offset_record(new_offseter_record)
-                self._pv_dict[line["offset_pv"]] = new_offseter_record
+                set_record.attach_offset_record(new_set_record)
+                self._pv_dict[line["offset_pv"]] = new_set_record
 
     def enable_monitoring(self):
         """Enable monitoring for all MonitorPV derived PVs. This will allow
