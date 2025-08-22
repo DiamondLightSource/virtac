@@ -203,10 +203,6 @@ class ReadSimPV(BasePV):
         self._pytac_items: list[PytacItemType] = elements
         self._pytac_field: str = field
 
-    def get_pytac_data(self) -> tuple[list[PytacItemType], str]:
-        """Return the list of pytac elements and the field defined for this PV"""
-        return self._pytac_items, self._pytac_field
-
     def append_pytac_item(self, pytac_item: PytacItemType):
         """Append a pytac item to the list of pytac items defined for this PV
 
@@ -282,19 +278,18 @@ class ReadWriteSimPV(ReadSimPV):
             logging.debug("Adding offset of: %s new value is: %s", offset, value)
             value += offset
 
-        pytac_items, field = self.get_pytac_data()
         # Some PVs such as the bend magnet PV have multiple pytac elements which
         # are updated from the same PV value.
-        for item in pytac_items:
+        for item in self._pytac_items:
             logging.debug(
                 "Updating field %s on lattice element %s for pv: %s to val: %s",
-                field,
+                self._pytac_field,
                 item,
                 self.name,
                 value,
             )
             item.set_value(
-                field,
+                self._pytac_field,
                 value,
                 units=pytac.ENG,
                 data_source=pytac.SIM,

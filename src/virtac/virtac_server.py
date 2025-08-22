@@ -454,8 +454,8 @@ class VirtacServer:
                 assert isinstance(self._pv_dict[line["set_pv"]], ReadWriteSimPV)
 
                 self._pv_dict[line["offset_pv"]]
-                set_record: ReadWriteSimPV = self._pv_dict[line["set_pv"]]
-                old_set_record: ReadWriteSimPV = self._pv_dict[line["offset_pv"]]
+                set_record: ReadWriteSimPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
+                old_set_record: ReadWriteSimPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
 
                 # We overwrite the old_set_record with the new RefreshPV which has
                 # the required capabilities for tunefb
