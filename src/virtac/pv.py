@@ -116,8 +116,8 @@ class BasePV:
             self._record = builder.aIn(
                 self.name,
                 PREC=record_data.precision,
-                LOPR=record_data.lower,
                 HOPR=record_data.upper,
+                LOPR=record_data.lower,
                 SCAN=record_data.scan,
                 initial_value=record_data.initial_value,
             )
@@ -125,10 +125,10 @@ class BasePV:
             self._record = builder.aOut(
                 self.name,
                 PREC=record_data.precision,
+                HOPR=record_data.upper,
                 LOPR=record_data.lower,
                 DRVH=record_data.drive_high,
                 DRVL=record_data.drive_low,
-                HOPR=record_data.upper,
                 initial_value=record_data.initial_value,
                 always_update=record_data.always_update,
                 on_update_name=self._on_update,
@@ -158,8 +158,8 @@ class BasePV:
             )
         else:
             raise ValueError(
-                "Failed to create softioc record with record type: "
-                f"{record_data.record_type}"
+                f"SoftIOC record type: {record_data.record_type} not supported. "
+                f"Use one of the following: {[rt.value for rt in RecordTypes]}"
             )
 
     def get_record(self) -> RecordWrapper:

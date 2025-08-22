@@ -77,8 +77,8 @@ def main():
                 value = caget("SR-CS-RING-01:MODE", timeout=1, format=2)
                 ring_mode = value.enums[int(value)]
                 logging.warning(
-                    f"Ring mode not specified, using value from real "
-                    f"machine as default: {ring_mode}"
+                    "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
+                    f"as the default: {ring_mode}"
                 )
             except ca_nothing:
                 ring_mode = "I04"
