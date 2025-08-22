@@ -370,11 +370,14 @@ class MonitorPV(BasePV):
         for pv_name in pv_names:
             if not isinstance(pv_name, str):
                 raise TypeError(f"PV name must be a string, not {type(pv_name)}")
-            elif pv_name in self._monitor_data:
-                logging.warning(
-                    f"The provided PV name: {pv_name} is already being monitored. It is"
-                    " not recommended to setup multiple camonitors for a single PV."
-                )
+            else:
+                for dataset in self._monitor_data:
+                    if pv_name in dataset[0]:
+                        logging.warning(
+                            f"The provided PV name: {pv_name} is already being "
+                            "monitored. It is not recommended to setup multiple "
+                            "camonitors for a single PV."
+                        )
 
         if len(callbacks) == 1:
             self._setup_pv_monitoring_group(pv_names, callbacks)
@@ -398,6 +401,7 @@ class MonitorPV(BasePV):
         # We create a copy of monitor data, as set_pv_monitoring can append to this
         # original.
         monitor_data = self._monitor_data.copy()
+        self._monitor_data.clear()
         for pv_list, callback in monitor_data:
             self._setup_pv_monitoring(pv_list, callback)
 
