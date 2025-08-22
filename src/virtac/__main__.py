@@ -29,20 +29,22 @@ def parse_arguments():
     parser.add_argument(
         "-e",
         "--disable-emittance",
-        help="Enable the simulator's time-consuming emittance calculation",
+        help="Disable the simulator's time-consuming emittance calculation",
         action="store_true",
         default=False,
     )
     parser.add_argument(
         "-t",
         "--disable-tfb",
-        help="Simulate extra dummy hardware to be used by the Tune Feedback system",
+        help="Disable extra simulated hardware required by the Tune Feedback system",
         action="store_true",
         default=False,
     )
     parser.add_argument(
         "-v",
         "--verbose",
+        type=int,
+        default=0,
         help="Increase logging verbosity",
     )
     parser.add_argument(
@@ -56,9 +58,9 @@ def parse_arguments():
 def main():
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
     args = parse_arguments()
-    if int(args.verbose) >= 2:
+    if args.verbose >= 2:
         log_level = logging.DEBUG
-    elif int(args.verbose) >= 1:
+    elif args.verbose == 1:
         log_level = logging.INFO
     else:
         log_level = logging.WARNING
