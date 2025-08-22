@@ -432,7 +432,7 @@ class VirtacServer:
                             output_pv = mirror_type(
                                 out_pv_name,
                                 record_data,
-                                [pv.name for pv in input_records],
+                                input_pv_names,
                             )
                         else:
                             output_pv = mirror_type(
