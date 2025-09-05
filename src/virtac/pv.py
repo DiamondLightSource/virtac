@@ -379,16 +379,16 @@ class MonitorPV(BasePV):
         else:
             self._setup_pv_monitoring_individual(pv_names, callbacks)
 
+    def _setup_pv_monitoring_group(self, pv_names: list[str], callback: list[Callable]):
+        self._monitor_data.append((pv_names, callback))
+        self._camonitor_handles.extend(camonitor(pv_names, callback[0]))
+
     def _setup_pv_monitoring_individual(
         self, pv_names: list[str], callbacks: list[Callable]
     ):
         for pv_name, callback in zip(pv_names, callbacks, strict=True):
             self._monitor_data.append(([pv_name], [callback]))
             self._camonitor_handles.append(camonitor(pv_name, callback))
-
-    def _setup_pv_monitoring_group(self, pv_names: list[str], callback: list[Callable]):
-        self._monitor_data.append((pv_names, callback))
-        self._camonitor_handles.extend(camonitor(pv_names, callback[0]))
 
     def enable_monitoring(self):
         """Used to re-enable monitoring of this PV by re-creating the subscriptions."""
