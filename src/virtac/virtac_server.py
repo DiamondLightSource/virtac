@@ -1,161 +1,131 @@
 import csv
 import logging
 import typing
-from warnings import warn
+from collections import defaultdict
+from enum import StrEnum
 
 import atip
 import numpy
 import pytac
-from cothread.catools import camonitor
 from pytac.device import SimpleDevice
-from pytac.exceptions import FieldException, HandleException
-from softioc import builder
+from pytac.exceptions import HandleException
 
-from .masks import caget_mask, callback_offset, callback_set, caput_mask
-from .mirror_objects import collate, summate, transform
+from .pv import (
+    BasePV,
+    CollationPV,
+    InversionPV,
+    MonitorPV,
+    ReadSimPV,
+    ReadWriteSimPV,
+    RecordData,
+    RecordTypes,
+    RecordValueType,
+    RefreshPV,
+    SummationPV,
+)
+
+
+class MirrorType(StrEnum):
+    BASIC = "basic"
+    INVERSE = "inverse"
+    SUMMATE = "summate"
+    COLLATE = "collate"
+
+
+MIRROR_TYPES = {
+    MirrorType.BASIC: MonitorPV,
+    MirrorType.INVERSE: InversionPV,
+    MirrorType.SUMMATE: SummationPV,
+    MirrorType.COLLATE: CollationPV,
+}
 
 
 class VirtacServer:
     """The soft-ioc server which contains the configuration and PVs for the VIRTAC.
     It allows ATIP to be interfaced using EPICS, in the same manner as the live machine.
 
-    **Attributes**
-
     Attributes:
         lattice (pytac.lattice.Lattice): An instance of a Pytac lattice with a
-                                          simulator data source.
-        tune_feedback_status (bool): A boolean indicating whether the tune
-                                      feedback records have been created and
-                                      the monitoring systems are running.
-    .. Private Attributes:
-           _pv_monitoring (bool): Whether the mirrored PVs are being monitored.
-           _tune_fb_csv_path (str): The path to the tune feedback .csv file.
-           _in_records (dict): A dictionary containing all the created in
-                                records, a list of associated element indexes and
-                                Pytac field, i.e. {in_record: [[index], field]}.
-           _out_records (dict): A dictionary containing the names of all the
-                                 created out records and their associated in
-                                 records, i.e. {out_record.name: in_record}.
-           _rb_only_records (list): A list of all the in records that do not
-                                     have an associated out record.
-           _feedback_records (dict): A dictionary containing all the feedback
-                                      related records, in the same format as
-                                      _in_records because they are all readback
-                                      only.
-           _mirrored_records (dict): A dictionary containing the PVs that the
-                                      mirrored records monitor for a change
-                                      and the associated mirror, in the form
-                                      {monitored PV: mirror record/object}.
-           _monitored_pvs (dict): A dictionary of all the PVs that are being
-                                   monitored for a change and the associated
-                                   camonitor object, in the form
-                                   {monitored PV: camonitor object}.
-           _offset_pvs (dict): A dictionary of the PVs to apply offset to and
-                                their associated offset records from which to
-                                get the offset from.
-            _record_names (dict[str: softioc.builder.record]): A dictonary
-                                containing the name of every pv created by the
-                                virtual accelerator and the pv object itself.
+                                          simulator data source derived from pyAT.
     """
 
     def __init__(
         self,
-        ring_mode,
-        limits_csv=None,
-        bba_csv=None,
-        feedback_csv=None,
-        mirror_csv=None,
-        tune_csv=None,
-        disable_emittance=False,
+        ring_mode: str,
+        limits_csv: str,
+        bba_csv: str | None = None,
+        feedback_csv: str | None = None,
+        mirror_csv: str | None = None,
+        tune_csv: str | None = None,
+        disable_emittance: bool = False,
+        disable_tunefb: bool = False,
     ):
+        """Args:
+        ring_mode (str): The ring mode to create the lattice in.
+        limits_csv (str): The filepath to the .csv file from which to load the pv
+            limits. For more information see create_csv.py.
+        bba_csv (str): The filepath to the .csv file from which to load the bba records,
+            for more information see create_csv.py.
+        feedback_csv (str): The filepath to the .csv file from which to load the
+            feedback records, for more information see create_csv.py.
+        mirror_csv (str): The filepath to the .csv file from which to load the mirror
+            records, for more information see create_csv.py.
+        tune_csv (str): The filepath to the .csv file from which to load the tune
+            feedback records, for more information see create_csv.py.
+        disable_emittance (bool): Whether emittance should be disabled.
+        disable_tunefb (bool): Whether tune feedback should be disabled.
         """
-        Args:
-            ring_mode (str): The ring mode to create the lattice in.
-            limits_csv (str): The filepath to the .csv file from which to
-                                    load the pv limits, for more information
-                                    see create_csv.py.
-            bba_csv (str): The filepath to the .csv file from which to
-                                    load the bba records, for more
-                                    information see create_csv.py.
-            feedback_csv (str): The filepath to the .csv file from which to
-                                    load the feedback records, for more
-                                    information see create_csv.py.
-            mirror_csv (str): The filepath to the .csv file from which to
-                                  load the mirror records, for more information
-                                  see create_csv.py.
-            tune_csv (str): The filepath to the .csv file from which to
-                                load the tune feedback records, for more
-                                information see create_csv.py.
-            disable_emittance (bool): Whether the emittance should be disabled.
-        """
-        self.lattice = atip.utils.loader(ring_mode, self.update_pvs, disable_emittance)
-        self.tune_feedback_status = False
-        self._pv_monitoring = False
-        self._tune_fb_csv_path = tune_csv
-        self._in_records = {}
-        self._out_records = {}
-        self._rb_only_records = []
-        self._bba_records = {}
-        self._feedback_records = {}
-        self._mirrored_records = {}
-        self._monitored_pvs = {}
-        self._offset_pvs = {}
-        self._record_names = {}
-        print("Starting record creation.")
-        self._create_records(limits_csv, disable_emittance)
+        self._disable_emittance: bool = disable_emittance
+        self._disable_tunefb: bool = disable_tunefb
+        self._pv_monitoring: bool = True
+        self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
+            ring_mode, self.update_pvs, self._disable_emittance
+        )
+
+        # Holding dictionary for all PVs
+        self._pv_dict: dict[str, BasePV] = {}
+        # Dictionary for the PVs which should be automatically updated when the
+        # simulation data is recalculated
+        self._readback_pvs_dict: dict[str, ReadSimPV] = {}
+
+        print("Starting PV creation.")
+        self._create_core_pvs(limits_csv)
+
         if bba_csv is not None:
             self._create_bba_records(bba_csv)
         if feedback_csv is not None:
-            self._create_feedback_records(feedback_csv, disable_emittance)
+            self._create_feedback_records(feedback_csv)
         if mirror_csv is not None:
             self._create_mirror_records(mirror_csv)
-        print(f"Finished creating all {len(self._record_names)} records.")
+        if not disable_tunefb and tune_csv is not None:
+            self._setup_tune_feedback(tune_csv)
 
-    def _update_record_names(self, records):
-        """Updates _record_names using the supplied list of softioc record objects."""
-        self._record_names |= {record.name: record for record in list(records)}
+        self.print_virtac_stats()
 
     def update_pvs(self):
         """The callback function passed to ATSimulator during lattice creation,
-        it is called each time a calculation of physics data is completed. It
+        which is called each time a calculation of physics data is completed and
         updates all the in records that do not have a corresponding out record
         with the latest values from the simulator.
-        """
-        logging.debug("Updating output PVs")
-        for rb_record in self._rb_only_records:
-            indexes, field = self._in_records[rb_record]
-            # indexes is a list of element indexes associated with the pv
-            # index 0 is the lattice itself rather than an element
-            for index in indexes:
-                if index == 0:
-                    value = self.lattice.get_value(
-                        field, units=pytac.ENG, data_source=pytac.SIM
-                    )
-                    rb_record.set(value)
-                else:
-                    value = self.lattice[index - 1].get_value(
-                        field, units=pytac.ENG, data_source=pytac.SIM
-                    )
-                    rb_record.set(value)
 
-    def _create_records(self, limits_csv, disable_emittance):
-        """Create all the standard records from both lattice and element Pytac
-        fields. Several assumptions have been made for simplicity and
-        efficiency, these are:
-            - That bend elements all share a single PV, and are the only
-               element family to do so.
-            - That every field that has an out type record (SP) will also have
-               an in type record (RB).
-            - That all lattice fields are never setpoint and so only in records
-               need to be created for them.
+        Note: A PV can have multiple elements, as is the case for bend
+            magnets. Currently we just have 1 PV for all bends and it takes its
+            value from element[0]. This could be a target for future improvement.
+        """
+        logging.info("Updating output PVs")
+        for pv in self._readback_pvs_dict.values():
+            pv.update_from_sim()
+        logging.debug("Finished updating output PVs")
+
+    def _create_core_pvs(self, limits_csv: str):
+        """Create the core records required for the virtac using both lattice and
+        element pytac data.
 
         Args:
-            limits_csv (str): The filepath to the .csv file from which to
-                                    load the pv limits.
-            disable_emittance (bool): Whether the emittance related PVs should be
-                                        created or not.
+            limits_csv (str): The filepath to the .csv file from which to load pv field
+                              data to configure softioc records with.
         """
-        limits_dict = {}
+        limits_dict: dict = {}
         if limits_csv is not None:
             with open(limits_csv) as f:
                 csv_reader = csv.DictReader(f)
@@ -169,121 +139,149 @@ class VirtacServer:
                         str(line["scan"]),
                     )
 
+        # Create PVs from lattice elements.
+        self._create_element_pvs(limits_dict)
+
+        # Create PVs from the lattice itself.
+        self._create_lattice_pvs(limits_dict)
+
+    def _create_element_pvs(self, limits_dict: dict):
+        """Create a PV for each simulated field on each pytac lattice element.
+
+        Note: The one exception to the rule of one PV per field is for the bend magnets.
+            Each of the 50 bend magnets shares a single PV which stores their current
+            value as they have a shared power supply in the real machine.
+
+        Note: For fields which have an in type record (RB) and an out type record (SP)
+            we create SetpointPVs (or a derivative). SetpointPVs are used to set the
+            pytac element with their SP record, the RB record merely reflects the set
+            value.
+
+        Note: For fields which only have an (RB) record and no (SP) record we just
+            create regular PVs and we set their update_from_lattice to true. This means
+            that when the Pytac lattice is updated after a PyAT physics recalculation,
+            these PVs read their value from it.
+
+        Args:
+            limits_dict (dict): A dictionary containing the limits data for the PVs
+        """
         bend_in_record = None
         for element in self.lattice:
-            # There is only 1 bend PV in the lattice, if it has already been defined and
-            # we have another bend element, then just register this element with the
-            # existing pv. Otherwise create a new PV for the element
+            # There is only 1 bend PV for all bend magnets, each bend element is added
+            # to this PV
             if element.type_.upper() == "BEND" and bend_in_record is not None:
-                self._in_records[bend_in_record][0].append(element.index)
+                bend_in_record.append_pytac_item(element)
             else:
                 for field in element.get_fields()[pytac.SIM]:
                     value = element.get_value(
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
-                    get_pv = element.get_pv_name(field, pytac.RB)
-                    upper, lower, precision, drive_high, drive_low, scan = (
-                        limits_dict.get(get_pv, (None, None, None, None, None, None))
-                    )
-                    builder.SetDeviceName(get_pv.split(":", 1)[0])
-                    in_record = builder.aIn(
-                        get_pv.split(":", 1)[1],
-                        LOPR=lower,
-                        HOPR=upper,
-                        PREC=precision,
-                        MDEL="-1",
-                        initial_value=value,
-                        SCAN=scan,
-                    )
-                    self._in_records[in_record] = ([element.index], field)
+                    read_pv_name = element.get_pv_name(field, pytac.RB)
 
+                    upper, lower, precision, drive_high, drive_low, scan = (
+                        limits_dict.get(
+                            read_pv_name, (None, None, None, None, None, "I/O Intr")
+                        )
+                    )
+                    record_data = RecordData(
+                        RecordTypes.AI,
+                        lower=lower,
+                        upper=upper,
+                        precision=precision,
+                        drive_high=drive_high,
+                        drive_low=drive_low,
+                        initial_value=value,
+                        scan=scan,
+                    )
+
+                    read_pv = ReadSimPV(
+                        read_pv_name, record_data, elements=[element], field=field
+                    )
+                    self._pv_dict[read_pv_name] = read_pv
+
+                    # Readback PVs without a setpoint PV are updated from the simulation
+                    # after recalculation. Readback PVs with a setpoint PV are updated
+                    # when their associated setpoint PV is updated.
                     try:
-                        set_pv = element.get_pv_name(field, pytac.SP)
+                        read_write_pv_name = element.get_pv_name(field, pytac.SP)
                     except HandleException:
-                        self._rb_only_records.append(in_record)
+                        # Only triggered if this element has an RB PV but no SP PV.
+                        # Add to list of PVs to be updated from the simulation
+                        self._readback_pvs_dict[read_pv_name] = read_pv
                     else:
                         upper, lower, precision, drive_high, drive_low, scan = (
                             limits_dict.get(
-                                get_pv, (None, None, None, None, None, None)
+                                read_write_pv_name,
+                                (None, None, None, None, None, "Passive"),
                             )
                         )
-                        builder.SetDeviceName(set_pv.split(":", 1)[0])
-                        out_record = builder.aOut(
-                            set_pv.split(":", 1)[1],
-                            DRVH=drive_high,
-                            DRVL=drive_low,
-                            LOPR=lower,
-                            HOPR=upper,
-                            PREC=precision,
+                        record_data = RecordData(
+                            RecordTypes.AO,
+                            lower=lower,
+                            upper=upper,
+                            precision=precision,
+                            drive_high=drive_high,
+                            drive_low=drive_low,
                             initial_value=value,
-                            on_update_name=self._on_update,
                             always_update=True,
                         )
-                        self._out_records[out_record] = in_record
-                        if element.type_.upper() == "BEND" and bend_in_record is None:
-                            bend_in_record = in_record
+                        read_write_pv = ReadWriteSimPV(
+                            read_write_pv_name,
+                            record_data,
+                            read_pv,
+                            elements=[element],
+                            field=field,
+                        )
+                        self._pv_dict[read_write_pv_name] = read_write_pv
 
-        # Now for lattice fields.
+                        if element.type_.upper() == "BEND" and bend_in_record is None:
+                            bend_in_record = read_write_pv
+
+    def _create_lattice_pvs(self, limits_dict: dict):
+        """Create a PV for each simulated field on each pytac lattice itself.
+
+        Note: For fields which have an in type record (RB) and an out type record (SP)
+            we create SetpointPVs (or a derivative). SetpointPVs are used to set the
+            pytac element with their SP record, the RB record merely reflects the set
+            value.
+
+        Note: For fields which only have an (RB) record and no (SP) record we just
+            create regular PVs and we set their update_from_lattice to true. This means
+            that when the pytac lattice is recalculated, these PVs read their value from
+            the lattice.
+
+        Args:
+            limits_dict (dict): A dictionary containing the limits data for the PVs
+        """
         lat_fields = self.lattice.get_fields()
         lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
-        if disable_emittance:
+        if self._disable_emittance:
             lat_fields -= {"emittance_x", "emittance_y"}
         for field in lat_fields:
             # Ignore basic devices as they do not have PVs.
             if not isinstance(self.lattice.get_device(field), SimpleDevice):
-                get_pv = self.lattice.get_pv_name(field, pytac.RB)
+                get_pv_name = self.lattice.get_pv_name(field, pytac.RB)
                 upper, lower, precision, drive_high, drive_low, scan = limits_dict.get(
-                    get_pv, (None, None, None, None, None, None)
+                    get_pv_name, (None, None, None, None, None, "I/O Intr")
                 )
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
-                builder.SetDeviceName(get_pv.split(":", 1)[0])
-                in_record = builder.aIn(
-                    get_pv.split(":", 1)[1],
-                    LOPR=lower,
-                    HOPR=upper,
-                    PREC=precision,
+                record_data = RecordData(
+                    RecordTypes.AI,
+                    lower=lower,
+                    upper=upper,
+                    precision=precision,
+                    scan=scan,
                     initial_value=value,
-                    MDEL="-1",
-                    SCAN=scan,
                 )
-                self._in_records[in_record] = ([0], field)
-                self._rb_only_records.append(in_record)
-        self._update_record_names(
-            list(self._in_records.keys()) + list(self._out_records.keys())
-        )
-        print("~*~*Woah, we're halfway there, Wo-oah...*~*~")
+                read_pv = ReadSimPV(
+                    get_pv_name, record_data, elements=[self.lattice], field=field
+                )
+                self._pv_dict[get_pv_name] = read_pv
+                self._readback_pvs_dict[get_pv_name] = read_pv
 
-    def _on_update(self, value, name):
-        """The callback function passed to out records, it is called after
-        successful record processing has been completed. It updates the out
-        record's corresponding in record with the value that has been set and
-        then sets the value to the Pytac lattice.
-
-        This functions needs to be kept FAST as it can be called rapidly by CA clients.
-
-        Args:
-            value (number): The value that has just been set to the record.
-            name (str): The name of record object that has just been set to.
-        """
-        logging.debug("Read value %s on pv %s", value, name)
-        in_record = self._out_records[self._record_names[name]]
-        in_record.set(value)
-        index, field = self._in_records[in_record]
-        if self.tune_feedback_status is True:
-            try:
-                offset_record = self._offset_pvs[name]
-                value += offset_record.get()
-            except KeyError:
-                pass
-
-        for i in index:
-            self.lattice[i - 1].set_value(
-                field, value, units=pytac.ENG, data_source=pytac.SIM
-            )
-
-    def _create_bba_records(self, bba_csv):
+    def _create_bba_records(self, bba_csv: str):
         """Create all the beam-based-alignment records from the .csv file at the
         location passed, see create_csv.py for more information.
 
@@ -291,10 +289,9 @@ class VirtacServer:
             bba_csv (str): The filepath to the .csv file to load the
                                     records in accordance with.
         """
-        self._bba_records = self._create_feedback_or_bba_records_from_csv(bba_csv)
-        self._update_record_names(self._bba_records.values())
+        self._create_feedback_or_bba_records_from_csv(bba_csv)
 
-    def _create_feedback_records(self, feedback_csv, disable_emittance):
+    def _create_feedback_records(self, feedback_csv: str):
         """Create all the feedback records from the .csv file at the location
         passed, see create_csv.py for more information; records for one edge
         case are also created.
@@ -302,56 +299,39 @@ class VirtacServer:
         Args:
             feedback_csv (str): The filepath to the .csv file to load the
                                     records in accordance with.
-            disable_emittance (bool): Whether the emittance related PVs should be
-                                        created or not.
         """
-        # Create standard records from csv
-        self._feedback_records = self._create_feedback_or_bba_records_from_csv(
-            feedback_csv
-        )
+        self._create_feedback_or_bba_records_from_csv(feedback_csv)
 
         # We can choose to not calculate emittance as it is not always required,
         # which decreases computation time.
-        if not disable_emittance:
-            # Special case: EMIT STATUS for the vertical emittance feedback, since
-            # we cannot currently create mbbIn records via CSV.
-            builder.SetDeviceName("SR-DI-EMIT-01")
-            emit_status_record = builder.mbbIn(
-                "STATUS", initial_value=0, ZRVL=0, ZRST="Successful", PINI="YES"
+        if not self._disable_emittance:
+            name = "SR-DI-EMIT-01:STATUS"
+            record_data = RecordData(
+                RecordTypes.MBBI,
+                zrvl="0",
+                zrst="Successful",
             )
-            self._feedback_records[(0, "emittance_status")] = emit_status_record
+            emit_status_pv = BasePV(name, record_data)
+            self._pv_dict[name] = emit_status_pv
 
-        self._update_record_names(self._feedback_records.values())
-
-    def _create_feedback_or_bba_records_from_csv(
-        self, csv_file
-    ) -> dict[tuple[int, str], typing.Any]:
+    def _create_feedback_or_bba_records_from_csv(self, csv_file: str):
         """Read the csv file and create the corresponding records based on
         its contents.
 
         Args:
             csv_file (str): The filepath to the .csv file to load the
                                     records in accordance with.
-        Returns:
-            records dict[tuple[int, str], typing.Any]: A dictionary containing
-                a tuple of indexes,field as its key and a softioc.builder record
-                as its value
         """
         # We don't set limits or precision but this shouldn't be an issue as these
-        # records aren't really intended to be set to by a user.
+        # records aren't intended to be set to by a user.
         with open(csv_file) as f:
             csv_reader = csv.DictReader(f)
-            records: dict[
-                tuple[int, str], builder.aIn | builder.aOut | builder.WaveformOut
-            ] = {}
             for line in csv_reader:
                 val: typing.Any = 0
-                prefix, suffix = line["pv"].split(":", 1)
-                builder.SetDeviceName(prefix)
+                name = line["pv"]
                 try:
                     # Waveform records may have values stored as a list such as: [5 1 3]
-                    # Here we convert that into a numpy array for initialising the
-                    # record
+                    # We convert that into a numpy array for initialising the record
                     if (line["value"][0], line["value"][-1]) == ("[", "]"):
                         val = numpy.fromstring((line["value"])[1:-1], sep=" ")
                     else:
@@ -362,31 +342,16 @@ class VirtacServer:
                         f"{line['value']}"
                     ) from exc
                 else:
-                    if line["record_type"] == "ai":
-                        record = builder.aIn(suffix, initial_value=val, MDEL="-1")
-                        records[(int(line["index"]), line["field"])] = record
-                    elif line["record_type"] == "ao":
-                        record = builder.aOut(
-                            suffix, initial_value=val, always_update=True
-                        )
-                        records[(int(line["index"]), line["field"])] = record
-                    elif line["record_type"] == "wfm":
-                        record = builder.WaveformOut(
-                            suffix,
-                            # We remove the [] around the string
-                            initial_value=val,
-                            always_update=True,
-                        )
-                        records[(int(line["index"]), line["field"])] = record
-                    else:
-                        raise ValueError(
-                            f"Failed to create PV from csv file line num "
-                            f"{csv_reader.line_num} invalid record_type: "
-                            f"{line['record_type']}"
-                        )
-        return records
+                    record_data = RecordData(line["record_type"], initial_value=val)
+                    pv = ReadSimPV(
+                        name,
+                        record_data,
+                        self.lattice[int(line["index"]) - 1],
+                        line["field"],
+                    )
+                    self._pv_dict[name] = pv
 
-    def _create_mirror_records(self, mirror_csv):
+    def _create_mirror_records(self, mirror_csv: str):
         """Create all the mirror records from the .csv file at the location
         passed, see create_csv.py for more information.
 
@@ -395,200 +360,167 @@ class VirtacServer:
                                     records in accordance with.
         """
         with open(mirror_csv) as f:
+            val: RecordValueType = 0
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
-                # Parse arguments.
-                input_pvs = line["in_pv"].split(", ")
-                if (len(input_pvs) > 1) and (
-                    line["mirror_type"] in ["basic", "inverse"]
-                ):
+                # Get a list of input pvs, these are all virtac owned pvs
+                input_pv_names = line["in_pv"].split(", ")
+                if (len(input_pv_names) > 1) and (line["mirror_type"] in ["basic"]):
                     raise IndexError(
-                        "Transformation and basic mirror types take only one input PV."
+                        "Transformation mirror type takes only one input PV."
                     )
-                elif (len(input_pvs) < 2) and (
+                elif (len(input_pv_names) < 2) and (
                     line["mirror_type"] in ["collate", "summate"]
                 ):
                     raise IndexError(
                         "collation and summation mirror types take at least two input "
                         "PVs."
                     )
-                monitor = input_pvs  # need to update to support camonitor multiple
-                # Convert input pvs to record objects
-                input_records = []
-                for pv in input_pvs:
+                input_records: list[BasePV] = []
+                for pv in input_pv_names:
                     try:
-                        input_records.append(self._record_names[pv])
+                        # Lookup pv in our dictionary of softioc records
+                        input_records.append(self._pv_dict[pv])
                     except KeyError:
-                        input_records.append(caget_mask(pv))
-                # Create output record.
-                prefix, suffix = line["out_pv"].split(":", 1)
-                builder.SetDeviceName(prefix)
-                if line["mirror_type"] == "refresh":
-                    # Refresh records come first as do not require an output record
-                    pass
-                elif line["output_type"] == "caput":
-                    output_record = caput_mask(line["out_pv"])
-                elif line["output_type"] == "ai":
-                    value = float(line["value"])
-                    output_record = builder.aIn(
-                        suffix,
-                        initial_value=value,
-                        MDEL="-1",
-                        SCAN=line["scan"],
-                    )
-                elif line["output_type"] == "longIn":
-                    value = int(line["value"])
-                    output_record = builder.longIn(
-                        suffix,
-                        initial_value=value,
-                        MDEL="-1",
-                        SCAN=line["scan"],
-                    )
-                elif line["output_type"] == "wfm":
-                    value = numpy.asarray(line["value"][1:-1].split(" "), dtype=float)
-                    output_record = builder.Waveform(
-                        suffix,
-                        initial_value=value,
-                        SCAN=line["scan"],
-                    )
+                        logging.exception(f"PV {pv} does not exist within virtac")
+
+                try:
+                    # Waveform records may have values stored as a list such as: [5 1 3]
+                    # We convert that into a numpy array for initialising the record
+                    if (line["value"][0], line["value"][-1]) == ("[", "]"):
+                        val = numpy.fromstring((line["value"])[1:-1], sep=" ")
+                    else:
+                        val = float(line["value"])
+
+                except (AssertionError, ValueError) as exc:
+                    raise ValueError(
+                        f"Invalid initial value for {line['output_type']} record: "
+                        f"{line['value']}"
+                    ) from exc
+
                 else:
-                    raise TypeError(
-                        f"{line['output_type']} isn't a supported mirroring output "
-                        "type; please enter 'caput', 'aIn', 'longIn', or 'Waveform'."
+                    out_pv_name = line["out_pv"]
+                    record_data = RecordData(
+                        line["output_type"],
+                        initial_value=val,
+                        scan=line["scan"],
                     )
-                # Update the mirror dictionary.
-                for pv in monitor:
-                    if pv not in self._mirrored_records:
-                        self._mirrored_records[pv] = []
-                if line["mirror_type"] == "basic":
-                    self._mirrored_records[monitor[0]].append(output_record)
-                elif line["mirror_type"] == "inverse":
-                    # Other transformation types are not yet supported.
-                    transformation = transform(numpy.invert, output_record)
-                    self._mirrored_records[monitor[0]].append(transformation)
-                elif line["mirror_type"] == "summate":
-                    summation_object = summate(input_records, output_record)
-                    for pv in monitor:
-                        self._mirrored_records[pv].append(summation_object)
-                elif line["mirror_type"] == "collate":
-                    collation_object = collate(input_records, output_record)
-                    for pv in monitor:
-                        self._mirrored_records[pv].append(collation_object)
-                else:
-                    raise TypeError(
-                        f"{line['mirror_type']} is not a valid mirror type; please "
-                        "enter a currently supported type from: 'basic', 'summate', "
-                        "'collate' and 'inverse'."
-                    )
-            mirrored_records = []
-            for rec_list in self._mirrored_records.values():
-                for record in rec_list:
-                    mirrored_records.append(record)
-        self._update_record_names(mirrored_records)
+                    try:
+                        mirror_type = MIRROR_TYPES[MirrorType(line["mirror_type"])]
+                        if mirror_type == MIRROR_TYPES[MirrorType.BASIC]:
+                            # MonitorPV requires a list of str rather than a list of PV
+                            output_pv = mirror_type(
+                                out_pv_name,
+                                record_data,
+                                input_pv_names,
+                            )
+                        else:
+                            output_pv = mirror_type(
+                                out_pv_name, record_data, input_records
+                            )
+                    except KeyError as e:
+                        raise TypeError(
+                            f"{line['mirror_type']} is not valid, please use one of: "
+                            f"({', '.join(n.value for n in MirrorType)})"
+                        ) from e
 
-    def monitor_mirrored_pvs(self):
-        """Start monitoring the input PVs for mirrored records, so that they
-        can update their value on change.
-        """
-        self._pv_monitoring = True
-        for pv, output in self._mirrored_records.items():
-            mask = callback_set(output)
-            try:
-                self._monitored_pvs[pv] = camonitor(pv, mask.callback)
-            except Exception as e:
-                warn(e, stacklevel=1)
+                    self._pv_dict[out_pv_name] = output_pv
 
-    def refresh_record(self, pv_name):
-        """For a given PV refresh the time-stamp of the associated record,
-        this is done by setting the record to its current value.
-
-        Args:
-            pv_name (str): The name of the record to refresh.
-        """
-        try:
-            record = self._record_names[pv_name]
-        except KeyError as exc:
-            raise ValueError(
-                f"{pv_name} is not the name of a record created by this server."
-            ) from exc
-        else:
-            record.set(record.get())
-
-    def setup_tune_feedback(self, tune_csv=None):
+    def _setup_tune_feedback(self, tune_csv: str):
         """Read the tune feedback .csv and find the associated offset PVs,
         before starting monitoring them for a change to mimic the behaviour of
         the quadrupoles used by the tune feedback system on the live machine.
 
-        .. Note:: This is intended to be on the recieving end of the tune
+        Note: This is intended to be on the recieving end of the tune
            feedback system and doesn't actually perfom tune feedback itself.
+
+        Note: The 'offset_pv' is the PV which monitors a 'delta_pv' and when the
+            'delta_pv' changes, stores its value and triggers the 'set_pv' to process.
+            When the 'set_pv' processes, it gets the value we just stored to the
+            'offset_pv' and adds it to its own value.
 
         Args:
             tune_csv (str): A path to a tune feedback .csv file to be used
                              instead of the default filepath passed at startup.
         """
-        if tune_csv is not None:
-            self._tune_fb_csv_path = tune_csv
-        if self._tune_fb_csv_path is None:
+        if tune_csv is None:
             raise ValueError(
-                "No tune feedback .csv file was given at "
-                "start-up, please provide one now; i.e. "
-                "server.start_tune_feedback('<path_to_csv>')"
+                "No tune feedback .csv file was given at start-up, please provide one "
+                "now; i.e. server.start_tune_feedback('<path_to_csv>')"
             )
-        with open(self._tune_fb_csv_path) as f:
+        with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
-            if not self._pv_monitoring:
-                self.monitor_mirrored_pvs()
-            self.tune_feedback_status = True
             for line in csv_reader:
-                offset_record = self._record_names[line["offset_pv"]]
-                self._offset_pvs[line["set_pv"]] = offset_record
-                mask = callback_offset(self, line["set_pv"], offset_record)
-                try:
-                    self._monitored_pvs[line["delta_pv"]] = camonitor(
-                        line["delta_pv"], mask.callback
-                    )
-                except Exception as e:
-                    warn(e, stacklevel=1)
+                assert isinstance(self._pv_dict[line["set_pv"]], ReadWriteSimPV)
 
-    def stop_all_monitoring(self):
-        """Stop monitoring mirrored records and tune feedback offsets."""
-        for subscription in self._monitored_pvs.values():
-            subscription.close()
-        self.tune_feedback_status = False
-        self._pv_monitoring = False
+                self._pv_dict[line["offset_pv"]]
+                set_record: ReadWriteSimPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
+                old_set_record: ReadWriteSimPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
 
-    def set_feedback_record(self, index, field, value):
-        """Set a value to the feedback in records.
+                # We overwrite the old_set_record with the new RefreshPV which has
+                # the required capabilities for tunefb
+                new_set_record = RefreshPV(
+                    line["offset_pv"],
+                    line["delta_pv"],
+                    set_record,
+                    old_set_record,
+                )
+                set_record.attach_offset_record(new_set_record)
+                self._pv_dict[line["offset_pv"]] = new_set_record
 
-        possible element fields are:
-            ['error_sum', 'enabled', 'state', 'offset', 'golden_offset', 'bcd_offset',
-             'bba_offset']
-        possible lattice fields are:
-            ['beam_current', 'feedback_status', 'bpm_id', 'emittance_status',
-             'fofb_status', 'cell_<cell_number>_excite_start_times',
-             'cell_<cell_number>_excite_amps', 'cell_<cell_number>_excite_deltas',
-             'cell_<cell_number>_excite_ticks', 'cell_<cell_number>_excite_prime']
-
-        Args:
-            index (int): The index of the element on which to set the value;
-                          starting from 1, 0 is used to set on the lattice.
-            field (str): The field to set the value to.
-            value (number): The value to be set.
-
-        Raises:
-            pytac.FieldException: If the lattice or element does
-                                              not have the specified field.
+    def enable_monitoring(self):
+        """Enable monitoring for all MonitorPV derived PVs. This will allow
+        tune feedback and vertical emittance feedback to work again
         """
-        try:
-            self._feedback_records[(index, field)].set(value)
-            self._bba_records[(index, field)].set(value)
-        except KeyError as exc:
-            if index == 0:
-                raise FieldException(
-                    f"Simulated lattice {self.lattice} does not have field {field}."
-                ) from exc
-            else:
-                raise FieldException(
-                    f"Simulated element {self.lattice[index]} does not have "
-                    f"field {field}."
-                ) from exc
+        if self._pv_monitoring:
+            logging.warning("PV monitoring is already enabled, nothing to do.")
+        else:
+            logging.info("Enabling PV monitoring")
+            for pv in self._pv_dict.values():
+                if isinstance(pv, MonitorPV):
+                    pv.enable_monitoring()
+            self._pv_monitoring = True
+
+    # TODO: Is this needed? It essentially just pauses a subset of the virtacs
+    # functionality
+    def disable_monitoring(self):
+        """Disable monitoring for all MonitorPV derived PVs. This will disable
+        tune feedback and vertical emittance feedback
+        """
+        if not self._pv_monitoring:
+            logging.warning("PV monitoring is already disabled, nothing to do.")
+        else:
+            logging.info("Disabling PV monitoring")
+            for _, pv in self._pv_dict.items():
+                if isinstance(pv, MonitorPV):
+                    pv.disable_monitoring()
+            self._pv_monitoring = False
+
+    def print_virtac_stats(self, verbosity: int = 0):
+        """Print helpful statistics based on passed verbosity level"""
+        pv_type_count: dict[type[BasePV], int] = defaultdict(int)
+
+        for pv in self._pv_dict.values():
+            pv_type_count[type(pv)] += 1
+
+        print("Virtac stats:")
+        print(
+            "\t Tune feedbacks is "
+            f"{('disabled' if self._disable_tunefb else 'enabled')}"
+        )
+        print(
+            "\t Emittance calculations are "
+            f"{('disabled' if self._disable_emittance else 'enabled')}"
+        )
+        print(
+            f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
+        )
+
+        print(f"\t Total pvs: {len(self._pv_dict)}")
+        for pv_type, count in pv_type_count.items():
+            print(f"\t\t {pv_type.__name__} pvs: {count}")
+
+        if verbosity >= 1:
+            print("\tAvailable PVs")
+            for pv in self._pv_dict.values():
+                print(f"\t\t{pv.name}, {type(pv)}")

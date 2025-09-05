@@ -27,22 +27,25 @@ def parse_arguments():
         help="The ring mode to be used, e.g., IO4 or DIAD",
     )
     parser.add_argument(
-        "-d",
+        "-e",
         "--disable-emittance",
         help="Disable the simulator's time-consuming emittance calculation",
         action="store_true",
+        default=False,
     )
     parser.add_argument(
         "-t",
-        "--enable-tfb",
-        help="Simulate extra dummy hardware to be used by the Tune Feedback system",
+        "--disable-tfb",
+        help="Disable extra simulated hardware required by the Tune Feedback system",
         action="store_true",
+        default=False,
     )
     parser.add_argument(
         "-v",
         "--verbose",
-        help="Increase logging verbosity",
-        action="store_true",
+        default=0,
+        action="count",
+        help="Increase logging verbosity. Default is WARNING. -v=INFO -vv=DEBUG",
     )
     parser.add_argument(
         "--version",
@@ -96,7 +99,12 @@ def configure_ca():
 def main():
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
     args = parse_arguments()
-    log_level = logging.DEBUG if args.verbose else logging.INFO
+    if args.verbose >= 2:
+        log_level = logging.DEBUG
+    elif args.verbose == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     configure_ca()
@@ -112,8 +120,8 @@ def main():
                 value = caget("SR-CS-RING-01:MODE", timeout=1, format=2)
                 ring_mode = value.enums[int(value)]
                 logging.warning(
-                    f"Ring mode not specified, using value from real "
-                    f"machine as default: {value}"
+                    "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
+                    f"as the default: {ring_mode}"
                 )
             except ca_nothing:
                 ring_mode = "I04"
@@ -129,14 +137,13 @@ def main():
         DATADIR / ring_mode / "mirrored.csv",
         DATADIR / ring_mode / "tunefb.csv",
         args.disable_emittance,
+        args.disable_tfb,
     )
 
     # Start the IOC.
     builder.LoadDatabase()
     softioc.iocInit()
-    server.monitor_mirrored_pvs()
-    if args.enable_tfb:
-        server.setup_tune_feedback()
+
     context = globals() | {"server": server}
     softioc.interactive_ioc(context)
 
