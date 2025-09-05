@@ -43,9 +43,9 @@ def parse_arguments():
     parser.add_argument(
         "-v",
         "--verbose",
-        type=int,
         default=0,
-        help="Increase logging verbosity",
+        action="count",
+        help="Increase logging verbosity. Default is WARNING. -v=INFO -vv=DEBUG",
     )
     parser.add_argument(
         "--version",
