@@ -81,7 +81,7 @@ class VirtacServer:
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
             ring_mode, self.update_pvs, self._disable_emittance
         )
-
+        self.lattice.set_default_data_source(pytac.SIM)
         # Holding dictionary for all PVs
         self._pv_dict: dict[str, BasePV] = {}
         # Dictionary for the PVs which should be automatically updated when the
