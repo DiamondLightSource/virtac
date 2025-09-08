@@ -460,7 +460,7 @@ def parse_arguments():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def main():
     # Set the default string printing options for numpy arrays so that they are properly
     # formatted when outputting them to the csv file
     with numpy.printoptions(threshold=sys.maxsize, linewidth=100000):
@@ -482,3 +482,7 @@ if __name__ == "__main__":
         print("Creating tune PVs CSV file.")
         data = generate_tune_pvs(lattice)
         write_data_to_file(data, args.tune, args.ring_mode)
+
+
+if __name__ == "__main__":
+    main()
