@@ -48,6 +48,7 @@ dev = [
 
 [project.scripts]
 virtac = "virtac.__main__:main"
+create_csv = "virtac.create_csv:main"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/virtac"
