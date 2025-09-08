@@ -1,5 +1,7 @@
-"""N/B all of the data collection functions in the file should be run on the
-default EPICS port for the live machine not 6064.
+"""This script does cagets from the live machine to get control limits and then uses
+this data in combination with hardcoded data in this file to generate csv files. These
+are used by the virtac to create softioc records. This script should be manually run
+using CA port 5064 whenever the csv files need updating.
 """
 
 import argparse
@@ -248,7 +250,6 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
         passed value.
 
     mirror_type (The type of mirroring to apply):
-
         - basic: set the value of the input record to the output record.
         - summate: sum the values of the input records and set the result to
             the output record.
