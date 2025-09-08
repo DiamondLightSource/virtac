@@ -49,6 +49,8 @@ extensions = [
     "sphinx_design",
     # So we can write markdown files
     "myst_parser",
+    # For autodocumenting argparse based CLIs
+    "sphinxcontrib.programoutput",
 ]
 
 # So we can use the ::: syntax
@@ -130,6 +132,8 @@ pygments_style = "sphinx"
 # This means you can link things like `str` and `asyncio` to the relevant
 # docs in the python documentation.
 intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
+
+intersphinx_disabled_reftypes = ["*"]
 
 # A dictionary of graphviz graph attributes for inheritance diagrams.
 inheritance_graph_attrs = {"rankdir": "TB"}
