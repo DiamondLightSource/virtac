@@ -18,6 +18,8 @@ from cothread.catools import FORMAT_CTRL, caget
 # Type alias for data to be stored in VIRTAC csv files
 CSVData = list[tuple[str | int, ...]]
 
+D2_RING_MODES = ["48"]
+
 
 def generate_feedback_pvs(all_elements, lattice: pytac.lattice.Lattice) -> CSVData:
     """Get feedback pvs. Also get families for tune feedback
@@ -28,18 +30,25 @@ def generate_feedback_pvs(all_elements, lattice: pytac.lattice.Lattice) -> CSVDa
     Returns:
         CSVData: Data to be written to csv
     """
-    tune_quad_elements = set(
-        all_elements.q0l
-        + all_elements.q1l
-        + all_elements.q2l
-        + all_elements.q3l
-        + all_elements.q1n
-        + all_elements.q2n
-        + all_elements.q3n
-        + all_elements.q4n
-        + all_elements.q5n
-        + all_elements.q6n
-    )
+
+    if lattice.name in D2_RING_MODES:
+        tune_quad_elements = set(
+            all_elements.q0l
+            + all_elements.q1l
+            + all_elements.q2l
+            + all_elements.q1n
+            + all_elements.q2n
+        )
+    else:
+        tune_quad_elements = set(
+            all_elements.q1d
+            + all_elements.q2d
+            + all_elements.q3d
+            + all_elements.q3b
+            + all_elements.q2b
+            + all_elements.q1b
+        )
+
     # Data to be written is stored as a list of tuples each with structure:
     #     element index (int), field (str), pv (str), value (int), record_type (str).
     # We have special cases for four lattice fields that feedback systems read from.
@@ -392,18 +401,12 @@ def generate_tune_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     offset_pvs: list[str] = []
     delta_pvs: list[str] = []
 
-    for family in [
-        "Q0L",
-        "Q1L",
-        "Q2L",
-        "Q3L",
-        "Q1N",
-        "Q2N",
-        "Q3N",
-        "Q4N",
-        "Q5N",
-        "Q6N",
-    ]:
+    if lattice.name in D2_RING_MODES:
+        tune_quad_families = ["Q0L", "Q1L", "Q2L", "Q1N", "Q2N"]
+    else:
+        tune_quad_families = ["Q1D", "Q2D", "Q3D", "Q3B", "Q2B", "Q1B"]
+
+    for family in tune_quad_families:
         tune_pvs.extend(lattice.get_element_pv_names(family, "b1", pytac.SP))
     for pv in tune_pvs:
         offset_pvs.append(":".join([pv.split(":")[0], "OFFSET1"]))
