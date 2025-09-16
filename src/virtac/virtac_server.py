@@ -183,16 +183,17 @@ class VirtacServer:
                         value = element.get_value(
                             field, units=pytac.ENG, data_source=pytac.SIM
                         )
-                    except pytac.exceptions.UnitsException as e:
-                        # For D2 the conversion is not currently working as AP has not
-                        # yet updated their 'calibration_Data' matlab structure with
-                        # realistic values. This means that when we attempt conversion
-                        # we get halfway through, and then have the wrong values and
-                        # the converted value becomes too large for the limits.
+                    except pytac.exceptions.UnitsException:
+                        # For the D2 lattice, the 'calibration_data' is currently
+                        # invalid which results in this exception occurring when
+                        # checking the converted values against the PVs limits.
                         value = 0
-                        print(e)
-                    read_pv_name = element.get_pv_name(field, pytac.RB)
+                        logging.exception(
+                            "The conversion between phy and eng units gave invalid  "
+                            "data, check that the pytac calibration data is correct."
+                        )
 
+                    read_pv_name = element.get_pv_name(field, pytac.RB)
                     if read_pv_name in self._pv_dict.keys():
                         print(f"PV: {read_pv_name} already exists! Dupe!")
                         continue
