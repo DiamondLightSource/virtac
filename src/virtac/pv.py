@@ -292,8 +292,8 @@ class ReadWriteSimPV(ReadSimPV):
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
         if offset is not None:
-            logging.debug("Adding offset of: %s new value is: %s", offset, value)
             value += offset
+            logging.debug("Adding offset of: %s new value is: %s", offset, value)
 
         # Some PVs such as the bend magnet PV have multiple pytac elements which
         # are all updated from the same PV value.
