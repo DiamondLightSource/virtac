@@ -223,7 +223,7 @@ def get_element_pv_data(
                                 ctrl.precision,
                                 ctrl.upper_disp_limit,
                                 ctrl.lower_disp_limit,
-                                "1 second" if sp_pv in scan_pvs else "I/O Intr",
+                                "1 second" if sp_pv in scan_pvs else "Passive",
                             )
                         )
 
