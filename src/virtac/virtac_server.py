@@ -196,12 +196,6 @@ class VirtacServer:
                     if read_pv_name in self._pv_dict.keys():
                         print(f"PV: {read_pv_name} already exists! Dupe!")
                         continue
-                    try:
-                        read_write_pv_name = element.get_pv_name(field, pytac.SP)
-                    except HandleException:
-                        # Only update the pv when the pytac lattice is recalculated
-                        # if the RB has no corresponding SP
-                        readback_only_pv = True
 
                     upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
