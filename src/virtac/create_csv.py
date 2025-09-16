@@ -452,6 +452,12 @@ def parse_arguments():
         default="I04",
     )
     parser.add_argument(
+        "--offline",
+        help="Generate csv files without gettiing limits data from the live machine",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
         "--feedback",
         help="Filename for output feedback PVs CSV file",
         default="feedback.csv",
@@ -486,18 +492,27 @@ def main():
         args = parse_arguments()
         lattice = atip.utils.loader(args.ring_mode)
         all_elements = atip.utils.preload(lattice)
+
         print("Creating feedback PVs CSV file.")
         data = generate_feedback_pvs(all_elements, lattice)
         write_data_to_file(data, args.feedback, args.ring_mode)
+
         print("Creating BBA PVs CSV file.")
         data = generate_bba_pvs(all_elements, lattice.symmetry)
         write_data_to_file(data, args.bba, args.ring_mode)
-        print("Creating limits PVs CSV file.")
-        data = generate_pv_limits(lattice)
-        write_data_to_file(data, args.limits, args.ring_mode)
+
+        if not args.offline:
+            print("Creating limits PVs CSV file.")
+            data = generate_pv_limits(lattice)
+            if len(data) <= 1:
+                print("No limits data found, limits.csv will not be updated.")
+            else:
+                write_data_to_file(data, args.limits, args.ring_mode)
+
         print("Creating mirrored PVs CSV file.")
         data = generate_mirrored_pvs(lattice)
         write_data_to_file(data, args.mirrored, args.ring_mode)
+
         print("Creating tune PVs CSV file.")
         data = generate_tune_pvs(lattice)
         write_data_to_file(data, args.tune, args.ring_mode)
