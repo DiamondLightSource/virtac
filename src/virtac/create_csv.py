@@ -176,10 +176,23 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
     return data
 
 
+def create_dummy_limits_data():
+    """If running in offline mode, instead of getting limits data from live PVs, we
+    create some dummy data."""
+    dummy_ctrl_data = cothread.dbr.dbr_ctrl_double()
+    dummy_ctrl_data.upper_ctrl_limit = 1500
+    dummy_ctrl_data.lower_ctrl_limit = -1500
+    dummy_ctrl_data.precision = 3
+    dummy_ctrl_data.upper_disp_limit = 1500
+    dummy_ctrl_data.lower_disp_limit = -1500
+    return dummy_ctrl_data
+
+
 def get_element_pv_data(
     pytac_item: pytac.lattice.Lattice | pytac.element.Element,
     pvs: list[str],
     data: CSVData,
+    offline: bool = False,
 ) -> None:
     """Get the control limits and precision values from the live machine for
     all normal PVS.
@@ -200,7 +213,10 @@ def get_element_pv_data(
         if not isinstance(pytac_item.get_device(field), pytac.device.SimpleDevice):
             rb_pv: str = pytac_item.get_pv_name(field, pytac.RB)
             if rb_pv not in pvs:
-                ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
+                if not offline:
+                    ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
+                else:
+                    ctrl = create_dummy_limits_data()
                 pvs.append(rb_pv)
                 data.append(
                     (
@@ -219,7 +235,10 @@ def get_element_pv_data(
                     pass
                 else:
                     if sp_pv not in pvs:
-                        ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
+                        if not offline:
+                            ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
+                        else:
+                            ctrl = create_dummy_limits_data()
                         data.append(
                             (
                                 sp_pv,
@@ -233,7 +252,9 @@ def get_element_pv_data(
                         )
 
 
-def generate_pv_limits(lattice: pytac.lattice.Lattice) -> CSVData:
+def generate_pv_limits(
+    lattice: pytac.lattice.Lattice, offline: bool = False
+) -> CSVData:
     """Loop through each element in the lattice and spawn a cothread which will then
     do a caget to get pv data for the element.
 
@@ -252,7 +273,9 @@ def generate_pv_limits(lattice: pytac.lattice.Lattice) -> CSVData:
     pytac_items: list[pytac.lattice.Lattice | pytac.element.Element] = list(lattice)
     pytac_items.insert(0, lattice)
     for item in pytac_items:
-        caget_handles.append(cothread.Spawn(get_element_pv_data, item, pvs, data))
+        caget_handles.append(
+            cothread.Spawn(get_element_pv_data, item, pvs, data, offline)
+        )
     for caget_handle in caget_handles:
         caget_handle.Wait()
     return data
@@ -482,6 +505,12 @@ def parse_arguments() -> argparse.Namespace:
         default="I04",
     )
     parser.add_argument(
+        "--offline",
+        help="Generate csv files without gettiing limits data from the live machine",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
         "--feedback",
         help="Filename for output feedback PVs CSV file",
         default="feedback.csv",
@@ -518,18 +547,26 @@ def main():
         # all_elements is a class with an attribute for each element family, where
         # that attribute is a list of all elements of that family.
         all_elements = atip.utils.preload(lattice)
+
         print("Creating feedback PVs CSV file.")
         data = generate_feedback_pvs(all_elements, lattice)
         write_data_to_file(data, args.feedback, args.ring_mode)
+
         print("Creating BBA PVs CSV file.")
         data = generate_bba_pvs(all_elements, cast(int, lattice.symmetry))
         write_data_to_file(data, args.bba, args.ring_mode)
+
         print("Creating limits PVs CSV file.")
-        data = generate_pv_limits(lattice)
-        write_data_to_file(data, args.limits, args.ring_mode)
+        data = generate_pv_limits(lattice, offline=args.offline)
+        if len(data) <= 1:
+            print("No limits data found, limits.csv will not be updated.")
+        else:
+            write_data_to_file(data, args.limits, args.ring_mode)
+
         print("Creating mirrored PVs CSV file.")
         data = generate_mirrored_pvs(lattice)
         write_data_to_file(data, args.mirrored, args.ring_mode)
+
         print("Creating tune PVs CSV file.")
         data = generate_tune_pvs(lattice)
         write_data_to_file(data, args.tune, args.ring_mode)
