@@ -127,17 +127,23 @@ class VirtacServer:
         """
         limits_dict: dict = {}
         if limits_csv is not None:
-            with open(limits_csv) as f:
-                csv_reader = csv.DictReader(f)
-                for line in csv_reader:
-                    limits_dict[line["pv"]] = (
-                        float(line["upper"]),
-                        float(line["lower"]),
-                        int(line["precision"]),
-                        float(line["drive_high"]),
-                        float(line["drive_low"]),
-                        str(line["scan"]),
-                    )
+            try:
+                with open(limits_csv) as f:
+                    csv_reader = csv.DictReader(f)
+                    for line in csv_reader:
+                        limits_dict[line["pv"]] = (
+                            float(line["upper"]),
+                            float(line["lower"]),
+                            int(line["precision"]),
+                            float(line["drive_high"]),
+                            float(line["drive_low"]),
+                            str(line["scan"]),
+                        )
+            except FileNotFoundError:
+                logging.warning(
+                    f"Warning, could not find limits.csv file at {limits_csv}, limits "
+                    "data will not be used."
+                )
 
         # Create PVs from lattice elements.
         self._create_element_pvs(limits_dict)
