@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Using Virtac &#8212; virtac 0.2.1.dev81+gecdd0af4b documentation</title>
+    <title>Using Virtac &#8212; virtac 0.2.1.dev82+g27ad212f5 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=cb010910"></script>
+    <script src="../_static/documentation_options.js?v=62067e32"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -472,15 +472,15 @@ options:
   --version             show program&#39;s version number and exit
 </pre></div>
 </div>
-<p>If you have installed Virtac with pip, then you should be able to activate your virtual environment and run virtac with:</p>
+<p>If you have installed the Virtac with pip, then you should be able to activate your virtual environment and run the Virtac with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>virtac
 </pre></div>
 </div>
-<p>If you wish to use the container, then ensure that you have a working podman or docker install and then run virtac with:</p>
+<p>If you wish to use the container, then ensure that you have a working podman or docker install and then run the Virtac with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>podman<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span>virtac:latest
 </pre></div>
 </div>
-<p>Running Virtac with the default arguments will output the following to the terminal:</p>
+<p>Running the Virtac with the default arguments will output the following to the terminal:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="m">2025</span>-09-08<span class="w"> </span><span class="m">13</span>:50:09,572<span class="w"> </span>Ring<span class="w"> </span>mode<span class="w"> </span>not<span class="w"> </span>specified,<span class="w"> </span>using<span class="w"> </span>default:<span class="w"> </span>I04
 Starting<span class="w"> </span>PV<span class="w"> </span>creation.
 Virtac<span class="w"> </span>stats:
@@ -516,11 +516,11 @@ Type<span class="w"> </span><span class="s2">&quot;help&quot;</span>,<span class
 <p>Most users will not need to touch the interactive shell, and now know all they need to start using the Virtac and reading/writing to it using the PV interface.</p>
 <p>But for completeness, there are is some additional functionality that you can access from the python interactive shell:</p>
 <ul class="simple">
-<li><p>dbl() which lists all Virtac PVs</p></li>
+<li><p>dbl() which lists all of the Virtac’s PVs</p></li>
 <li><p>server.print_virtac_stats() which prints information about the Virtac, you can pass in an integer verbosity value with bigger numbers printing more information.</p></li>
-<li><p>server.disable_monitoring() and server.enable_monitoring() which allow you to pause/resume the virtac.</p></li>
+<li><p>server.disable_monitoring() and server.enable_monitoring() which allow you to pause/resume PVs which monitor other PVs.</p></li>
 </ul>
-<p>For more advanced users, you can also directly interact with the pytac lattice if you want to, here are a few useful commands:</p>
+<p>For more advanced users, you can also directly interact with the pytac lattice if you want to, here are a few useful commands used for the I04 lattice:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>&gt;&gt;&gt;server.lattice.get_value<span class="o">(</span><span class="s1">&#39;emittance&#39;</span><span class="o">)</span>
 array<span class="o">([</span><span class="m">2</span>.692426e-09,<span class="w"> </span><span class="m">0</span>.000000e+00<span class="o">])</span>
 
@@ -541,11 +541,11 @@ array<span class="o">([</span>-1.17040134e-07,<span class="w"> </span>-1.1704013
 &gt;&gt;&gt;server.lattice.get_value<span class="o">(</span><span class="s1">&#39;y&#39;</span><span class="o">)</span>
 array<span class="o">([</span><span class="m">0</span>.,<span class="w"> </span><span class="m">0</span>.,<span class="w"> </span><span class="m">0</span>.,<span class="w"> </span>...,<span class="w"> </span><span class="m">0</span>.,<span class="w"> </span><span class="m">0</span>.,<span class="w"> </span><span class="m">0</span>.<span class="o">]</span>,<span class="w"> </span><span class="nv">shape</span><span class="o">=(</span><span class="m">2190</span>,<span class="o">))</span>
 
-<span class="c1">#Print info about element id 4 </span>
+<span class="c1"># Print info about element id 4 </span>
 &gt;&gt;&gt;server.lattice<span class="o">[</span><span class="m">4</span><span class="o">]</span>
 &lt;Element<span class="w"> </span>index<span class="w"> </span><span class="m">5</span>,<span class="w"> </span>length<span class="w"> </span><span class="m">0</span>.4064<span class="w"> </span>m,<span class="w"> </span>cell<span class="w"> </span><span class="m">1</span>,<span class="w"> </span>families<span class="w"> </span>q1d,<span class="w"> </span>quadrupole&gt;
 
-<span class="c1">#Get the b1 value of element 4</span>
+<span class="c1"># Get the b1 value of element 4</span>
 &gt;&gt;&gt;server.lattice<span class="o">[</span><span class="m">4</span><span class="o">]</span>.get_value<span class="o">(</span><span class="s1">&#39;b1&#39;</span><span class="o">)</span>
 np.float64<span class="o">(</span><span class="m">70</span>.96502212959372<span class="o">)</span>
 </pre></div>
