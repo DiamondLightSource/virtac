@@ -315,7 +315,7 @@ class ReadWriteSimPV(ReadSimPV):
             value += offset
             logging.debug("Adding offset of: %s new value is: %s", offset, value)
 
-        # Some PVs such as the bend magnet PV have multiple pytac elements which
+        # Some PVs such as the LI-RF-MOSC-01:FREQ PV have multiple pytac elements which
         # are all updated from the same PV value.
 
         # TODO: This could be a target for future improvement by supporting pairing
