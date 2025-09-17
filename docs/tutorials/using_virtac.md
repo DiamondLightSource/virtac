@@ -26,19 +26,19 @@ For Virtac itself:
 ```{program-output} virtac -h
 ```
 
-If you have installed Virtac with pip, then you should be able to activate your virtual environment and run virtac with:
+If you have installed the Virtac with pip, then you should be able to activate your virtual environment and run the Virtac with:
 
 :::{code-block} bash
 virtac
 :::
 
-If you wish to use the container, then ensure that you have a working podman or docker install and then run virtac with:
+If you wish to use the container, then ensure that you have a working podman or docker install and then run the Virtac with:
 
 :::{code-block} bash
 podman run -it --network=host virtac:latest
 :::
 
-Running Virtac with the default arguments will output the following to the terminal:
+Running the Virtac with the default arguments will output the following to the terminal:
 
 :::{code-block} bash
 2025-09-08 13:50:09,572 Ring mode not specified, using default: I04
@@ -76,11 +76,11 @@ Most users will not need to touch the interactive shell, and now know all they n
 
 But for completeness, there are is some additional functionality that you can access from the python interactive shell:
 
-- dbl() which lists all Virtac PVs
+- dbl() which lists all of the Virtac's PVs
 - server.print_virtac_stats() which prints information about the Virtac, you can pass in an integer verbosity value with bigger numbers printing more information.
-- server.disable_monitoring() and server.enable_monitoring() which allow you to pause/resume the virtac.
+- server.disable_monitoring() and server.enable_monitoring() which allow you to pause/resume PVs which monitor other PVs. 
 
-For more advanced users, you can also directly interact with the pytac lattice if you want to, here are a few useful commands:
+For more advanced users, you can also directly interact with the pytac lattice if you want to, here are a few useful commands used for the I04 lattice:
 
 :::{code-block} bash
 >>>server.lattice.get_value('emittance')
@@ -103,11 +103,11 @@ array([-1.17040134e-07, -1.17040134e-07,  6.54012412e-08, ...,
 >>>server.lattice.get_value('y')
 array([0., 0., 0., ..., 0., 0., 0.], shape=(2190,))
 
-#Print info about element id 4 
+# Print info about element id 4 
 >>>server.lattice[4]
 <Element index 5, length 0.4064 m, cell 1, families q1d, quadrupole>
 
-#Get the b1 value of element 4
+# Get the b1 value of element 4
 >>>server.lattice[4].get_value('b1')
 np.float64(70.96502212959372)
 :::

@@ -1,6 +1,6 @@
 """This script does cagets from the live machine to get control limits and then uses
 this data in combination with hardcoded data in this file to generate csv files. These
-are used by the virtac to create softioc records. This script should be manually run
+are used by the Virtac to create softioc records. This script should be manually run
 using CA port 5064 whenever the csv files need updating.
 """
 
