@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Overview &#8212; virtac 0.2.1.dev83+gb1ecdbd26 documentation</title>
+    <title>PVs Provided by the Virtac &#8212; virtac 0.2.1.dev83+gb1ecdbd26 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=30646c52"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/overview';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/virtac_pvs';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
@@ -58,8 +58,8 @@
     <link rel="icon" href="../_static/dls-logo.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Using the Virtac" href="using_virtac.html" />
-    <link rel="prev" title="Installation" href="installation.html" />
+    <link rel="next" title="How-to Guides" href="../how-to.html" />
+    <link rel="prev" title="Using the Virtac" href="using_virtac.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="docs" />
@@ -374,9 +374,9 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="using_virtac.html">Using the Virtac</a></li>
-<li class="toctree-l1"><a class="reference internal" href="virtac_pvs.html">PVs Provided by the Virtac</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">PVs Provided by the Virtac</a></li>
 </ul>
 </div>
 </nav></div>
@@ -420,7 +420,7 @@
     
     <li class="breadcrumb-item"><a href="../tutorials.html" class="nav-link">Tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Overview</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PVs Provided by the Virtac</span></li>
   </ul>
 </nav>
 </div>
@@ -437,88 +437,76 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="overview">
-<h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h1>
-<section id="what-is-the-virtac">
-<h2>What is the Virtac?<a class="headerlink" href="#what-is-the-virtac" title="Link to this heading">#</a></h2>
-<p>The Diamond Virtual Accelerator (Virtac for short) was created to simulate the high level controls interface to the real accelerator, mostly the storage ring. There are three main parts:</p>
-<ol class="arabic simple">
-<li><p>An EPICS IOC which aims to faithfully reproduce the PVs available on the real machine and their behavior.</p></li>
-<li><p>A pytac lattice which contains the same elements (dipoles, quadrupoles, etc) as the real machine and is updated via the aforementioned PV interface.</p></li>
-<li><p>A pyAT simulation which is updated from the pytac lattice and indirectly from the Virtac PV interface.</p></li>
-</ol>
-<section id="pv-interface">
-<h3>1. PV interface<a class="headerlink" href="#pv-interface" title="Link to this heading">#</a></h3>
-<p>The Virtac provides over 4000 PVs which allow you to control the Virtac and to read information about it using channel access. We use <a class="reference external" href="https://diamondlightsource.github.io/pythonSoftIOC/master/tutorials/creating-an-ioc.html">PythonSoftIOC</a> to create the EPICS IOC. We use information from pytac (which in turn derives its data from matlab middlelayer) in addition to information contained in csv files to create PVs. The data in our csv files is largely created by reading PVs from the real machine, with some manually generated configuration.</p>
+  <section id="pvs-provided-by-the-virtac">
+<h1>PVs Provided by the Virtac<a class="headerlink" href="#pvs-provided-by-the-virtac" title="Link to this heading">#</a></h1>
+<p>Many of these PVs are, by design, identical to those used in the real machine. But there are some additional PVs either for conveniance or to simplify some behaviour.</p>
+<p>All of these PVs can be read using <code class="docutils literal notranslate"><span class="pre">caget</span></code> and some PVs can be written to using <code class="docutils literal notranslate"><span class="pre">caput</span></code></p>
+<p>This page only documents the PVs which are most useful to the user, a complete list of provided PVs is available by entering the <code class="docutils literal notranslate"><span class="pre">dbl()</span></code> command into the Virtac’s interactive terminal.</p>
+<section id="bpms">
+<h2>BPMs<a class="headerlink" href="#bpms" title="Link to this heading">#</a></h2>
+<p>To read the x/y position of the first bpm in the first cell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR01C</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EBPM</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SA</span><span class="p">:</span><span class="n">X</span>
+<span class="n">caget</span> <span class="n">SR01C</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EBPM</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SA</span><span class="p">:</span><span class="n">Y</span>
+</pre></div>
+</div>
+<p>To read the PVs which contain an array of x/y positions from all bpms:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EBPM</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SA</span><span class="p">:</span><span class="n">X</span>
+<span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EBPM</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SA</span><span class="p">:</span><span class="n">Y</span>
+</pre></div>
+</div>
 </section>
-<section id="pytac-lattice">
-<h3>2. Pytac lattice<a class="headerlink" href="#pytac-lattice" title="Link to this heading">#</a></h3>
-<p><a class="reference external" href="https://pytac.readthedocs.io/en/latest/">Pytac</a> is used to define the lattice which describes the layout of the storage ring. The lattice tracks over 2000 elements, including different types of dipoles, quadrupoles, sextupoles, drifts and bpms.</p>
-<p>Pytac supports many lattice modes, but the Virtac currently supports just three: ‘DIAD’, ‘I04’ and the Diamond 2 ringmode, ‘48’.</p>
+<section id="emittance">
+<h2>Emittance<a class="headerlink" href="#emittance" title="Link to this heading">#</a></h2>
+<p>To get the combined, x and y emittance of the ring as a whole:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EMIT</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">EMITTANCE</span>
+<span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EMIT</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">HEMIT</span>
+<span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EMIT</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">VEMIT</span>
+</pre></div>
+</div>
 </section>
-<section id="pyat-simulation">
-<h3>3. pyAT simulation<a class="headerlink" href="#pyat-simulation" title="Link to this heading">#</a></h3>
-<p><a class="reference external" href="https://atcollab.github.io/at/p/index.html">pyAT</a> is used to simulate the physics inside the particle accelerator. More specifically, we mostly use pyAT to simulate the path of a single electron around the storage ring. pyAT also contains a lattice, this is linked to and configured from the pytac lattice.</p>
-<p>Our main use-case of pyAT is to allow modifications of the lattice (such as setting magnet currents via the PV interface) and then calculating how these modifications affect the reference orbit of an electron travelling around the storage ring. This core premise allows us to test certain feedback algorithms against the Virtac by setting magnet currents, then reading bpm positions and repeating until we find an idealized orbit.</p>
+<section id="tune">
+<h2>Tune<a class="headerlink" href="#tune" title="Link to this heading">#</a></h2>
+<p>To get the x and y tunes for the ring as a whole:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR23C</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">TMBF</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">TUNE</span><span class="p">:</span><span class="n">TUNE</span>
+<span class="n">caget</span> <span class="n">SR23C</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">TMBF</span><span class="o">-</span><span class="mi">02</span><span class="p">:</span><span class="n">TUNE</span><span class="p">:</span><span class="n">TUNE</span>
+</pre></div>
+</div>
 </section>
-<section id="what-can-currently-be-tested-against-the-virtac">
-<h3>What can currently be tested against the Virtac?<a class="headerlink" href="#what-can-currently-be-tested-against-the-virtac" title="Link to this heading">#</a></h3>
-<p>Currently the Virtac only simulates the storage ring, but this may change in the future.</p>
-<p>The main use-case is IOCs which write to magnet current PVs and then need to see what effect this has on the ring.</p>
-<p>We simulate the following magnet families:</p>
-<ul class="simple">
-<li><p>Bends</p></li>
-<li><p>Quadrupoles</p></li>
-<li><p>Skew quadrupoles</p></li>
-<li><p>Horizontal and vertical steerers/correctors</p></li>
-<li><p>Horizontal and vertical ID trim coils</p></li>
-<li><p>Chicanes</p></li>
-<li><p>Sextupoles</p></li>
-<li><p>Octupoles (for Diamond 2)</p></li>
-<li><p>Combined dipole-quadrupoles (for Diamond 2)</p></li>
-<li><p>Anti-bend dipoles (for Diamond 2)</p></li>
-</ul>
-<p>We simulate the following ring parameters and provide them as PVs:</p>
-<ul class="simple">
-<li><p>BPM positions</p></li>
-<li><p>Emittance</p></li>
-<li><p>Tune</p></li>
-</ul>
-<p>Some of the things that we dont simulate:</p>
-<ul class="simple">
-<li><p>The linac</p></li>
-<li><p>The booster ring</p></li>
-<li><p>The transfer lines</p></li>
-<li><p>Particle injection</p></li>
-<li><p>Bunches</p></li>
-<li><p>Electrons outside of the reference orbit</p></li>
-<li><p>Beam decay</p></li>
-<li><p>Insertion devices (only the trim coils for ID corrections are simulated)</p></li>
-</ul>
-<p>With the default settings, the simulation can only be recalculated at a maximum rate of:</p>
-<ul class="simple">
-<li><p>Approximately 2Hz for Diamond 1</p></li>
-<li><p>Approximately 0.7Hz for Diamond 2</p></li>
-</ul>
+<section id="magnets">
+<h2>Magnets<a class="headerlink" href="#magnets" title="Link to this heading">#</a></h2>
+<p>These setpoints PVs can all be read and written to using channel access. They are used to set the currents (in engineering units) to a variety of magnet families.</p>
+<p>Example caputs using sensible values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caput</span> <span class="n">SR</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">DIPOL</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="mf">1354.61</span>
+<span class="n">caput</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">HSTR</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="o">-</span><span class="mf">0.247326</span>
+<span class="n">caput</span> <span class="n">SR02A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">HSCOR</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="o">-</span><span class="mf">0.0314738</span>
+<span class="n">caput</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">Q1D</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="mf">71.545</span>
+<span class="n">caput</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">S1D</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="mf">35.3174</span>
+<span class="n">caput</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">SQUAD</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="mf">0.2689</span>
+</pre></div>
+</div>
+<p>To read the current value for these magnets used by the simulation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">DIPOL</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">HSTR</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR02A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">HSCOR</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">Q1D</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">S1D</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">SQUAD</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+</pre></div>
+</div>
+<p>For the most part the SETI and I PVs such give the same value, one exception is for the quadrupoles used by tunefeedbacks, where the SETI current is offset by the tune offset prior to being set to the I PV used in the simulation.</p>
 </section>
-<section id="apps-currently-being-tested-against-the-virtac">
-<h3>Apps currently being tested against the Virtac<a class="headerlink" href="#apps-currently-being-tested-against-the-virtac" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>Slow orbit feedback</p></li>
-<li><p>Tune feedback</p></li>
-<li><p>Vertical emittance feedback</p></li>
-<li><p>Response matrix calculation</p></li>
-</ul>
-</section>
-<section id="future-plans">
-<h3>Future plans<a class="headerlink" href="#future-plans" title="Link to this heading">#</a></h3>
-<ul class="simple">
-<li><p>Allow the Virtac to be run using the Diamond II lattice configuration</p></li>
-<li><p>Simulate the booster to storage ring transfer line</p></li>
-<li><p>Simulate electrons which do not follow the reference orbit, ie by giving them a non-zero initial position in the beam tube.</p></li>
-<li><p>Reduce the simulation recalculation delay</p></li>
-</ul>
-</section>
+<section id="others">
+<h2>Others<a class="headerlink" href="#others" title="Link to this heading">#</a></h2>
+<p>These PVs only store setpoints, they are not updated by the simulation, but can be used to adjust it.</p>
+<p>The master oscillator is used to configure RF cavities:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">LI</span><span class="o">-</span><span class="n">RF</span><span class="o">-</span><span class="n">MOSC</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">FREQ</span>
+<span class="n">caput</span> <span class="n">LI</span><span class="o">-</span><span class="n">RF</span><span class="o">-</span><span class="n">MOSC</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">FREQ_SET</span> <span class="mi">499687000</span>
+</pre></div>
+</div>
+<p>The beam current does not have any effect on the simulation, but can be read:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">DCCT</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SIGNAL</span>
+</pre></div>
+</div>
 </section>
 </section>
 
@@ -533,20 +521,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="installation.html"
+       href="using_virtac.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Installation</p>
+        <p class="prev-next-title">Using the Virtac</p>
       </div>
     </a>
     <a class="right-next"
-       href="using_virtac.html"
+       href="../how-to.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Using the Virtac</p>
+        <p class="prev-next-title">How-to Guides</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -569,15 +557,11 @@
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-the-virtac">What is the Virtac?</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pv-interface">1. PV interface</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytac-lattice">2. Pytac lattice</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyat-simulation">3. pyAT simulation</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-can-currently-be-tested-against-the-virtac">What can currently be tested against the Virtac?</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#apps-currently-being-tested-against-the-virtac">Apps currently being tested against the Virtac</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#future-plans">Future plans</a></li>
-</ul>
-</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bpms">BPMs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#emittance">Emittance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tune">Tune</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#magnets">Magnets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#others">Others</a></li>
 </ul>
   </nav></div>
 
@@ -585,7 +569,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/virtac/edit/docs/docs/tutorials/overview.md">
+    <a href="https://github.com/DiamondLightSource/virtac/edit/docs/docs/tutorials/virtac_pvs.md">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -601,7 +585,7 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/overview.md.txt"
+      <li><a href="../_sources/tutorials/virtac_pvs.md.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

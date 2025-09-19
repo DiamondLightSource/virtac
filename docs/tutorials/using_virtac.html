@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Using Virtac &#8212; virtac 0.2.1.dev82+g27ad212f5 documentation</title>
+    <title>Using the Virtac &#8212; virtac 0.2.1.dev83+gb1ecdbd26 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=62067e32"></script>
+    <script src="../_static/documentation_options.js?v=43481c2f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -58,7 +58,7 @@
     <link rel="icon" href="../_static/dls-logo.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="How-to Guides" href="../how-to.html" />
+    <link rel="next" title="PVs Provided by the Virtac" href="virtac_pvs.html" />
     <link rel="prev" title="Overview" href="overview.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -375,7 +375,8 @@
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Using Virtac</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Using the Virtac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="virtac_pvs.html">PVs Provided by the Virtac</a></li>
 </ul>
 </div>
 </nav></div>
@@ -419,7 +420,7 @@
     
     <li class="breadcrumb-item"><a href="../tutorials.html" class="nav-link">Tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Using Virtac</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Using the Virtac</span></li>
   </ul>
 </nav>
 </div>
@@ -436,25 +437,25 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="using-virtac">
-<h1>Using Virtac<a class="headerlink" href="#using-virtac" title="Link to this heading">#</a></h1>
-<p>Before reading this document, ensure that Virtac has been either been installed using pip or you are able to run the docker image.</p>
+  <section id="using-the-virtac">
+<h1>Using the Virtac<a class="headerlink" href="#using-the-virtac" title="Link to this heading">#</a></h1>
+<p>Before reading this document, ensure that the Virtac has been either been installed using pip or you are able to run the docker image.</p>
 <section id="setting-your-ca-port">
 <h2>Setting your CA port<a class="headerlink" href="#setting-your-ca-port" title="Link to this heading">#</a></h2>
-<p>If you are running the Virtac within diamond, you will need to change your CA ports so that the PVs created by the Virtac do not clash with the PVs for the real machine.</p>
-<p>If you pip installed Virtac, this can be done by running the commands in your terminal:</p>
+<p>If you are running <code class="docutils literal notranslate"><span class="pre">virtac</span></code> within Diamond, you will need to change your CA ports so that the PVs created by <code class="docutils literal notranslate"><span class="pre">virtac</span></code> do not clash with the PVs for the real machine.</p>
+<p>If you pip installed <code class="docutils literal notranslate"><span class="pre">virtac</span></code> this can be done by running the following commands in your terminal:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">EPICS_CA_SERVER_PORT</span><span class="o">=</span><span class="m">8064</span>
 $<span class="w"> </span><span class="nb">export</span><span class="w"> </span><span class="nv">EPICS_CA_REPEATER_PORT</span><span class="o">=</span><span class="m">8065</span>
 </pre></div>
 </div>
-<p>The docker image uses these ports by default so you can skip this step. But if you wish to change them to something else, you can pass the following arguments to your docker run command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>-e<span class="w"> </span><span class="nv">EPICS_CA_SERVER_PORT</span><span class="o">=</span><span class="m">8064</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">EPICS_CA_REPEATER_PORT</span><span class="o">=</span><span class="m">8065</span>
+<p>The docker image uses these ports by default so you can skip this step. But if you wish to change them to something else, you can run the container using either podman or docker as such:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>podman<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span>-e<span class="w"> </span><span class="nv">EPICS_CA_SERVER_PORT</span><span class="o">=</span><span class="m">8064</span><span class="w"> </span>-e<span class="w"> </span><span class="nv">EPICS_CA_REPEATER_PORT</span><span class="o">=</span><span class="m">8065</span><span class="w"> </span>ghcr.io/diamondlightsource/virtac:latest
 </pre></div>
 </div>
 </section>
-<section id="running-virtac">
-<h2>Running Virtac<a class="headerlink" href="#running-virtac" title="Link to this heading">#</a></h2>
-<p>For Virtac itself:</p>
+<section id="running-the-virtac">
+<h2>Running the Virtac<a class="headerlink" href="#running-the-virtac" title="Link to this heading">#</a></h2>
+<p>The Virtac is run using its command line interface which has the following options:</p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>usage: virtac [-h] [-e] [-t] [-v] [--version] [ring_mode]
 
 positional arguments:
@@ -477,7 +478,7 @@ options:
 </pre></div>
 </div>
 <p>If you wish to use the container, then ensure that you have a working podman or docker install and then run the Virtac with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>podman<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span>virtac:latest
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>podman<span class="w"> </span>run<span class="w"> </span>-it<span class="w"> </span>--network<span class="o">=</span>host<span class="w"> </span>ghcr.io/diamondlightsource/virtac:latest
 </pre></div>
 </div>
 <p>Running the Virtac with the default arguments will output the following to the terminal:</p>
@@ -573,11 +574,11 @@ np.float64<span class="o">(</span><span class="m">70</span>.96502212959372<span 
       </div>
     </a>
     <a class="right-next"
-       href="../how-to.html"
+       href="virtac_pvs.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">How-to Guides</p>
+        <p class="prev-next-title">PVs Provided by the Virtac</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -601,7 +602,7 @@ np.float64<span class="o">(</span><span class="m">70</span>.96502212959372<span 
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-your-ca-port">Setting your CA port</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-virtac">Running Virtac</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-virtac">Running the Virtac</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#interactive-shell-commands">Interactive shell commands</a></li>
 </ul>
   </nav></div>
