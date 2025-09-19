@@ -1,27 +1,27 @@
-# Using Virtac
+# Using the Virtac
 
-Before reading this document, ensure that Virtac has been either been installed using pip or you are able to run the docker image.
+Before reading this document, ensure that the Virtac has been either been installed using pip or you are able to run the docker image.
 
 ## Setting your CA port
 
-If you are running the Virtac within diamond, you will need to change your CA ports so that the PVs created by the Virtac do not clash with the PVs for the real machine.
+If you are running ```virtac``` within Diamond, you will need to change your CA ports so that the PVs created by ```virtac``` do not clash with the PVs for the real machine.
 
-If you pip installed Virtac, this can be done by running the commands in your terminal:
+If you pip installed ```virtac``` this can be done by running the following commands in your terminal:
 
 :::{code-block} bash
 $ export EPICS_CA_SERVER_PORT=8064
 $ export EPICS_CA_REPEATER_PORT=8065
 :::
 
-The docker image uses these ports by default so you can skip this step. But if you wish to change them to something else, you can pass the following arguments to your docker run command:
+The docker image uses these ports by default so you can skip this step. But if you wish to change them to something else, you can run the container using either podman or docker as such:
 
 :::{code-block} bash
--e EPICS_CA_SERVER_PORT=8064 -e EPICS_CA_REPEATER_PORT=8065
+podman run -it --network=host -e EPICS_CA_SERVER_PORT=8064 -e EPICS_CA_REPEATER_PORT=8065 ghcr.io/diamondlightsource/virtac:latest
 :::
 
-## Running Virtac
+## Running the Virtac
 
-For Virtac itself:
+The Virtac is run using its command line interface which has the following options:
 
 ```{program-output} virtac -h
 ```
@@ -35,7 +35,7 @@ virtac
 If you wish to use the container, then ensure that you have a working podman or docker install and then run the Virtac with:
 
 :::{code-block} bash
-podman run -it --network=host virtac:latest
+podman run -it --network=host ghcr.io/diamondlightsource/virtac:latest
 :::
 
 Running the Virtac with the default arguments will output the following to the terminal:

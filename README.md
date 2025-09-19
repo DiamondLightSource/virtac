@@ -11,7 +11,7 @@ This module contains all of the diamond specific configuration to build the diam
 
 Source          | <https://github.com/DiamondLightSource/virtac>
 :---:           | :---:
-Docker          | `docker run ghcr.io/diamondlightsource/virtac:latest`
+Docker          | `docker run -it --network=host ghcr.io/diamondlightsource/virtac:latest`
 Documentation   | <https://diamondlightsource.github.io/virtac>
 Installation    | <https://diamondlightsource.github.io/virtac/tutorials/installation>
 Releases        | <https://github.com/DiamondLightSource/virtac/releases>
