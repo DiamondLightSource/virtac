@@ -15,7 +15,7 @@ description = "Diamond virtual accelerator"
 dependencies = [
     "numpy",
     "scipy",
-    "pytac>=0.3.0",
+    "pytac==0.6.0",
     "cothread",
     "softioc",
     "atip>=0.2.0",
@@ -44,10 +44,12 @@ dev = [
     "sphinx-design",
     "tox-direct",
     "types-mock",
+    "sphinxcontrib-programoutput",
 ]
 
 [project.scripts]
 virtac = "virtac.__main__:main"
+create_csv = "virtac.create_csv:main"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/virtac"

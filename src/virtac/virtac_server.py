@@ -1,3 +1,6 @@
+"""Contains the VirtacServer class which creates and manages the PV interface to the
+VIRTAC. It also provides various public methods to interact with Virtac"""
+
 import csv
 import logging
 import typing
@@ -42,11 +45,11 @@ MIRROR_TYPES = {
 
 class VirtacServer:
     """The soft-ioc server which contains the configuration and PVs for the VIRTAC.
-    It allows ATIP to be interfaced using EPICS, in the same manner as the live machine.
+    It allows ATIP to be interfaced using EPICS in the same manner as the live machine.
 
     Attributes:
         lattice (pytac.lattice.Lattice): An instance of a Pytac lattice with a
-                                          simulator data source derived from pyAT.
+            simulator data source derived from pyAT.
     """
 
     def __init__(
@@ -60,20 +63,21 @@ class VirtacServer:
         disable_emittance: bool = False,
         disable_tunefb: bool = False,
     ):
-        """Args:
-        ring_mode (str): The ring mode to create the lattice in.
-        limits_csv (str): The filepath to the .csv file from which to load the pv
-            limits. For more information see create_csv.py.
-        bba_csv (str): The filepath to the .csv file from which to load the bba records,
-            for more information see create_csv.py.
-        feedback_csv (str): The filepath to the .csv file from which to load the
-            feedback records, for more information see create_csv.py.
-        mirror_csv (str): The filepath to the .csv file from which to load the mirror
-            records, for more information see create_csv.py.
-        tune_csv (str): The filepath to the .csv file from which to load the tune
-            feedback records, for more information see create_csv.py.
-        disable_emittance (bool): Whether emittance should be disabled.
-        disable_tunefb (bool): Whether tune feedback should be disabled.
+        """
+        Args:
+            ring_mode (str): The ring mode to create the lattice in.
+            limits_csv (str): The filepath to the .csv file from which to load the pv
+                limits. For more information see create_csv.py.
+            bba_csv (str): The filepath to the .csv file from which to load the bba
+                records, for more information see create_csv.py.
+            feedback_csv (str): The filepath to the .csv file from which to load the
+                feedback records, for more information see create_csv.py.
+            mirror_csv (str): The filepath to the .csv file from which to load the
+                mirror records, for more information see create_csv.py.
+            tune_csv (str): The filepath to the .csv file from which to load the tune
+                feedback records, for more information see create_csv.py.
+            disable_emittance (bool): Whether emittance should be disabled.
+            disable_tunefb (bool): Whether tune feedback should be disabled.
         """
         self._disable_emittance: bool = disable_emittance
         self._disable_tunefb: bool = disable_tunefb
@@ -81,7 +85,7 @@ class VirtacServer:
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
             ring_mode, self.update_pvs, self._disable_emittance
         )
-
+        self.lattice.set_default_data_source(pytac.SIM)
         # Holding dictionary for all PVs
         self._pv_dict: dict[str, BasePV] = {}
         # Dictionary for the PVs which should be automatically updated when the
@@ -107,10 +111,6 @@ class VirtacServer:
         which is called each time a calculation of physics data is completed and
         updates all the in records that do not have a corresponding out record
         with the latest values from the simulator.
-
-        Note: A PV can have multiple elements, as is the case for bend
-            magnets. Currently we just have 1 PV for all bends and it takes its
-            value from element[0]. This could be a target for future improvement.
         """
         logging.info("Updating output PVs")
         for pv in self._readback_pvs_dict.values():
@@ -148,16 +148,16 @@ class VirtacServer:
     def _create_element_pvs(self, limits_dict: dict):
         """Create a PV for each simulated field on each pytac lattice element.
 
-        Note: The one exception to the rule of one PV per field is for the bend magnets.
-            Each of the 50 bend magnets shares a single PV which stores their current
-            value as they have a shared power supply in the real machine.
+        .. note:: The one exception to the rule of one PV per field is for the bend
+            magnets. Each of the 50 bend magnets shares a single PV which stores their
+            current value as they have a shared power supply in the real machine.
 
-        Note: For fields which have an in type record (RB) and an out type record (SP)
-            we create SetpointPVs (or a derivative). SetpointPVs are used to set the
+        .. note:: For fields which have an in type record (RB) and an out type record
+            (SP)we create SetpointPVs (or a derivative). SetpointPVs are used to set the
             pytac element with their SP record, the RB record merely reflects the set
             value.
 
-        Note: For fields which only have an (RB) record and no (SP) record we just
+        .. note:: For fields which only have an (RB) record and no (SP) record we just
             create regular PVs and we set their update_from_lattice to true. This means
             that when the Pytac lattice is updated after a PyAT physics recalculation,
             these PVs read their value from it.
@@ -195,7 +195,7 @@ class VirtacServer:
                     )
 
                     read_pv = ReadSimPV(
-                        read_pv_name, record_data, elements=[element], field=field
+                        read_pv_name, record_data, pytac_items=[element], field=field
                     )
                     self._pv_dict[read_pv_name] = read_pv
 
@@ -229,8 +229,8 @@ class VirtacServer:
                             read_write_pv_name,
                             record_data,
                             read_pv,
-                            elements=[element],
-                            field=field,
+                            pytac_items=[element],
+                            pytac_field=field,
                         )
                         self._pv_dict[read_write_pv_name] = read_write_pv
 
@@ -240,12 +240,12 @@ class VirtacServer:
     def _create_lattice_pvs(self, limits_dict: dict):
         """Create a PV for each simulated field on each pytac lattice itself.
 
-        Note: For fields which have an in type record (RB) and an out type record (SP)
-            we create SetpointPVs (or a derivative). SetpointPVs are used to set the
-            pytac element with their SP record, the RB record merely reflects the set
-            value.
+        .. note:: For fields which have an in type record (RB) and an out type record
+            (SP) we create SetpointPVs (or a derivative). SetpointPVs are used to set
+            the pytac element with their SP record, the RB record merely reflects the
+            set value.
 
-        Note: For fields which only have an (RB) record and no (SP) record we just
+        .. note:: For fields which only have an (RB) record and no (SP) record we just
             create regular PVs and we set their update_from_lattice to true. This means
             that when the pytac lattice is recalculated, these PVs read their value from
             the lattice.
@@ -276,7 +276,7 @@ class VirtacServer:
                     initial_value=value,
                 )
                 read_pv = ReadSimPV(
-                    get_pv_name, record_data, elements=[self.lattice], field=field
+                    get_pv_name, record_data, pytac_items=[self.lattice], field=field
                 )
                 self._pv_dict[get_pv_name] = read_pv
                 self._readback_pvs_dict[get_pv_name] = read_pv
@@ -431,10 +431,10 @@ class VirtacServer:
         before starting monitoring them for a change to mimic the behaviour of
         the quadrupoles used by the tune feedback system on the live machine.
 
-        Note: This is intended to be on the recieving end of the tune
+        .. note:: This is intended to be on the recieving end of the tune
            feedback system and doesn't actually perfom tune feedback itself.
 
-        Note: The 'offset_pv' is the PV which monitors a 'delta_pv' and when the
+        .. note:: The 'offset_pv' is the PV which monitors a 'delta_pv' and when the
             'delta_pv' changes, stores its value and triggers the 'set_pv' to process.
             When the 'set_pv' processes, it gets the value we just stored to the
             'offset_pv' and adds it to its own value.
@@ -497,7 +497,12 @@ class VirtacServer:
             self._pv_monitoring = False
 
     def print_virtac_stats(self, verbosity: int = 0):
-        """Print helpful statistics based on passed verbosity level"""
+        """Print helpful statistics based on passed verbosity level
+
+        Args:
+            verbosity (int): The verbosity level to print at, higher levels
+                             print more information.
+        """
         pv_type_count: dict[type[BasePV], int] = defaultdict(int)
 
         for pv in self._pv_dict.values():

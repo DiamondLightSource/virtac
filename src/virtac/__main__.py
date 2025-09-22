@@ -9,7 +9,9 @@ import epicscorelibs.path.cothread  # noqa
 from cothread.catools import ca_nothing, caget
 from softioc import builder, softioc
 
-from virtac import __version__, virtac_server
+from virtac import virtac_server
+
+from ._version import __version__
 
 __all__ = ["main"]
 
