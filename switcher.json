@@ -10,9 +10,5 @@
   {
     "version": "dev",
     "url": "https://DiamondLightSource.github.io/virtac/dev/"
-  },
-  {
-    "version": "docs",
-    "url": "https://DiamondLightSource.github.io/virtac/docs/"
   }
 ]
