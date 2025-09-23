@@ -62,7 +62,7 @@ class VirtacServer:
         tune_csv: str | None = None,
         disable_emittance: bool = False,
         disable_tunefb: bool = False,
-    ):
+    ) -> None:
         """
         Args:
             ring_mode (str): The ring mode to create the lattice in.
@@ -106,7 +106,7 @@ class VirtacServer:
 
         self.print_virtac_stats()
 
-    def update_pvs(self):
+    def update_pvs(self) -> None:
         """The callback function passed to ATSimulator during lattice creation,
         which is called each time a calculation of physics data is completed and
         updates all the in records that do not have a corresponding out record
@@ -117,7 +117,7 @@ class VirtacServer:
             pv.update_from_sim()
         logging.debug("Finished updating output PVs")
 
-    def _create_core_pvs(self, limits_csv: str):
+    def _create_core_pvs(self, limits_csv: Path | None) -> None:
         """Create the core records required for the virtac using both lattice and
         element pytac data.
 
@@ -145,7 +145,7 @@ class VirtacServer:
         # Create PVs from the lattice itself.
         self._create_lattice_pvs(limits_dict)
 
-    def _create_element_pvs(self, limits_dict: dict):
+    def _create_element_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice element.
 
         .. note:: The one exception to the rule of one PV per field is for the bend
@@ -237,7 +237,7 @@ class VirtacServer:
                         if element.type_.upper() == "BEND" and bend_in_record is None:
                             bend_in_record = read_write_pv
 
-    def _create_lattice_pvs(self, limits_dict: dict):
+    def _create_lattice_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice itself.
 
         .. note:: For fields which have an in type record (RB) and an out type record
@@ -281,7 +281,7 @@ class VirtacServer:
                 self._pv_dict[get_pv_name] = read_pv
                 self._readback_pvs_dict[get_pv_name] = read_pv
 
-    def _create_bba_records(self, bba_csv: str):
+    def _create_bba_records(self, bba_csv: Path) -> None:
         """Create all the beam-based-alignment records from the .csv file at the
         location passed, see create_csv.py for more information.
 
@@ -291,7 +291,7 @@ class VirtacServer:
         """
         self._create_feedback_or_bba_records_from_csv(bba_csv)
 
-    def _create_feedback_records(self, feedback_csv: str):
+    def _create_feedback_records(self, feedback_csv: Path) -> None:
         """Create all the feedback records from the .csv file at the location
         passed, see create_csv.py for more information; records for one edge
         case are also created.
@@ -314,7 +314,7 @@ class VirtacServer:
             emit_status_pv = BasePV(name, record_data)
             self._pv_dict[name] = emit_status_pv
 
-    def _create_feedback_or_bba_records_from_csv(self, csv_file: str):
+    def _create_feedback_or_bba_records_from_csv(self, csv_file: Path) -> None:
         """Read the csv file and create the corresponding records based on
         its contents.
 
@@ -351,7 +351,7 @@ class VirtacServer:
                     )
                     self._pv_dict[name] = pv
 
-    def _create_mirror_records(self, mirror_csv: str):
+    def _create_mirror_records(self, mirror_csv: Path) -> None:
         """Create all the mirror records from the .csv file at the location
         passed, see create_csv.py for more information.
 
@@ -426,7 +426,7 @@ class VirtacServer:
 
                     self._pv_dict[out_pv_name] = output_pv
 
-    def _setup_tune_feedback(self, tune_csv: str):
+    def _setup_tune_feedback(self, tune_csv: Path) -> None:
         """Read the tune feedback .csv and find the associated offset PVs,
         before starting monitoring them for a change to mimic the behaviour of
         the quadrupoles used by the tune feedback system on the live machine.
@@ -468,7 +468,7 @@ class VirtacServer:
                 set_record.attach_offset_record(new_set_record)
                 self._pv_dict[line["offset_pv"]] = new_set_record
 
-    def enable_monitoring(self):
+    def enable_monitoring(self) -> None:
         """Enable monitoring for all MonitorPV derived PVs. This will allow
         tune feedback and vertical emittance feedback to work again
         """
@@ -483,7 +483,7 @@ class VirtacServer:
 
     # TODO: Is this needed? It essentially just pauses a subset of the virtacs
     # functionality
-    def disable_monitoring(self):
+    def disable_monitoring(self) -> None:
         """Disable monitoring for all MonitorPV derived PVs. This will disable
         tune feedback and vertical emittance feedback
         """
@@ -496,7 +496,7 @@ class VirtacServer:
                     pv.disable_monitoring()
             self._pv_monitoring = False
 
-    def print_virtac_stats(self, verbosity: int = 0):
+    def print_virtac_stats(self, verbosity: int = 0) -> None:
         """Print helpful statistics based on passed verbosity level
 
         Args:

@@ -66,7 +66,7 @@ class BasePV:
             setting and getting of these records.
     """
 
-    def __init__(self, name: str, record_data: RecordData | None):
+    def __init__(self, name: str, record_data: RecordData | None) -> None:
         """
         Args:
             name (str): Used to identify this PV and its softioc record.
@@ -75,11 +75,11 @@ class BasePV:
         """
         logging.debug(f"Creating PV: {name}")
         self.name: str = name
-        self._record: RecordWrapper = None
+        self._record: RecordWrapper
         if record_data is not None:
             self.create_softioc_record(record_data)
 
-    def _on_update(self, value: RecordValueType, name: str):
+    def _on_update(self, value: RecordValueType, name: str) -> None:
         """The callback function called when the softioc record updates.
 
         This function and any overrides need to be kept FAST as they can be called
@@ -91,7 +91,7 @@ class BasePV:
         """
         logging.debug("Read value %s on pv %s", value, name)
 
-    def set_record_field(self, field: str, value: RecordValueType | str):
+    def set_record_field(self, field: str, value: RecordValueType) -> None:
         """Set a field on this PVs softioc record.
 
         Args:
@@ -103,7 +103,7 @@ class BasePV:
     def create_softioc_record(
         self,
         record_data: RecordData,
-    ):
+    ) -> None:
         """Create this PVs softioc record.
 
         Args:
@@ -176,7 +176,7 @@ class BasePV:
         """Get the value stored in this PVs softioc record"""
         return self._record.get()
 
-    def set(self, value: RecordValueType):
+    def set(self, value: RecordValueType) -> None:
         """Set a value to this PVs softioc record.
 
         Args:
@@ -192,8 +192,12 @@ class ReadSimPV(BasePV):
     """
 
     def __init__(
-        self, name, record_data: RecordData, pytac_items: PytacItemType, field: str
-    ):
+        self,
+        name: str,
+        record_data: RecordData,
+        pytac_items: list[PytacItemType],
+        field: str,
+    ) -> None:
         """
         Args:
             name (str): Used to identify this PV and its softioc record.
@@ -207,7 +211,7 @@ class ReadSimPV(BasePV):
         self._pytac_items: list[PytacItemType] = pytac_items
         self._pytac_field: str = field
 
-    def append_pytac_item(self, pytac_item: PytacItemType):
+    def append_pytac_item(self, pytac_item: PytacItemType) -> None:
         """Append a pytac item to the list of pytac items defined for this PV
 
         Args:
@@ -215,7 +219,7 @@ class ReadSimPV(BasePV):
         """
         self._pytac_items.append(pytac_item)
 
-    def update_from_sim(self):
+    def update_from_sim(self) -> None:
         """Read a value from the simulation and set it to this PVs softioc
         record.
         """
@@ -247,7 +251,7 @@ class ReadWriteSimPV(ReadSimPV):
         pytac_items: PytacItemType,
         pytac_field: str,
         offset_pv: BasePV | None = None,
-    ):
+    ) -> None:
         """
         Args:
             name (str): Used to identify this PV and its softioc record.
@@ -265,7 +269,7 @@ class ReadWriteSimPV(ReadSimPV):
         self._read_pv = read_pv
         self._offset_record: BasePV | None = offset_pv
 
-    def _on_update(self, value: RecordValueType, name: str):
+    def _on_update(self, value: RecordValueType, name: str) -> None:
         """This function sets the passed value to self._pv_to_update._record by calling
         its set method. The set also sets value (with an additional offset from
         self._offset_pv) to the pytac item and field configured for self._pv_to_update.
@@ -281,7 +285,9 @@ class ReadWriteSimPV(ReadSimPV):
         else:
             self.set(value, None)
 
-    def set(self, value: RecordValueType, offset: RecordValueType | None = None):
+    def set(
+        self, value: RecordValueType, offset: RecordValueType | None = None
+    ) -> None:
         """Set a value to this PVs softioc record, update its pytac element(s)
             with the same value and then set the value to its read pv.
 
@@ -321,7 +327,7 @@ class ReadWriteSimPV(ReadSimPV):
         # faster and gives the same result as we do not simulate hardware ramping.
         self._read_pv.set(value)
 
-    def attach_offset_record(self, offset_pv: BasePV):
+    def attach_offset_record(self, offset_pv: BasePV) -> None:
         """Used to configure this PV with an offset PV in situations where the offset
         was created after this PV.
 
@@ -350,8 +356,8 @@ class MonitorPV(BasePV):
         name: str,
         record_data: RecordData | None,
         monitored_pv_names: list[str],
-        callbacks: list[Callable] | None = None,
-    ):
+        callbacks: list[CallbackType] | None = None,
+    ) -> None:
         """
         Args:
             name (str): Used to set self.name
@@ -366,7 +372,11 @@ class MonitorPV(BasePV):
         self._camonitor_handles: list[_Subscription] = []
         self._setup_pv_monitoring(monitored_pv_names, callbacks)
 
-    def _setup_pv_monitoring(self, pv_names, callbacks):
+    def _setup_pv_monitoring(
+        self,
+        pv_names: list[str],
+        callbacks: list[CallbackType] | None,
+    ) -> None:
         """Setup camonitoring using the passed PV names and callbacks.
 
         If len(callbacks)>1 then a camonitor is created for each pv_name, callback pair.
@@ -401,7 +411,9 @@ class MonitorPV(BasePV):
         else:
             self._setup_pv_monitoring_individual(pv_names, callbacks)
 
-    def _setup_pv_monitoring_group(self, pv_names: list[str], callback: list[Callable]):
+    def _setup_pv_monitoring_group(
+        self, pv_names: list[str], callback: list[CallbackType]
+    ) -> None:
         self._monitor_data.append((pv_names, callback))
         self._camonitor_handles.extend(camonitor(pv_names, callback[0]))
 
@@ -412,7 +424,7 @@ class MonitorPV(BasePV):
             self._monitor_data.append(([pv_name], [callback]))
             self._camonitor_handles.append(camonitor(pv_name, callback))
 
-    def enable_monitoring(self):
+    def enable_monitoring(self) -> None:
         """Used to re-enable monitoring of this PV by re-creating the subscriptions."""
         logging.debug(f"Enabling monitoring for PV {self.name}")
         # We create a copy of monitor data, as set_pv_monitoring can append to this
@@ -422,14 +434,14 @@ class MonitorPV(BasePV):
         for pv_list, callback in monitor_data:
             self._setup_pv_monitoring(pv_list, callback)
 
-    def disable_monitoring(self):
+    def disable_monitoring(self) -> None:
         """Used to switch off this PVs monitoring by closing camonitor subscriptions."""
         logging.debug(f"Disabling monitoring for PV {self.name}")
         for handle in self._camonitor_handles:
             handle.close()
         self._camonitor_handles.clear()
 
-    def _callback(self, value: RecordValueType, index: int | None = None):
+    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Set a value to this PVs softioc record.
 
         For the MonitorPV, the set function is called when a camonitor returns, if we
@@ -464,7 +476,7 @@ class RefreshPV(MonitorPV):
         monitored_pv_name: str,
         record_to_refresh: BasePV,
         pv_to_cannibalise: BasePV,
-    ):
+    ) -> None:
         """
         Args:
             name (str): Used to set self.name
@@ -480,7 +492,7 @@ class RefreshPV(MonitorPV):
         self._record_to_refresh: BasePV = record_to_refresh
         self._record: RecordWrapper = pv_to_cannibalise.get_record()
 
-    def _callback(self, value: RecordValueType, index: int | None = None):
+    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Set the value returned from the monitored PV to this PVs _record and then
         force an update of _record_to_refresh.
         """
@@ -504,7 +516,9 @@ class InversionPV(MonitorPV):
         a single waveform.
     """
 
-    def __init__(self, name: str, record_data: RecordData, invert_pvs: list[BasePV]):
+    def __init__(
+        self, name: str, record_data: RecordData, invert_pvs: list[BasePV]
+    ) -> None:
         """
         Args:
             name (str): Used to set self.name
@@ -519,7 +533,7 @@ class InversionPV(MonitorPV):
         )
         self._invert_pvs: list[BasePV] = invert_pvs
 
-    def _callback(self, value: RecordValueType, index: int | None = None):
+    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Triggers this PV to caget the boolean values of all of its _invert_pv(s) and
         then invert them and set the result to _record.
         """
@@ -543,7 +557,9 @@ class SummationPV(MonitorPV):
     Used to sum values from a list of PVs, with the result set to this PVs _record.
     """
 
-    def __init__(self, name, record_data: RecordData, summate_pvs: list[BasePV]):
+    def __init__(
+        self, name: str, record_data: RecordData, summate_pvs: list[BasePV]
+    ) -> None:
         """
         Args:
             name (str): Used to set self.name
@@ -556,7 +572,9 @@ class SummationPV(MonitorPV):
         )
         self._summate_pvs: list[BasePV] = summate_pvs
 
-    def _callback(self, value: RecordValueType | None = None, index: int | None = None):
+    def _callback(
+        self, value: RecordValueType | None = None, index: int | None = None
+    ) -> None:
         value = sum([pv.get() for pv in self._summate_pvs])
         self._record.set(value)
         logging.debug(f"SummationPV: {self.name} summing data. New value: {value}")
@@ -567,7 +585,9 @@ class CollationPV(MonitorPV):
     this PVs _record.
     """
 
-    def __init__(self, name: str, record_data: RecordData, collate_pvs: list[BasePV]):
+    def __init__(
+        self, name: str, record_data: RecordData, collate_pvs: list[BasePV]
+    ) -> None:
         """
         Args:
             name (str): Used to set self.name
@@ -583,7 +603,7 @@ class CollationPV(MonitorPV):
         )
         self._collate_pvs: list[BasePV] = collate_pvs
 
-    def _callback(self, value: RecordValueType, index: int | None = None):
+    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         if index is None:
             record_data = value
         else:

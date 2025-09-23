@@ -98,7 +98,7 @@ def configure_ca():
         os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
 
 
-def main():
+def main() -> None:
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
     args = parse_arguments()
     if args.verbose >= 2:
