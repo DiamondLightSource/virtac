@@ -3,6 +3,7 @@ import logging
 import os
 import socket
 from pathlib import Path
+from typing import cast
 from warnings import warn
 
 import epicscorelibs.path.cothread  # noqa
@@ -120,7 +121,7 @@ def main() -> None:
         except KeyError:
             try:
                 value = caget("SR-CS-RING-01:MODE", timeout=1, format=2)
-                ring_mode = value.enums[int(value)]
+                ring_mode = cast(str, value.enums[int(value)])
                 logging.warning(
                     "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
                     f"as the default: {ring_mode}"

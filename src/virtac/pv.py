@@ -5,7 +5,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TypeAlias
+from typing import TypeAlias, cast
 
 import numpy
 import pytac
@@ -225,8 +225,11 @@ class ReadSimPV(BasePV):
         """
         logging.debug(f"Updating pv {self.name}")
         try:
-            value = self._pytac_items[0].get_value(
-                self._pytac_field, units=pytac.ENG, data_source=pytac.SIM
+            value = cast(
+                RecordValueType,
+                self._pytac_items[0].get_value(
+                    self._pytac_field, units=pytac.ENG, data_source=pytac.SIM
+                ),
             )
             self.set(value)
         except FieldException as e:

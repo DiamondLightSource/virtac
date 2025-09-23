@@ -6,6 +6,7 @@ import logging
 import typing
 from collections import defaultdict
 from enum import StrEnum
+from typing import cast
 
 import atip
 import numpy
@@ -172,11 +173,13 @@ class VirtacServer:
             if element.type_.upper() == "BEND" and bend_in_record is not None:
                 bend_in_record.append_pytac_item(element)
             else:
-                for field in element.get_fields()[pytac.SIM]:
+                for field in cast(
+                    dict[str, list[str]], element.get_fields()[pytac.SIM]
+                ):
                     value = element.get_value(
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
-                    read_pv_name = element.get_pv_name(field, pytac.RB)
+                    read_pv_name = cast(str, element.get_pv_name(field, pytac.RB))
 
                     upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
@@ -203,8 +206,11 @@ class VirtacServer:
                     # after recalculation. Readback PVs with a setpoint PV are updated
                     # when their associated setpoint PV is updated.
                     try:
-                        read_write_pv_name = element.get_pv_name(field, pytac.SP)
-                    except HandleException:
+                        read_write_pv_name = cast(
+                            str,
+                            element.get_pv_name(field, pytac.SP),
+                        )
+                    except pytac.exceptions.HandleException:
                         # Only triggered if this element has an RB PV but no SP PV.
                         # Add to list of PVs to be updated from the simulation
                         self._readback_pvs_dict[read_pv_name] = read_pv
@@ -253,8 +259,8 @@ class VirtacServer:
         Args:
             limits_dict (dict): A dictionary containing the limits data for the PVs
         """
-        lat_fields = self.lattice.get_fields()
-        lat_fields = set(lat_fields[pytac.LIVE]) & set(lat_fields[pytac.SIM])
+        lat_field_dict = cast(dict[str, list[str]], self.lattice.get_fields())
+        lat_field_set = set(lat_field_dict[pytac.LIVE]) & set(lat_field_dict[pytac.SIM])
         if self._disable_emittance:
             lat_fields -= {"emittance_x", "emittance_y"}
         for field in lat_fields:
@@ -408,6 +414,7 @@ class VirtacServer:
                     try:
                         mirror_type = MIRROR_TYPES[MirrorType(line["mirror_type"])]
                         if mirror_type == MIRROR_TYPES[MirrorType.BASIC]:
+                            mirror_type = cast(type[MonitorPV], mirror_type)
                             # MonitorPV requires a list of str rather than a list of PV
                             output_pv = mirror_type(
                                 out_pv_name,
@@ -415,6 +422,12 @@ class VirtacServer:
                                 input_pv_names,
                             )
                         else:
+                            mirror_type = cast(
+                                type[InversionPV]
+                                | type[SummationPV]
+                                | type[CollationPV],
+                                mirror_type,
+                            )
                             output_pv = mirror_type(
                                 out_pv_name, record_data, input_records
                             )

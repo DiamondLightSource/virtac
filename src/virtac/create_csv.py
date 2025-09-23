@@ -8,6 +8,7 @@ import argparse
 import csv
 import os
 import sys
+from typing import cast
 
 import atip
 import cothread
@@ -335,8 +336,8 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
         )
     )
     # Electron BPMs enabled.
-    bpm_enabled_pvs: list[str] = lattice.get_element_pv_names(
-        "BPM", "enabled", pytac.RB
+    bpm_enabled_pvs = cast(
+        list[str], lattice.get_element_pv_names("BPM", "enabled", pytac.RB)
     )
     data.append(
         (
@@ -349,7 +350,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
         )
     )
     # BPM x positions for display on diagnostics screen.
-    bpm_x_pvs: list[str] = lattice.get_element_pv_names("BPM", "x", pytac.RB)
+    bpm_x_pvs = cast(list[str], lattice.get_element_pv_names("BPM", "x", pytac.RB))
     data.append(
         (
             "wfmi",
@@ -361,7 +362,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
         )
     )
     # BPM y positions for display on diagnostics screen.
-    bpm_y_pvs: list[str] = lattice.get_element_pv_names("BPM", "y", pytac.RB)
+    bpm_y_pvs = cast(list[str], lattice.get_element_pv_names("BPM", "y", pytac.RB))
     data.append(
         (
             "wfmi",
@@ -471,7 +472,7 @@ def main():
         data = generate_feedback_pvs(all_elements, lattice)
         write_data_to_file(data, args.feedback, args.ring_mode)
         print("Creating BBA PVs CSV file.")
-        data = generate_bba_pvs(all_elements, lattice.symmetry)
+        data = generate_bba_pvs(all_elements, cast(int, lattice.symmetry))
         write_data_to_file(data, args.bba, args.ring_mode)
         print("Creating limits PVs CSV file.")
         data = generate_pv_limits(lattice)
