@@ -18,6 +18,4 @@ Releases        | <https://github.com/DiamondLightSource/virtac/releases>
 
 <!-- README only content. Anything below this line won't be included in index.md -->
 
-This repository uses a dev branch. Please make pull requests into the dev branch rather than main. The dev branch will be merged into main when it makes sense.
-
-The github pages documentation is automatically updated on pushes to main and the dev branch and also on tagged releases.
+The github pages documentation is automatically updated on pushes to the main and dev branches and also on tagged releases.
