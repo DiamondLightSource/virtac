@@ -102,7 +102,7 @@ class BasePV:
         Args:
             record_data (RecordData): Dataclass used to create this PVs softioc record.
         """
-        if self._record is not None:
+        if "self._record" in locals():
             raise AttributeError(
                 f"A softioc record could not be created for PV: {self.name}. It already"
                 "has an attached record."
