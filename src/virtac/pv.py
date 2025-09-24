@@ -10,7 +10,6 @@ from typing import TypeAlias, cast
 import numpy
 import pytac
 from cothread.catools import _Subscription, camonitor
-from pytac.exceptions import FieldException
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
@@ -225,7 +224,7 @@ class ReadSimPV(BasePV):
                 ),
             )
             self.set(value)
-        except FieldException as e:
+        except pytac.exceptions.FieldException as e:
             logging.exception("PV is missing an expected pytac field")
             raise (e)
 
@@ -244,7 +243,7 @@ class ReadWriteSimPV(ReadSimPV):
         name: str,
         record_data: RecordData,
         read_pv: ReadSimPV,
-        pytac_items: PytacItemType,
+        pytac_items: list[PytacItemType],
         pytac_field: str,
         offset_pv: BasePV | None = None,
     ) -> None:
@@ -360,8 +359,8 @@ class MonitorPV(BasePV):
             record_data (RecordData): Dataclass used to create this PVs softioc record.
             monitored_pvs (list[str]): A list of PV names used to setup camonitoring.
             callbacks (list[CallbackType] | None): A list of functions to be called when
-                the monitored PVs return. If none, then this PVs set function is called as
-                the callback.
+                the monitored PVs return. If none, then this PVs set function is called
+                as the callback.
         """
         super().__init__(name, record_data)
         self._monitor_data: list[tuple[list[str], list[CallbackType]]] = []
@@ -465,7 +464,7 @@ class RefreshPV(MonitorPV):
 
     def __init__(
         self,
-        name,
+        name: str,
         monitored_pv_name: str,
         record_to_refresh: BasePV,
         pv_to_cannibalise: BasePV,

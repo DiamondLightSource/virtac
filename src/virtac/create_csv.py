@@ -20,7 +20,7 @@ from cothread.catools import FORMAT_CTRL, caget
 CSVData = list[tuple[str | int, ...]]
 
 
-def generate_feedback_pvs(all_elements, lattice: pytac.lattice.Lattice) -> CSVData:
+def generate_feedback_pvs(all_elements, lattice: pytac.lattice.EpicsLattice) -> CSVData:
     """Get feedback pvs. Also get families for tune feedback
     Args:
         all_elements (list): a list of elements
@@ -467,6 +467,8 @@ def main():
     with numpy.printoptions(threshold=sys.maxsize, linewidth=100000):
         args = parse_arguments()
         lattice = atip.utils.loader(args.ring_mode)
+        # all_elements is a class with an attribute for each element family, where
+        # that attribute is a list of all elements of that family.
         all_elements = atip.utils.preload(lattice)
         print("Creating feedback PVs CSV file.")
         data = generate_feedback_pvs(all_elements, lattice)

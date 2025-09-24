@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import cast
 from warnings import warn
 
-import epicscorelibs.path.cothread  # noqa
 from cothread.catools import ca_nothing, caget
 from softioc import builder, softioc
 

@@ -12,8 +12,6 @@ from typing import cast
 import atip
 import numpy
 import pytac
-from pytac.device import SimpleDevice
-from pytac.exceptions import HandleException
 
 from .pv import (
     BasePV,
@@ -181,13 +179,16 @@ class VirtacServer:
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
                 ):
                     value = element.get_value(
-                        field, units=pytac.ENG, data_source=pytac.SIM
+                        field,
+                        units=pytac.ENG,
+                        data_source=pytac.SIM,
                     )
                     read_pv_name = cast(str, element.get_pv_name(field, pytac.RB))
 
                     upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
-                            read_pv_name, (None, None, None, None, None, "I/O Intr")
+                            read_pv_name,
+                            (None, None, None, None, None, "I/O Intr"),
                         )
                     )
                     record_data = RecordData(
@@ -202,7 +203,10 @@ class VirtacServer:
                     )
 
                     read_pv = ReadSimPV(
-                        read_pv_name, record_data, pytac_items=[element], field=field
+                        read_pv_name,
+                        record_data,
+                        pytac_items=[element],
+                        field=field,
                     )
                     self._pv_dict[read_pv_name] = read_pv
 
@@ -267,12 +271,15 @@ class VirtacServer:
         lat_field_dict = cast(dict[str, list[str]], self.lattice.get_fields())
         lat_field_set = set(lat_field_dict[pytac.LIVE]) & set(lat_field_dict[pytac.SIM])
         if self._disable_emittance:
-            lat_fields -= {"emittance_x", "emittance_y"}
-        for field in lat_fields:
+            lat_field_set -= {"emittance_x", "emittance_y"}
+        for field in lat_field_set:
             # Ignore basic devices as they do not have PVs.
-            if not isinstance(self.lattice.get_device(field), SimpleDevice):
-                get_pv_name = self.lattice.get_pv_name(field, pytac.RB)
-                upper, lower, precision, drive_high, drive_low, scan = limits_dict.get(
+            if not isinstance(
+                self.lattice.get_device(field),
+                pytac.device.SimpleDevice,
+            ):
+                get_pv_name = cast(str, self.lattice.get_pv_name(field, pytac.RB))
+                upper, lower, precision, _, _, scan = limits_dict.get(
                     get_pv_name, (None, None, None, None, None, "I/O Intr")
                 )
                 value = self.lattice.get_value(
@@ -467,8 +474,8 @@ class VirtacServer:
                 assert isinstance(self._pv_dict[line["set_pv"]], ReadWriteSimPV)
 
                 self._pv_dict[line["offset_pv"]]
-                set_record: ReadWriteSimPV = self._pv_dict[line["set_pv"]]  # type: ignore[assignment]
-                old_set_record: ReadWriteSimPV = self._pv_dict[line["offset_pv"]]  # type: ignore[assignment]
+                set_record = cast(ReadWriteSimPV, self._pv_dict[line["set_pv"]])
+                old_set_record = cast(ReadWriteSimPV, self._pv_dict[line["offset_pv"]])
 
                 # We overwrite the old_set_record with the new RefreshPV which has
                 # the required capabilities for tunefb
