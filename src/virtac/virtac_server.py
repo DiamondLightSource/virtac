@@ -461,11 +461,6 @@ class VirtacServer:
             tune_csv (Path | None): A path to a tune feedback .csv file to be used
                              instead of the default filepath passed at startup.
         """
-        if tune_csv is None:
-            raise ValueError(
-                "No tune feedback .csv file was given at start-up, please provide one "
-                "now; i.e. server.start_tune_feedback('<path_to_csv>')"
-            )
         with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
             for line in csv_reader:
