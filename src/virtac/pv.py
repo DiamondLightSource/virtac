@@ -46,14 +46,6 @@ class RecordData:
     always_update: bool = False
     initial_value: RecordValueType = 0
 
-    def __post_init__(self):
-        if not isinstance(self.record_type, str):
-            raise ValueError("Record field `record_type` must be of string type")
-        if not isinstance(self.scan, str):
-            raise ValueError("Record field `scan` must be of string type")
-        if not isinstance(self.pini, str):
-            raise ValueError("Record field `pini` must be of string type")
-
 
 class BasePV:
     """Stores the attributes and methods which allow the VIRTAC to control an
@@ -399,16 +391,13 @@ class MonitorPV(BasePV):
             callbacks = [self._callback]
 
         for pv_name in pv_names:
-            if not isinstance(pv_name, str):
-                raise TypeError(f"PV name must be a string, not {type(pv_name)}")
-            else:
-                for dataset in self._monitor_data:
-                    if pv_name in dataset[0]:
-                        logging.warning(
-                            f"The provided PV name: {pv_name} is already being "
-                            "monitored. It is not recommended to setup multiple "
-                            "camonitors for a single PV."
-                        )
+            for dataset in self._monitor_data:
+                if pv_name in dataset[0]:
+                    logging.warning(
+                        f"The provided PV name: {pv_name} is already being "
+                        "monitored. It is not recommended to setup multiple "
+                        "camonitors for a single PV."
+                    )
 
         if len(callbacks) == 1:
             self._setup_pv_monitoring_group(pv_names, callbacks)
