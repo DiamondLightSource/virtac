@@ -357,7 +357,7 @@ class VirtacServer:
                     pv = ReadSimPV(
                         name,
                         record_data,
-                        self.lattice[int(line["index"]) - 1],
+                        [self.lattice[int(line["index"]) - 1]],
                         line["field"],
                     )
                     self._pv_dict[name] = pv
