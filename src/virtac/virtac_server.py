@@ -28,6 +28,8 @@ from .pv import (
     SummationPV,
 )
 
+LimitsDictType = dict[str, tuple[str, str, str, str, str, str]]
+
 
 class MirrorType(StrEnum):
     BASIC = "basic"
@@ -56,11 +58,11 @@ class VirtacServer:
     def __init__(
         self,
         ring_mode: str,
-        limits_csv: str,
-        bba_csv: str | None = None,
-        feedback_csv: str | None = None,
-        mirror_csv: str | None = None,
-        tune_csv: str | None = None,
+        limits_csv: Path | None = None,
+        bba_csv: Path | None = None,
+        feedback_csv: Path | None = None,
+        mirror_csv: Path | None = None,
+        tune_csv: Path | None = None,
         disable_emittance: bool = False,
         disable_tunefb: bool = False,
     ) -> None:
@@ -126,17 +128,17 @@ class VirtacServer:
             limits_csv (str): The filepath to the .csv file from which to load pv field
                               data to configure softioc records with.
         """
-        limits_dict: dict = {}
+        limits_dict: LimitsDictType = {}
         if limits_csv is not None:
             with open(limits_csv) as f:
                 csv_reader = csv.DictReader(f)
                 for line in csv_reader:
                     limits_dict[line["pv"]] = (
-                        float(line["upper"]),
-                        float(line["lower"]),
-                        int(line["precision"]),
-                        float(line["drive_high"]),
-                        float(line["drive_low"]),
+                        str(line["upper"]),
+                        str(line["lower"]),
+                        str(line["precision"]),
+                        str(line["drive_high"]),
+                        str(line["drive_low"]),
                         str(line["scan"]),
                     )
 
@@ -164,7 +166,8 @@ class VirtacServer:
             these PVs read their value from it.
 
         Args:
-            limits_dict (dict): A dictionary containing the limits data for the PVs
+            limits_dict (LimitsDictType): A dictionary containing the limits data for
+                the PVs.
         """
         bend_in_record = None
         for element in self.lattice:
@@ -257,7 +260,8 @@ class VirtacServer:
             the lattice.
 
         Args:
-            limits_dict (dict): A dictionary containing the limits data for the PVs
+            limits_dict (LimitsDictType): A dictionary containing the limits data for
+                the PVs.
         """
         lat_field_dict = cast(dict[str, list[str]], self.lattice.get_fields())
         lat_field_set = set(lat_field_dict[pytac.LIVE]) & set(lat_field_dict[pytac.SIM])
