@@ -532,14 +532,14 @@ class InversionPV(MonitorPV):
         """
         if index is None:
             # Invert a single waveform record
-            value = numpy.asarray(value, dtype=bool)
-            value = numpy.asarray(numpy.invert(value), dtype=int)
+            record_data = numpy.asarray(value, dtype=bool)
+            record_data = numpy.asarray(numpy.invert(record_data), dtype=int)
         else:
             # Invert the single element which changed
             record_data = numpy.copy(self._record.get())
             record_data[index] = not value
-            self._record.set(record_data)
 
+        self._record.set(record_data)
         logging.debug(
             f"InversionPV: {self.name} inverting data. New data: {record_data}"
         )
