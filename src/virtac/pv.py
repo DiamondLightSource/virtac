@@ -14,8 +14,9 @@ from pytac.exceptions import FieldException
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
-RecordValueType: TypeAlias = int | float | numpy.typing.NDArray
-PytacItemType: TypeAlias = pytac.lattice.Lattice | pytac.element.Element
+RecordValueType: TypeAlias = int | float | numpy.ndarray
+PytacItemType: TypeAlias = pytac.lattice.EpicsLattice | pytac.element.Element
+CallbackType: TypeAlias = Callable[[RecordValueType, int | None], None]
 
 
 class RecordTypes(StrEnum):
@@ -347,8 +348,8 @@ class MonitorPV(BasePV):
     when one of the camonitors returns
 
     Attributes:
-        _monitor_data ((list[tuple[list[str], list[Callable]]])): Used to keep track of
-            which PVs we are monitoring and which functions the camonitor calls when
+        _monitor_data ((list[tuple[list[str], list[CallbackType]]])): Used to keep track
+            of which PVs we are monitoring and which functions the camonitor calls when
             they change value.
         _camonitor_handles (list[_Subscription]): Used to close camonitors if a
             command is sent to pause monitoring.
@@ -366,12 +367,12 @@ class MonitorPV(BasePV):
             name (str): Used to set self.name
             record_data (RecordData): Dataclass used to create this PVs softioc record.
             monitored_pvs (list[str]): A list of PV names used to setup camonitoring.
-            callbacks (list[Callable] | None): A list of functions to be called when the
-                monitored PVs return. If none, then this PVs set function is called as
+            callbacks (list[CallbackType] | None): A list of functions to be called when
+                the monitored PVs return. If none, then this PVs set function is called as
                 the callback.
         """
         super().__init__(name, record_data)
-        self._monitor_data: list[tuple[list[str], list[Callable]]] = []
+        self._monitor_data: list[tuple[list[str], list[CallbackType]]] = []
         self._camonitor_handles: list[_Subscription] = []
         self._setup_pv_monitoring(monitored_pv_names, callbacks)
 
@@ -391,7 +392,7 @@ class MonitorPV(BasePV):
 
         Args:
             pv_names (list[str]): A list of PV names to monitor using channel access.
-            callbacks (list[Callable]): A list of functions to execute when the
+            callbacks (list[CallbackType]): A list of functions to execute when the
                 associated PV changes value.
         """
         if callbacks is None:
@@ -421,8 +422,8 @@ class MonitorPV(BasePV):
         self._camonitor_handles.extend(camonitor(pv_names, callback[0]))
 
     def _setup_pv_monitoring_individual(
-        self, pv_names: list[str], callbacks: list[Callable]
-    ):
+        self, pv_names: list[str], callbacks: list[CallbackType]
+    ) -> None:
         for pv_name, callback in zip(pv_names, callbacks, strict=True):
             self._monitor_data.append(([pv_name], [callback]))
             self._camonitor_handles.append(camonitor(pv_name, callback))
