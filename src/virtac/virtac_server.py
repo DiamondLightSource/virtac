@@ -6,6 +6,7 @@ import logging
 import typing
 from collections import defaultdict
 from enum import StrEnum
+from pathlib import Path
 from typing import cast
 
 import atip
@@ -125,8 +126,8 @@ class VirtacServer:
         element pytac data.
 
         Args:
-            limits_csv (str): The filepath to the .csv file from which to load pv field
-                              data to configure softioc records with.
+            limits_csv (Path | None): The filepath to the .csv file from which to
+                load pv field data to configure softioc records with.
         """
         limits_dict: LimitsDictType = {}
         if limits_csv is not None:
@@ -296,7 +297,7 @@ class VirtacServer:
         location passed, see create_csv.py for more information.
 
         Args:
-            bba_csv (str): The filepath to the .csv file to load the
+            bba_csv (Path | None): The filepath to the .csv file to load the
                                     records in accordance with.
         """
         self._create_feedback_or_bba_records_from_csv(bba_csv)
@@ -307,7 +308,7 @@ class VirtacServer:
         case are also created.
 
         Args:
-            feedback_csv (str): The filepath to the .csv file to load the
+            feedback_csv (Path | None): The filepath to the .csv file to load the
                                     records in accordance with.
         """
         self._create_feedback_or_bba_records_from_csv(feedback_csv)
@@ -329,7 +330,7 @@ class VirtacServer:
         its contents.
 
         Args:
-            csv_file (str): The filepath to the .csv file to load the
+            csv_file (Path | None): The filepath to the .csv file to load the
                                     records in accordance with.
         """
         # We don't set limits or precision but this shouldn't be an issue as these
@@ -366,7 +367,7 @@ class VirtacServer:
         passed, see create_csv.py for more information.
 
         Args:
-            mirror_csv (str): The filepath to the .csv file to load the
+            mirror_csv (Path | None): The filepath to the .csv file to load the
                                     records in accordance with.
         """
         with open(mirror_csv) as f:
@@ -457,7 +458,7 @@ class VirtacServer:
             'offset_pv' and adds it to its own value.
 
         Args:
-            tune_csv (str): A path to a tune feedback .csv file to be used
+            tune_csv (Path | None): A path to a tune feedback .csv file to be used
                              instead of the default filepath passed at startup.
         """
         if tune_csv is None:
