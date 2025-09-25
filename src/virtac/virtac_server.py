@@ -179,16 +179,13 @@ class VirtacServer:
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
                 ):
                     value = element.get_value(
-                        field,
-                        units=pytac.ENG,
-                        data_source=pytac.SIM,
+                        field, units=pytac.ENG, data_source=pytac.SIM
                     )
                     read_pv_name = cast(str, element.get_pv_name(field, pytac.RB))
 
                     upper, lower, precision, drive_high, drive_low, scan = (
                         limits_dict.get(
-                            read_pv_name,
-                            (None, None, None, None, None, "I/O Intr"),
+                            read_pv_name, (None, None, None, None, None, "I/O Intr")
                         )
                     )
                     record_data = RecordData(
@@ -203,10 +200,7 @@ class VirtacServer:
                     )
 
                     read_pv = ReadSimPV(
-                        read_pv_name,
-                        record_data,
-                        pytac_items=[element],
-                        field=field,
+                        read_pv_name, record_data, pytac_items=[element], field=field
                     )
                     self._pv_dict[read_pv_name] = read_pv
 
@@ -215,8 +209,7 @@ class VirtacServer:
                     # when their associated setpoint PV is updated.
                     try:
                         read_write_pv_name = cast(
-                            str,
-                            element.get_pv_name(field, pytac.SP),
+                            str, element.get_pv_name(field, pytac.SP)
                         )
                     except pytac.exceptions.HandleException:
                         # Only triggered if this element has an RB PV but no SP PV.
@@ -275,8 +268,7 @@ class VirtacServer:
         for field in lat_field_set:
             # Ignore basic devices as they do not have PVs.
             if not isinstance(
-                self.lattice.get_device(field),
-                pytac.device.SimpleDevice,
+                self.lattice.get_device(field), pytac.device.SimpleDevice
             ):
                 get_pv_name = cast(str, self.lattice.get_pv_name(field, pytac.RB))
                 upper, lower, precision, _, _, scan = limits_dict.get(
@@ -324,11 +316,7 @@ class VirtacServer:
         # which decreases computation time.
         if not self._disable_emittance:
             name = "SR-DI-EMIT-01:STATUS"
-            record_data = RecordData(
-                RecordTypes.MBBI,
-                zrvl="0",
-                zrst="Successful",
-            )
+            record_data = RecordData(RecordTypes.MBBI, zrvl="0", zrst="Successful")
             emit_status_pv = BasePV(name, record_data)
             self._pv_dict[name] = emit_status_pv
 
@@ -429,9 +417,7 @@ class VirtacServer:
                             mirror_type = cast(type[MonitorPV], mirror_type)
                             # MonitorPV requires a list of str rather than a list of PV
                             output_pv = mirror_type(
-                                out_pv_name,
-                                record_data,
-                                input_pv_names,
+                                out_pv_name, record_data, input_pv_names
                             )
                         else:
                             mirror_type = cast(
@@ -480,10 +466,7 @@ class VirtacServer:
                 # We overwrite the old_set_record with the new RefreshPV which has
                 # the required capabilities for tunefb
                 new_set_record = RefreshPV(
-                    line["offset_pv"],
-                    line["delta_pv"],
-                    set_record,
-                    old_set_record,
+                    line["offset_pv"], line["delta_pv"], set_record, old_set_record
                 )
                 set_record.attach_offset_record(new_set_record)
                 self._pv_dict[line["offset_pv"]] = new_set_record
