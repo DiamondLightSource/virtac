@@ -57,12 +57,15 @@ class VirtacServer:
     def __init__(
         self,
         ring_mode: str,
-        limits_csv: Path | None = None,
-        bba_csv: Path | None = None,
-        feedback_csv: Path | None = None,
-        mirror_csv: Path | None = None,
-        tune_csv: Path | None = None,
+        limits_csv: str,
+        bba_csv: str | None = None,
+        feedback_csv: str | None = None,
+        mirror_csv: str | None = None,
+        tune_csv: str | None = None,
+        linopt_function: str = "linopt6",
         disable_emittance: bool = False,
+        disable_chromaticity: bool = False,
+        disable_radiation: bool = False,
         disable_tunefb: bool = False,
     ) -> None:
         """
@@ -81,11 +84,20 @@ class VirtacServer:
             disable_emittance: Whether emittance should be disabled.
             disable_tunefb: Whether tune feedback should be disabled.
         """
+        self._linopt_function: str = linopt_function
         self._disable_emittance: bool = disable_emittance
+        self._disable_chromaticity: bool = disable_chromaticity
+        self._disable_radiation: bool = disable_radiation
+
         self._disable_tunefb: bool = disable_tunefb
         self._pv_monitoring: bool = True
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
-            ring_mode, self.update_pvs, self._disable_emittance
+            ring_mode,
+            self._linopt_function,
+            self._disable_emittance,
+            self._disable_chromaticity,
+            self._disable_radiation,
+            self.update_pvs,
         )
         self.lattice.set_default_data_source(pytac.SIM)
         # Holding dictionary for all PVs
@@ -515,19 +527,32 @@ class VirtacServer:
             "\t Tune feedbacks is "
             f"{('disabled' if self._disable_tunefb else 'enabled')}"
         )
+        print(f"\t Linear optics function is {self._linopt_function}")
         print(
             "\t Emittance calculations are "
             f"{('disabled' if self._disable_emittance else 'enabled')}"
         )
         print(
+            "\t Chromaticity calculations are "
+            f"{('disabled' if self._disable_chromaticity else 'enabled')}"
+        )
+        print(
+            "\t Radiation calculations are "
+            f"{('disabled' if self._disable_chromaticity else 'enabled')}"
+        )
+        print(
             f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
         )
 
-        print(f"\t Total pvs: {len(self._pv_dict)}")
+        print(f"\t Total pvs: {len(self._pv_dict)}, consisting of:")
         for pv_type, count in pv_type_count.items():
             print(f"\t\t {pv_type.__name__} pvs: {count}")
+        print(
+            "\t Number of PVs to update after simulation recalculation: "
+            f"{len(self._readback_pvs_dict)}"
+        )
 
         if verbosity >= 1:
-            print("\tAvailable PVs")
+            print("\t Available PVs")
             for pv in self._pv_dict.values():
-                print(f"\t\t{pv.name}, {type(pv)}")
+                print(f"\t\t {pv.name}, {type(pv)}")
