@@ -1,7 +1,7 @@
-import argparse
 import logging
 import os
 import socket
+from argparse import ArgumentError, ArgumentParser
 from pathlib import Path
 from typing import cast
 from warnings import warn
@@ -21,7 +21,7 @@ DATADIR = Path(__file__).absolute().parent / "data"
 
 def parse_arguments():
     """Parse command line arguments sent to virtac"""
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     parser.add_argument(
         "ring_mode",
         nargs="?",
@@ -34,6 +34,28 @@ def parse_arguments():
         help="Disable the simulator's time-consuming emittance calculation",
         action="store_true",
         default=False,
+    )
+    parser.add_argument(
+        "-c",
+        "--disable-chromaticity",
+        help="Disable chromaticity calculations",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-r",
+        "--disable-radiation",
+        help="Disable radiation calculations in the simulation",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-l",
+        "--linopt-function",
+        help="Which pyAT linear optics function to use: linopt2, linopt4, linopt6. "
+        "Default is linopt6",
+        default="linopt6",
+        type=str,
     )
     parser.add_argument(
         "-t",
@@ -55,6 +77,29 @@ def parse_arguments():
         version=__version__,
     )
     return parser.parse_args()
+
+
+def check_sim_params(args):
+    """Check that we have a valid combination of simulation parameters."""
+    if args.disable_radiation:
+        if args.linopt_function == "linopt6":
+            raise ArgumentError(
+                None,
+                f"Cannot disable radiation when using linopt function: "
+                f"{args.linopt_function}",
+            )
+        if not args.disable_emittance:
+            raise ArgumentError(
+                None,
+                "You cannot calculate emittance with radiation disabled",
+            )
+    else:
+        if args.linopt_function == "linopt2" or args.linopt_function == "linopt4":
+            raise ArgumentError(
+                None,
+                "You must disable radiation to use linopt function: "
+                f"{args.linopt_function}",
+            )
 
 
 def configure_ca():
@@ -110,6 +155,7 @@ def main() -> None:
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     configure_ca()
+    check_sim_params(args)
 
     # Determine the ring mode
     if args.ring_mode is not None:
@@ -138,7 +184,10 @@ def main() -> None:
         DATADIR / ring_mode / "feedback.csv",
         DATADIR / ring_mode / "mirrored.csv",
         DATADIR / ring_mode / "tunefb.csv",
+        args.linopt_function,
         args.disable_emittance,
+        args.disable_chromaticity,
+        args.disable_radiation,
         args.disable_tfb,
     )
 
