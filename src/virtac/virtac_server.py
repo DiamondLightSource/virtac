@@ -57,13 +57,15 @@ class VirtacServer:
     def __init__(
         self,
         ring_mode: str,
-        limits_csv: str,
-        bba_csv: str | None = None,
-        feedback_csv: str | None = None,
-        mirror_csv: str | None = None,
-        tune_csv: str | None = None,
+        limits_csv: Path | None = None,
+        bba_csv: Path | None = None,
+        feedback_csv: Path | None = None,
+        mirror_csv: Path | None = None,
+        tune_csv: Path | None = None,
         linopt_function: str = "linopt6",
         disable_emittance: bool = False,
+        disable_chromaticity: bool = False,
+        disable_radiation: bool = False,
         disable_chromaticity: bool = False,
         disable_radiation: bool = False,
         disable_tunefb: bool = False,
@@ -85,13 +87,23 @@ class VirtacServer:
             disable_tunefb: Whether tune feedback should be disabled.
         """
         self._linopt_function: str = linopt_function
+        self._linopt_function: str = linopt_function
         self._disable_emittance: bool = disable_emittance
+        self._disable_chromaticity: bool = disable_chromaticity
+        self._disable_radiation: bool = disable_radiation
+
         self._disable_chromaticity: bool = disable_chromaticity
         self._disable_radiation: bool = disable_radiation
 
         self._disable_tunefb: bool = disable_tunefb
         self._pv_monitoring: bool = True
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
+            ring_mode,
+            self._linopt_function,
+            self._disable_emittance,
+            self._disable_chromaticity,
+            self._disable_radiation,
+            self.update_pvs,
             ring_mode,
             self._linopt_function,
             self._disable_emittance,
