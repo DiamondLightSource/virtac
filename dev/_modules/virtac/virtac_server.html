@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.virtac_server &#8212; virtac 0.2.1.dev86+ga0d6fdb19 documentation</title>
+    <title>virtac.virtac_server &#8212; virtac 0.2.1.dev101+g236b77609 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=ba2871d0"></script>
+    <script src="../../_static/documentation_options.js?v=95edecd2"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -426,12 +426,12 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">typing</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">atip</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytac</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pytac.device</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleDevice</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pytac.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">HandleException</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.pv</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">BasePV</span><span class="p">,</span>
@@ -446,6 +446,8 @@
     <span class="n">RefreshPV</span><span class="p">,</span>
     <span class="n">SummationPV</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="n">LimitsDictType</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span>
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">MirrorType</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
@@ -477,14 +479,14 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">ring_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">limits_csv</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">bba_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">feedback_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">mirror_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">tune_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">limits_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">bba_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">feedback_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">mirror_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">tune_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">disable_emittance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
         <span class="n">disable_tunefb</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            ring_mode (str): The ring mode to create the lattice in.</span>
@@ -530,7 +532,7 @@
 
 <div class="viewcode-block" id="VirtacServer.update_pvs">
 <a class="viewcode-back" href="../../_api/virtac.virtac_server.html#virtac.virtac_server.VirtacServer.update_pvs">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The callback function passed to ATSimulator during lattice creation,</span>
 <span class="sd">        which is called each time a calculation of physics data is completed and</span>
 <span class="sd">        updates all the in records that do not have a corresponding out record</span>
@@ -542,25 +544,25 @@
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Finished updating output PVs&quot;</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_core_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits_csv</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_core_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits_csv</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create the core records required for the virtac using both lattice and</span>
 <span class="sd">        element pytac data.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits_csv (str): The filepath to the .csv file from which to load pv field</span>
-<span class="sd">                              data to configure softioc records with.</span>
+<span class="sd">            limits_csv (Path | None): The filepath to the .csv file from which to</span>
+<span class="sd">                load pv field data to configure softioc records with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">limits_dict</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">limits_dict</span><span class="p">:</span> <span class="n">LimitsDictType</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">limits_csv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">limits_csv</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">csv_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">csv_reader</span><span class="p">:</span>
                     <span class="n">limits_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;pv&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;upper&quot;</span><span class="p">]),</span>
-                        <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">]),</span>
-                        <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;precision&quot;</span><span class="p">]),</span>
-                        <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;drive_high&quot;</span><span class="p">]),</span>
-                        <span class="nb">float</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;drive_low&quot;</span><span class="p">]),</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;upper&quot;</span><span class="p">]),</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;lower&quot;</span><span class="p">]),</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;precision&quot;</span><span class="p">]),</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;drive_high&quot;</span><span class="p">]),</span>
+                        <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;drive_low&quot;</span><span class="p">]),</span>
                         <span class="nb">str</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;scan&quot;</span><span class="p">]),</span>
                     <span class="p">)</span>
 
@@ -570,7 +572,7 @@
         <span class="c1"># Create PVs from the lattice itself.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_lattice_pvs</span><span class="p">(</span><span class="n">limits_dict</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_element_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_element_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits_dict</span><span class="p">:</span> <span class="n">LimitsDictType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a PV for each simulated field on each pytac lattice element.</span>
 
 <span class="sd">        .. note:: The one exception to the rule of one PV per field is for the bend</span>
@@ -588,7 +590,8 @@
 <span class="sd">            these PVs read their value from it.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits_dict (dict): A dictionary containing the limits data for the PVs</span>
+<span class="sd">            limits_dict (LimitsDictType): A dictionary containing the limits data for</span>
+<span class="sd">                the PVs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bend_in_record</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">:</span>
@@ -597,11 +600,13 @@
             <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">type_</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;BEND&quot;</span> <span class="ow">and</span> <span class="n">bend_in_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">bend_in_record</span><span class="o">.</span><span class="n">append_pytac_item</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">get_fields</span><span class="p">()[</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">cast</span><span class="p">(</span>
+                    <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="n">element</span><span class="o">.</span><span class="n">get_fields</span><span class="p">()[</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">]</span>
+                <span class="p">):</span>
                     <span class="n">value</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
                         <span class="n">field</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">ENG</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span>
                     <span class="p">)</span>
-                    <span class="n">read_pv_name</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">)</span>
+                    <span class="n">read_pv_name</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">))</span>
 
                     <span class="n">upper</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">drive_high</span><span class="p">,</span> <span class="n">drive_low</span><span class="p">,</span> <span class="n">scan</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">limits_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -628,8 +633,10 @@
                     <span class="c1"># after recalculation. Readback PVs with a setpoint PV are updated</span>
                     <span class="c1"># when their associated setpoint PV is updated.</span>
                     <span class="k">try</span><span class="p">:</span>
-                        <span class="n">read_write_pv_name</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">SP</span><span class="p">)</span>
-                    <span class="k">except</span> <span class="n">HandleException</span><span class="p">:</span>
+                        <span class="n">read_write_pv_name</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                            <span class="nb">str</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">SP</span><span class="p">)</span>
+                        <span class="p">)</span>
+                    <span class="k">except</span> <span class="n">pytac</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">HandleException</span><span class="p">:</span>
                         <span class="c1"># Only triggered if this element has an RB PV but no SP PV.</span>
                         <span class="c1"># Add to list of PVs to be updated from the simulation</span>
                         <span class="bp">self</span><span class="o">.</span><span class="n">_readback_pvs_dict</span><span class="p">[</span><span class="n">read_pv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_pv</span>
@@ -662,7 +669,7 @@
                         <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">type_</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;BEND&quot;</span> <span class="ow">and</span> <span class="n">bend_in_record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                             <span class="n">bend_in_record</span> <span class="o">=</span> <span class="n">read_write_pv</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_lattice_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_lattice_pvs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">limits_dict</span><span class="p">:</span> <span class="n">LimitsDictType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a PV for each simulated field on each pytac lattice itself.</span>
 
 <span class="sd">        .. note:: For fields which have an in type record (RB) and an out type record</span>
@@ -676,17 +683,20 @@
 <span class="sd">            the lattice.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits_dict (dict): A dictionary containing the limits data for the PVs</span>
+<span class="sd">            limits_dict (LimitsDictType): A dictionary containing the limits data for</span>
+<span class="sd">                the PVs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">lat_fields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fields</span><span class="p">()</span>
-        <span class="n">lat_fields</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">lat_fields</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">LIVE</span><span class="p">])</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">lat_fields</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">])</span>
+        <span class="n">lat_field_dict</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fields</span><span class="p">())</span>
+        <span class="n">lat_field_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">lat_field_dict</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">LIVE</span><span class="p">])</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">lat_field_dict</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">])</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_disable_emittance</span><span class="p">:</span>
-            <span class="n">lat_fields</span> <span class="o">-=</span> <span class="p">{</span><span class="s2">&quot;emittance_x&quot;</span><span class="p">,</span> <span class="s2">&quot;emittance_y&quot;</span><span class="p">}</span>
-        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">lat_fields</span><span class="p">:</span>
+            <span class="n">lat_field_set</span> <span class="o">-=</span> <span class="p">{</span><span class="s2">&quot;emittance_x&quot;</span><span class="p">,</span> <span class="s2">&quot;emittance_y&quot;</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">lat_field_set</span><span class="p">:</span>
             <span class="c1"># Ignore basic devices as they do not have PVs.</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="n">field</span><span class="p">),</span> <span class="n">SimpleDevice</span><span class="p">):</span>
-                <span class="n">get_pv_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">)</span>
-                <span class="n">upper</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">drive_high</span><span class="p">,</span> <span class="n">drive_low</span><span class="p">,</span> <span class="n">scan</span> <span class="o">=</span> <span class="n">limits_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="n">field</span><span class="p">),</span> <span class="n">pytac</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">SimpleDevice</span>
+            <span class="p">):</span>
+                <span class="n">get_pv_name</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">))</span>
+                <span class="n">upper</span><span class="p">,</span> <span class="n">lower</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">scan</span> <span class="o">=</span> <span class="n">limits_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
                     <span class="n">get_pv_name</span><span class="p">,</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;I/O Intr&quot;</span><span class="p">)</span>
                 <span class="p">)</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
@@ -706,23 +716,23 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">get_pv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_pv</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_readback_pvs_dict</span><span class="p">[</span><span class="n">get_pv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">read_pv</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_bba_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bba_csv</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_bba_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bba_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create all the beam-based-alignment records from the .csv file at the</span>
 <span class="sd">        location passed, see create_csv.py for more information.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            bba_csv (str): The filepath to the .csv file to load the</span>
+<span class="sd">            bba_csv (Path | None): The filepath to the .csv file to load the</span>
 <span class="sd">                                    records in accordance with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_feedback_or_bba_records_from_csv</span><span class="p">(</span><span class="n">bba_csv</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_feedback_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feedback_csv</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_feedback_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feedback_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create all the feedback records from the .csv file at the location</span>
 <span class="sd">        passed, see create_csv.py for more information; records for one edge</span>
 <span class="sd">        case are also created.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            feedback_csv (str): The filepath to the .csv file to load the</span>
+<span class="sd">            feedback_csv (Path | None): The filepath to the .csv file to load the</span>
 <span class="sd">                                    records in accordance with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_feedback_or_bba_records_from_csv</span><span class="p">(</span><span class="n">feedback_csv</span><span class="p">)</span>
@@ -731,20 +741,16 @@
         <span class="c1"># which decreases computation time.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_disable_emittance</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;SR-DI-EMIT-01:STATUS&quot;</span>
-            <span class="n">record_data</span> <span class="o">=</span> <span class="n">RecordData</span><span class="p">(</span>
-                <span class="n">RecordTypes</span><span class="o">.</span><span class="n">MBBI</span><span class="p">,</span>
-                <span class="n">zrvl</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span>
-                <span class="n">zrst</span><span class="o">=</span><span class="s2">&quot;Successful&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="n">record_data</span> <span class="o">=</span> <span class="n">RecordData</span><span class="p">(</span><span class="n">RecordTypes</span><span class="o">.</span><span class="n">MBBI</span><span class="p">,</span> <span class="n">zrvl</span><span class="o">=</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="n">zrst</span><span class="o">=</span><span class="s2">&quot;Successful&quot;</span><span class="p">)</span>
             <span class="n">emit_status_pv</span> <span class="o">=</span> <span class="n">BasePV</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">emit_status_pv</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_feedback_or_bba_records_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_feedback_or_bba_records_from_csv</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">csv_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the csv file and create the corresponding records based on</span>
 <span class="sd">        its contents.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            csv_file (str): The filepath to the .csv file to load the</span>
+<span class="sd">            csv_file (Path | None): The filepath to the .csv file to load the</span>
 <span class="sd">                                    records in accordance with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># We don&#39;t set limits or precision but this shouldn&#39;t be an issue as these</span>
@@ -771,17 +777,17 @@
                     <span class="n">pv</span> <span class="o">=</span> <span class="n">ReadSimPV</span><span class="p">(</span>
                         <span class="n">name</span><span class="p">,</span>
                         <span class="n">record_data</span><span class="p">,</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">],</span>
+                        <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]],</span>
                         <span class="n">line</span><span class="p">[</span><span class="s2">&quot;field&quot;</span><span class="p">],</span>
                     <span class="p">)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">pv</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mirror_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mirror_csv</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_mirror_records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mirror_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create all the mirror records from the .csv file at the location</span>
 <span class="sd">        passed, see create_csv.py for more information.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            mirror_csv (str): The filepath to the .csv file to load the</span>
+<span class="sd">            mirror_csv (Path | None): The filepath to the .csv file to load the</span>
 <span class="sd">                                    records in accordance with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mirror_csv</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
@@ -833,13 +839,18 @@
                     <span class="k">try</span><span class="p">:</span>
                         <span class="n">mirror_type</span> <span class="o">=</span> <span class="n">MIRROR_TYPES</span><span class="p">[</span><span class="n">MirrorType</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;mirror_type&quot;</span><span class="p">])]</span>
                         <span class="k">if</span> <span class="n">mirror_type</span> <span class="o">==</span> <span class="n">MIRROR_TYPES</span><span class="p">[</span><span class="n">MirrorType</span><span class="o">.</span><span class="n">BASIC</span><span class="p">]:</span>
+                            <span class="n">mirror_type</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">type</span><span class="p">[</span><span class="n">MonitorPV</span><span class="p">],</span> <span class="n">mirror_type</span><span class="p">)</span>
                             <span class="c1"># MonitorPV requires a list of str rather than a list of PV</span>
                             <span class="n">output_pv</span> <span class="o">=</span> <span class="n">mirror_type</span><span class="p">(</span>
-                                <span class="n">out_pv_name</span><span class="p">,</span>
-                                <span class="n">record_data</span><span class="p">,</span>
-                                <span class="n">input_pv_names</span><span class="p">,</span>
+                                <span class="n">out_pv_name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">,</span> <span class="n">input_pv_names</span>
                             <span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span>
+                            <span class="n">mirror_type</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                                <span class="nb">type</span><span class="p">[</span><span class="n">InversionPV</span><span class="p">]</span>
+                                <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">SummationPV</span><span class="p">]</span>
+                                <span class="o">|</span> <span class="nb">type</span><span class="p">[</span><span class="n">CollationPV</span><span class="p">],</span>
+                                <span class="n">mirror_type</span><span class="p">,</span>
+                            <span class="p">)</span>
                             <span class="n">output_pv</span> <span class="o">=</span> <span class="n">mirror_type</span><span class="p">(</span>
                                 <span class="n">out_pv_name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">,</span> <span class="n">input_records</span>
                             <span class="p">)</span>
@@ -851,7 +862,7 @@
 
                     <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">out_pv_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_pv</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_tune_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tune_csv</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_tune_feedback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tune_csv</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read the tune feedback .csv and find the associated offset PVs,</span>
 <span class="sd">        before starting monitoring them for a change to mimic the behaviour of</span>
 <span class="sd">        the quadrupoles used by the tune feedback system on the live machine.</span>
@@ -865,37 +876,29 @@
 <span class="sd">            &#39;offset_pv&#39; and adds it to its own value.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            tune_csv (str): A path to a tune feedback .csv file to be used</span>
+<span class="sd">            tune_csv (Path | None): A path to a tune feedback .csv file to be used</span>
 <span class="sd">                             instead of the default filepath passed at startup.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">tune_csv</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;No tune feedback .csv file was given at start-up, please provide one &quot;</span>
-                <span class="s2">&quot;now; i.e. server.start_tune_feedback(&#39;&lt;path_to_csv&gt;&#39;)&quot;</span>
-            <span class="p">)</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tune_csv</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">csv_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">csv_reader</span><span class="p">:</span>
                 <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;set_pv&quot;</span><span class="p">]],</span> <span class="n">ReadWriteSimPV</span><span class="p">)</span>
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;offset_pv&quot;</span><span class="p">]]</span>
-                <span class="n">set_record</span><span class="p">:</span> <span class="n">ReadWriteSimPV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;set_pv&quot;</span><span class="p">]]</span>  <span class="c1"># type: ignore[assignment]</span>
-                <span class="n">old_set_record</span><span class="p">:</span> <span class="n">ReadWriteSimPV</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;offset_pv&quot;</span><span class="p">]]</span>  <span class="c1"># type: ignore[assignment]</span>
+                <span class="n">set_record</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">ReadWriteSimPV</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;set_pv&quot;</span><span class="p">]])</span>
+                <span class="n">old_set_record</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">ReadWriteSimPV</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;offset_pv&quot;</span><span class="p">]])</span>
 
                 <span class="c1"># We overwrite the old_set_record with the new RefreshPV which has</span>
                 <span class="c1"># the required capabilities for tunefb</span>
                 <span class="n">new_set_record</span> <span class="o">=</span> <span class="n">RefreshPV</span><span class="p">(</span>
-                    <span class="n">line</span><span class="p">[</span><span class="s2">&quot;offset_pv&quot;</span><span class="p">],</span>
-                    <span class="n">line</span><span class="p">[</span><span class="s2">&quot;delta_pv&quot;</span><span class="p">],</span>
-                    <span class="n">set_record</span><span class="p">,</span>
-                    <span class="n">old_set_record</span><span class="p">,</span>
+                    <span class="n">line</span><span class="p">[</span><span class="s2">&quot;offset_pv&quot;</span><span class="p">],</span> <span class="n">line</span><span class="p">[</span><span class="s2">&quot;delta_pv&quot;</span><span class="p">],</span> <span class="n">set_record</span><span class="p">,</span> <span class="n">old_set_record</span>
                 <span class="p">)</span>
                 <span class="n">set_record</span><span class="o">.</span><span class="n">attach_offset_record</span><span class="p">(</span><span class="n">new_set_record</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pv_dict</span><span class="p">[</span><span class="n">line</span><span class="p">[</span><span class="s2">&quot;offset_pv&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">new_set_record</span>
 
 <div class="viewcode-block" id="VirtacServer.enable_monitoring">
 <a class="viewcode-back" href="../../_api/virtac.virtac_server.html#virtac.virtac_server.VirtacServer.enable_monitoring">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">enable_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enable_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Enable monitoring for all MonitorPV derived PVs. This will allow</span>
 <span class="sd">        tune feedback and vertical emittance feedback to work again</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -913,7 +916,7 @@
     <span class="c1"># functionality</span>
 <div class="viewcode-block" id="VirtacServer.disable_monitoring">
 <a class="viewcode-back" href="../../_api/virtac.virtac_server.html#virtac.virtac_server.VirtacServer.disable_monitoring">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">disable_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disable_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Disable monitoring for all MonitorPV derived PVs. This will disable</span>
 <span class="sd">        tune feedback and vertical emittance feedback</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -929,7 +932,7 @@
 
 <div class="viewcode-block" id="VirtacServer.print_virtac_stats">
 <a class="viewcode-back" href="../../_api/virtac.virtac_server.html#virtac.virtac_server.VirtacServer.print_virtac_stats">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_virtac_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_virtac_stats</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbosity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Print helpful statistics based on passed verbosity level</span>
 
 <span class="sd">        Args:</span>

@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.create_csv &#8212; virtac 0.2.1.dev86+ga0d6fdb19 documentation</title>
+    <title>virtac.create_csv &#8212; virtac 0.2.1.dev101+g236b77609 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=ba2871d0"></script>
+    <script src="../../_static/documentation_options.js?v=95edecd2"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -428,6 +428,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">atip</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">cothread</span>
@@ -441,7 +442,7 @@
 
 <div class="viewcode-block" id="generate_feedback_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_feedback_pvs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_feedback_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_feedback_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">EpicsLattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get feedback pvs. Also get families for tune feedback</span>
 <span class="sd">    Args:</span>
 <span class="sd">        all_elements (list): a list of elements</span>
@@ -588,7 +589,7 @@
     <span class="n">pytac_item</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span> <span class="o">|</span> <span class="n">pytac</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span>
     <span class="n">pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span><span class="p">,</span>
-<span class="p">):</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the control limits and precision values from the live machine for</span>
 <span class="sd">    all normal PVS.</span>
 
@@ -769,8 +770,8 @@
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># Electron BPMs enabled.</span>
-    <span class="n">bpm_enabled_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span>
-        <span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span>
+    <span class="n">bpm_enabled_pvs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
@@ -783,7 +784,7 @@
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># BPM x positions for display on diagnostics screen.</span>
-    <span class="n">bpm_x_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">)</span>
+    <span class="n">bpm_x_pvs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">))</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
             <span class="s2">&quot;wfmi&quot;</span><span class="p">,</span>
@@ -795,7 +796,7 @@
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># BPM y positions for display on diagnostics screen.</span>
-    <span class="n">bpm_y_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">)</span>
+    <span class="n">bpm_y_pvs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">))</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
             <span class="s2">&quot;wfmi&quot;</span><span class="p">,</span>
@@ -839,7 +840,7 @@
 
 <div class="viewcode-block" id="write_data_to_file">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.write_data_to_file">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ring_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ring_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the collected data to a .csv file with the given name. If the file</span>
 <span class="sd">    already exists it will be overwritten.</span>
 
@@ -862,7 +863,7 @@
 
 <div class="viewcode-block" id="parse_arguments">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.parse_arguments">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parse_arguments</span><span class="p">():</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">parse_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The arguments passed to this script to configure how the csv is to be created&quot;&quot;&quot;</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Generate CSV file to define the PVs served by the &quot;</span>
@@ -910,12 +911,14 @@
     <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">100000</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parse_arguments</span><span class="p">()</span>
         <span class="n">lattice</span> <span class="o">=</span> <span class="n">atip</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">loader</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
+        <span class="c1"># all_elements is a class with an attribute for each element family, where</span>
+        <span class="c1"># that attribute is a list of all elements of that family.</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="n">atip</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">preload</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating feedback PVs CSV file.&quot;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">generate_feedback_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">feedback</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating BBA PVs CSV file.&quot;</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">generate_bba_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">symmetry</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">generate_bba_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">symmetry</span><span class="p">))</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bba</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating limits PVs CSV file.&quot;</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">generate_pv_limits</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>

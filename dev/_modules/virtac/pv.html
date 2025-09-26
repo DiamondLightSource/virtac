@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.pv &#8212; virtac 0.2.1.dev86+ga0d6fdb19 documentation</title>
+    <title>virtac.pv &#8212; virtac 0.2.1.dev101+g236b77609 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=ba2871d0"></script>
+    <script src="../../_static/documentation_options.js?v=95edecd2"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -425,17 +425,17 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TypeAlias</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytac</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cothread.catools</span><span class="w"> </span><span class="kn">import</span> <span class="n">_Subscription</span><span class="p">,</span> <span class="n">camonitor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pytac.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FieldException</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">softioc</span><span class="w"> </span><span class="kn">import</span> <span class="n">builder</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">softioc.pythonSoftIoc</span><span class="w"> </span><span class="kn">import</span> <span class="n">RecordWrapper</span>
 
-<span class="n">RecordValueType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">numpy</span><span class="o">.</span><span class="n">typing</span><span class="o">.</span><span class="n">NDArray</span>
-<span class="n">PytacItemType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span> <span class="o">|</span> <span class="n">pytac</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span>
+<span class="n">RecordValueType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span>
+<span class="n">PytacItemType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">EpicsLattice</span> <span class="o">|</span> <span class="n">pytac</span><span class="o">.</span><span class="n">element</span><span class="o">.</span><span class="n">Element</span>
+<span class="n">CallbackType</span><span class="p">:</span> <span class="n">TypeAlias</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">RecordValueType</span><span class="p">,</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">],</span> <span class="kc">None</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="RecordTypes">
@@ -468,15 +468,7 @@
     <span class="n">scan</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;I/O Intr&quot;</span>
     <span class="n">pini</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;YES&quot;</span>
     <span class="n">always_update</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">initial_value</span><span class="p">:</span> <span class="n">RecordValueType</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Record field `record_type` must be of string type&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scan</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Record field `scan` must be of string type&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pini</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Record field `pini` must be of string type&quot;</span><span class="p">)</span></div>
+    <span class="n">initial_value</span><span class="p">:</span> <span class="n">RecordValueType</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
 
@@ -494,7 +486,7 @@
 <span class="sd">            setting and getting of these records.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span> <span class="o">|</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): Used to identify this PV and its softioc record.</span>
@@ -503,11 +495,11 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating PV: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">:</span> <span class="n">RecordWrapper</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">:</span> <span class="n">RecordWrapper</span>
         <span class="k">if</span> <span class="n">record_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">create_softioc_record</span><span class="p">(</span><span class="n">record_data</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_on_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The callback function called when the softioc record updates.</span>
 
 <span class="sd">        This function and any overrides need to be kept FAST as they can be called</span>
@@ -521,7 +513,7 @@
 
 <div class="viewcode-block" id="BasePV.set_record_field">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.BasePV.set_record_field">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_record_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span> <span class="o">|</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_record_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a field on this PVs softioc record.</span>
 
 <span class="sd">        Args:</span>
@@ -536,13 +528,13 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">create_softioc_record</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create this PVs softioc record.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            record_data (RecordData): Dataclass used to create this PVs softioc record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;self._record&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;A softioc record could not be created for PV: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">. It already&quot;</span>
                 <span class="s2">&quot;has an attached record.&quot;</span>
@@ -618,7 +610,7 @@
 
 <div class="viewcode-block" id="BasePV.set">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.BasePV.set">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a value to this PVs softioc record.</span>
 
 <span class="sd">        Args:</span>
@@ -638,8 +630,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span> <span class="n">pytac_items</span><span class="p">:</span> <span class="n">PytacItemType</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">):</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span>
+        <span class="n">pytac_items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PytacItemType</span><span class="p">],</span>
+        <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): Used to identify this PV and its softioc record.</span>
@@ -655,7 +651,7 @@
 
 <div class="viewcode-block" id="ReadSimPV.append_pytac_item">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.ReadSimPV.append_pytac_item">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">append_pytac_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pytac_item</span><span class="p">:</span> <span class="n">PytacItemType</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">append_pytac_item</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pytac_item</span><span class="p">:</span> <span class="n">PytacItemType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Append a pytac item to the list of pytac items defined for this PV</span>
 
 <span class="sd">        Args:</span>
@@ -666,17 +662,20 @@
 
 <div class="viewcode-block" id="ReadSimPV.update_from_sim">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.ReadSimPV.update_from_sim">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update_from_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_from_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a value from the simulation and set it to this PVs softioc</span>
 <span class="sd">        record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating pv </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pytac_items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_pytac_field</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">ENG</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
+                <span class="n">RecordValueType</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_pytac_items</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_pytac_field</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">ENG</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span>
+                <span class="p">),</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">FieldException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">pytac</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">FieldException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;PV is missing an expected pytac field&quot;</span><span class="p">)</span>
             <span class="k">raise</span> <span class="p">(</span><span class="n">e</span><span class="p">)</span></div>
 </div>
@@ -699,10 +698,10 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span>
         <span class="n">read_pv</span><span class="p">:</span> <span class="n">ReadSimPV</span><span class="p">,</span>
-        <span class="n">pytac_items</span><span class="p">:</span> <span class="n">PytacItemType</span><span class="p">,</span>
+        <span class="n">pytac_items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PytacItemType</span><span class="p">],</span>
         <span class="n">pytac_field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">offset_pv</span><span class="p">:</span> <span class="n">BasePV</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): Used to identify this PV and its softioc record.</span>
@@ -720,7 +719,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_pv</span> <span class="o">=</span> <span class="n">read_pv</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_offset_record</span><span class="p">:</span> <span class="n">BasePV</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">offset_pv</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_on_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;This function sets the passed value to self._pv_to_update._record by calling</span>
 <span class="sd">        its set method. The set also sets value (with an additional offset from</span>
 <span class="sd">        self._offset_pv) to the pytac item and field configured for self._pv_to_update.</span>
@@ -738,7 +737,9 @@
 
 <div class="viewcode-block" id="ReadWriteSimPV.set">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.ReadWriteSimPV.set">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RecordValueType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">offset</span><span class="p">:</span> <span class="n">RecordValueType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a value to this PVs softioc record, update its pytac element(s)</span>
 <span class="sd">            with the same value and then set the value to its read pv.</span>
 
@@ -781,7 +782,7 @@
 
 <div class="viewcode-block" id="ReadWriteSimPV.attach_offset_record">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.ReadWriteSimPV.attach_offset_record">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">attach_offset_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_pv</span><span class="p">:</span> <span class="n">BasePV</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">attach_offset_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset_pv</span><span class="p">:</span> <span class="n">BasePV</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to configure this PV with an offset PV in situations where the offset</span>
 <span class="sd">        was created after this PV.</span>
 
@@ -802,8 +803,8 @@
 <span class="sd">    when one of the camonitors returns</span>
 
 <span class="sd">    Attributes:</span>
-<span class="sd">        _monitor_data ((list[tuple[list[str], list[Callable]]])): Used to keep track of</span>
-<span class="sd">            which PVs we are monitoring and which functions the camonitor calls when</span>
+<span class="sd">        _monitor_data ((list[tuple[list[str], list[CallbackType]]])): Used to keep track</span>
+<span class="sd">            of which PVs we are monitoring and which functions the camonitor calls when</span>
 <span class="sd">            they change value.</span>
 <span class="sd">        _camonitor_handles (list[_Subscription]): Used to close camonitors if a</span>
 <span class="sd">            command is sent to pause monitoring.</span>
@@ -814,23 +815,27 @@
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">monitored_pv_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
-        <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
+        <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CallbackType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): Used to set self.name</span>
 <span class="sd">            record_data (RecordData): Dataclass used to create this PVs softioc record.</span>
 <span class="sd">            monitored_pvs (list[str]): A list of PV names used to setup camonitoring.</span>
-<span class="sd">            callbacks (list[Callable] | None): A list of functions to be called when the</span>
-<span class="sd">                monitored PVs return. If none, then this PVs set function is called as</span>
-<span class="sd">                the callback.</span>
+<span class="sd">            callbacks (list[CallbackType] | None): A list of functions to be called when</span>
+<span class="sd">                the monitored PVs return. If none, then this PVs set function is called</span>
+<span class="sd">                as the callback.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">CallbackType</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_camonitor_handles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">_Subscription</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_setup_pv_monitoring</span><span class="p">(</span><span class="n">monitored_pv_names</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_pv_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pv_names</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_pv_monitoring</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">pv_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CallbackType</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Setup camonitoring using the passed PV names and callbacks.</span>
 
 <span class="sd">        If len(callbacks)&gt;1 then a camonitor is created for each pv_name, callback pair.</span>
@@ -842,43 +847,42 @@
 
 <span class="sd">        Args:</span>
 <span class="sd">            pv_names (list[str]): A list of PV names to monitor using channel access.</span>
-<span class="sd">            callbacks (list[Callable]): A list of functions to execute when the</span>
+<span class="sd">            callbacks (list[CallbackType]): A list of functions to execute when the</span>
 <span class="sd">                associated PV changes value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">]</span>
 
         <span class="k">for</span> <span class="n">pv_name</span> <span class="ow">in</span> <span class="n">pv_names</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pv_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PV name must be a string, not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">pv_name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_data</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">pv_name</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
-                        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;The provided PV name: </span><span class="si">{</span><span class="n">pv_name</span><span class="si">}</span><span class="s2"> is already being &quot;</span>
-                            <span class="s2">&quot;monitored. It is not recommended to setup multiple &quot;</span>
-                            <span class="s2">&quot;camonitors for a single PV.&quot;</span>
-                        <span class="p">)</span>
+            <span class="k">for</span> <span class="n">dataset</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_data</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pv_name</span> <span class="ow">in</span> <span class="n">dataset</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;The provided PV name: </span><span class="si">{</span><span class="n">pv_name</span><span class="si">}</span><span class="s2"> is already being &quot;</span>
+                        <span class="s2">&quot;monitored. It is not recommended to setup multiple &quot;</span>
+                        <span class="s2">&quot;camonitors for a single PV.&quot;</span>
+                    <span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">callbacks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup_pv_monitoring_group</span><span class="p">(</span><span class="n">pv_names</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_setup_pv_monitoring_individual</span><span class="p">(</span><span class="n">pv_names</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">)</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_pv_monitoring_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pv_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_pv_monitoring_group</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">pv_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">callback</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CallbackType</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pv_names</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_camonitor_handles</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">camonitor</span><span class="p">(</span><span class="n">pv_names</span><span class="p">,</span> <span class="n">callback</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_setup_pv_monitoring_individual</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">pv_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Callable</span><span class="p">]</span>
-    <span class="p">):</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">pv_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">callbacks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CallbackType</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">pv_name</span><span class="p">,</span> <span class="n">callback</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">pv_names</span><span class="p">,</span> <span class="n">callbacks</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_data</span><span class="o">.</span><span class="n">append</span><span class="p">(([</span><span class="n">pv_name</span><span class="p">],</span> <span class="p">[</span><span class="n">callback</span><span class="p">]))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_camonitor_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">camonitor</span><span class="p">(</span><span class="n">pv_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">))</span>
 
 <div class="viewcode-block" id="MonitorPV.enable_monitoring">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.MonitorPV.enable_monitoring">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">enable_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">enable_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to re-enable monitoring of this PV by re-creating the subscriptions.&quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Enabling monitoring for PV </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="c1"># We create a copy of monitor data, as set_pv_monitoring can append to this</span>
@@ -891,7 +895,7 @@
 
 <div class="viewcode-block" id="MonitorPV.disable_monitoring">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.MonitorPV.disable_monitoring">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">disable_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">disable_monitoring</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Used to switch off this PVs monitoring by closing camonitor subscriptions.&quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Disabling monitoring for PV </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">handle</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_camonitor_handles</span><span class="p">:</span>
@@ -899,7 +903,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_camonitor_handles</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a value to this PVs softioc record.</span>
 
 <span class="sd">        For the MonitorPV, the set function is called when a camonitor returns, if we</span>
@@ -933,11 +937,11 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">monitored_pv_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">record_to_refresh</span><span class="p">:</span> <span class="n">BasePV</span><span class="p">,</span>
         <span class="n">pv_to_cannibalise</span><span class="p">:</span> <span class="n">BasePV</span><span class="p">,</span>
-    <span class="p">):</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): Used to set self.name</span>
@@ -953,7 +957,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_record_to_refresh</span><span class="p">:</span> <span class="n">BasePV</span> <span class="o">=</span> <span class="n">record_to_refresh</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">:</span> <span class="n">RecordWrapper</span> <span class="o">=</span> <span class="n">pv_to_cannibalise</span><span class="o">.</span><span class="n">get_record</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the value returned from the monitored PV to this PVs _record and then</span>
 <span class="sd">        force an update of _record_to_refresh.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -980,7 +984,9 @@
 <span class="sd">        a single waveform.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span> <span class="n">invert_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span> <span class="n">invert_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): Used to set self.name</span>
@@ -995,20 +1001,20 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_invert_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]</span> <span class="o">=</span> <span class="n">invert_pvs</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Triggers this PV to caget the boolean values of all of its _invert_pv(s) and</span>
 <span class="sd">        then invert them and set the result to _record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Invert a single waveform record</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
-            <span class="n">value</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">record_data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">record_data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">invert</span><span class="p">(</span><span class="n">record_data</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Invert the single element which changed</span>
             <span class="n">record_data</span> <span class="o">=</span> <span class="n">numpy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
             <span class="n">record_data</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">value</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">record_data</span><span class="p">)</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">record_data</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;InversionPV: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> inverting data. New data: </span><span class="si">{</span><span class="n">record_data</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span></div>
@@ -1022,7 +1028,9 @@
 <span class="sd">    Used to sum values from a list of PVs, with the result set to this PVs _record.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span> <span class="n">summate_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span> <span class="n">summate_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): Used to set self.name</span>
@@ -1035,7 +1043,9 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_summate_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]</span> <span class="o">=</span> <span class="n">summate_pvs</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">value</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="n">pv</span><span class="o">.</span><span class="n">get</span><span class="p">()</span> <span class="k">for</span> <span class="n">pv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_summate_pvs</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SummationPV: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> summing data. New value: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
@@ -1049,7 +1059,9 @@
 <span class="sd">    this PVs _record.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span> <span class="n">collate_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span><span class="p">,</span> <span class="n">collate_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
 <span class="sd">            name (str): Used to set self.name</span>
@@ -1065,7 +1077,7 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_collate_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BasePV</span><span class="p">]</span> <span class="o">=</span> <span class="n">collate_pvs</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">index</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">record_data</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">else</span><span class="p">:</span>
