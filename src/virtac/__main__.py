@@ -3,9 +3,9 @@ import logging
 import os
 import socket
 from pathlib import Path
+from typing import cast
 from warnings import warn
 
-import epicscorelibs.path.cothread  # noqa
 from cothread.catools import ca_nothing, caget
 from softioc import builder, softioc
 
@@ -98,7 +98,7 @@ def configure_ca():
         os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
 
 
-def main():
+def main() -> None:
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
     args = parse_arguments()
     if args.verbose >= 2:
@@ -120,7 +120,7 @@ def main():
         except KeyError:
             try:
                 value = caget("SR-CS-RING-01:MODE", timeout=1, format=2)
-                ring_mode = value.enums[int(value)]
+                ring_mode = cast(str, value.enums[int(value)])
                 logging.warning(
                     "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
                     f"as the default: {ring_mode}"

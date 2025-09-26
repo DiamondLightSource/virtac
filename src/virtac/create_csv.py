@@ -8,6 +8,7 @@ import argparse
 import csv
 import os
 import sys
+from typing import cast
 
 import atip
 import cothread
@@ -19,7 +20,7 @@ from cothread.catools import FORMAT_CTRL, caget
 CSVData = list[tuple[str | int, ...]]
 
 
-def generate_feedback_pvs(all_elements, lattice: pytac.lattice.Lattice) -> CSVData:
+def generate_feedback_pvs(all_elements, lattice: pytac.lattice.EpicsLattice) -> CSVData:
     """Get feedback pvs. Also get families for tune feedback
     Args:
         all_elements (list): a list of elements
@@ -160,7 +161,7 @@ def get_element_pv_data(
     pytac_item: pytac.lattice.Lattice | pytac.element.Element,
     pvs: list[str],
     data: CSVData,
-):
+) -> None:
     """Get the control limits and precision values from the live machine for
     all normal PVS.
 
@@ -335,8 +336,8 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
         )
     )
     # Electron BPMs enabled.
-    bpm_enabled_pvs: list[str] = lattice.get_element_pv_names(
-        "BPM", "enabled", pytac.RB
+    bpm_enabled_pvs = cast(
+        list[str], lattice.get_element_pv_names("BPM", "enabled", pytac.RB)
     )
     data.append(
         (
@@ -349,7 +350,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
         )
     )
     # BPM x positions for display on diagnostics screen.
-    bpm_x_pvs: list[str] = lattice.get_element_pv_names("BPM", "x", pytac.RB)
+    bpm_x_pvs = cast(list[str], lattice.get_element_pv_names("BPM", "x", pytac.RB))
     data.append(
         (
             "wfmi",
@@ -361,7 +362,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
         )
     )
     # BPM y positions for display on diagnostics screen.
-    bpm_y_pvs: list[str] = lattice.get_element_pv_names("BPM", "y", pytac.RB)
+    bpm_y_pvs = cast(list[str], lattice.get_element_pv_names("BPM", "y", pytac.RB))
     data.append(
         (
             "wfmi",
@@ -399,7 +400,7 @@ def generate_tune_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     return data
 
 
-def write_data_to_file(data: CSVData, filename: str, ring_mode: str):
+def write_data_to_file(data: CSVData, filename: str, ring_mode: str) -> None:
     """Write the collected data to a .csv file with the given name. If the file
     already exists it will be overwritten.
 
@@ -419,7 +420,7 @@ def write_data_to_file(data: CSVData, filename: str, ring_mode: str):
         csv_writer.writerows([column_titles] + sorted_data)
 
 
-def parse_arguments():
+def parse_arguments() -> argparse.Namespace:
     """The arguments passed to this script to configure how the csv is to be created"""
     parser = argparse.ArgumentParser(
         description="Generate CSV file to define the PVs served by the "
@@ -466,12 +467,14 @@ def main():
     with numpy.printoptions(threshold=sys.maxsize, linewidth=100000):
         args = parse_arguments()
         lattice = atip.utils.loader(args.ring_mode)
+        # all_elements is a class with an attribute for each element family, where
+        # that attribute is a list of all elements of that family.
         all_elements = atip.utils.preload(lattice)
         print("Creating feedback PVs CSV file.")
         data = generate_feedback_pvs(all_elements, lattice)
         write_data_to_file(data, args.feedback, args.ring_mode)
         print("Creating BBA PVs CSV file.")
-        data = generate_bba_pvs(all_elements, lattice.symmetry)
+        data = generate_bba_pvs(all_elements, cast(int, lattice.symmetry))
         write_data_to_file(data, args.bba, args.ring_mode)
         print("Creating limits PVs CSV file.")
         data = generate_pv_limits(lattice)
