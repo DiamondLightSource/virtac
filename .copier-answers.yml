@@ -1,5 +1,5 @@
 # Changes here will be overwritten by Copier
-_commit: 4.0.1
+_commit: 4.3.0
 _src_path: gh:DiamondLightSource/python-copier-template
 author_email: tobyn.nicholls@diamond.ac.uk
 author_name: Tobyn Nicholls
@@ -9,10 +9,11 @@ component_type: service
 description: Diamond virtual accelerator
 distribution_name: virtac
 docker: true
+docker_debug: false
 docs_type: sphinx
 git_platform: github.com
 github_org: DiamondLightSource
 package_name: virtac
-pypi: true
+pypi: false
 repo_name: virtac
 type_checker: mypy

@@ -15,10 +15,11 @@ description = "Diamond virtual accelerator"
 dependencies = [
     "numpy",
     "scipy",
-    "pytac>=0.3.0",
+    "pytac==0.6.0",
     "cothread",
     "softioc",
-    "atip",
+    "atip>=0.2.0",
+    "epicscorelibs",
 ]
 
 dynamic = ["version"]
@@ -43,10 +44,12 @@ dev = [
     "sphinx-design",
     "tox-direct",
     "types-mock",
+    "sphinxcontrib-programoutput",
 ]
 
 [project.scripts]
 virtac = "virtac.__main__:main"
+create_csv = "virtac.create_csv:main"
 
 [project.urls]
 GitHub = "https://github.com/DiamondLightSource/virtac"
@@ -76,6 +79,7 @@ filterwarnings = "error"
 testpaths = "docs src tests"
 
 [tool.coverage.run]
+patch = ["subprocess"]
 data_file = "/tmp/virtac.coverage"
 
 [tool.coverage.paths]
@@ -103,7 +107,7 @@ commands =
     pre-commit: pre-commit run --all-files --show-diff-on-failure {posargs}
     type-checking: mypy src tests {posargs}
     tests: pytest --cov=virtac --cov-report term --cov-report xml:cov.xml {posargs}
-    docs: sphinx-{posargs:build -EW --keep-going} -T docs build/html
+    docs: sphinx-{posargs:build -E --keep-going} -T docs build/html
 """
 # Add -W flag to sphinx-build if you want to fail on warnings
 
@@ -115,6 +119,7 @@ lint.select = [
     "C4",  # flake8-comprehensions - https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
     "E",   # pycodestyle errors - https://docs.astral.sh/ruff/rules/#error-e
     "F",   # pyflakes rules - https://docs.astral.sh/ruff/rules/#pyflakes-f
+    "N",   # pep8-naming - https://docs.astral.sh/ruff/rules/#pep8-naming-n
     "W",   # pycodestyle warnings - https://docs.astral.sh/ruff/rules/#warning-w
     "I",   # isort - https://docs.astral.sh/ruff/rules/#isort-i
     "UP",  # pyupgrade - https://docs.astral.sh/ruff/rules/#pyupgrade-up

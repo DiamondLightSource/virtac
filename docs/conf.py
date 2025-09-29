@@ -49,6 +49,8 @@ extensions = [
     "sphinx_design",
     # So we can write markdown files
     "myst_parser",
+    # For autodocumenting argparse based CLIs
+    "sphinxcontrib.programoutput",
 ]
 
 # So we can use the ::: syntax
@@ -74,6 +76,8 @@ nitpick_ignore = [
     ("py:class", "number"),
     ("py:class", "pythonSoftIoc.RecordWrapper"),
     ("py:class", "pytac.lattice.Lattice"),
+    ("py:class", "pytac.element.Element"),
+    ("py:class", "CSVData"),
     ("py:exc", "pytac.FieldException"),
     ("py:exc", "pytac.ControlSystemException"),
     ("py:exc", "pytac.HandleException"),
@@ -129,6 +133,8 @@ pygments_style = "sphinx"
 # docs in the python documentation.
 intersphinx_mapping = {"python": ("https://docs.python.org/3/", None)}
 
+intersphinx_disabled_reftypes = ["*"]
+
 # A dictionary of graphviz graph attributes for inheritance diagrams.
 inheritance_graph_attrs = {"rankdir": "TB"}
 
@@ -174,13 +180,7 @@ html_theme_options = {
     },
     "use_edit_page_button": True,
     "github_url": f"https://github.com/{github_user}/{github_repo}",
-    "icon_links": [
-        {
-            "name": "PyPI",
-            "url": f"https://pypi.org/project/{project}",
-            "icon": "fas fa-cube",
-        }
-    ],
+    "icon_links": [{}],
     "switcher": {
         "json_url": switcher_json,
         "version_match": version,
