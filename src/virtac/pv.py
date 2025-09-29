@@ -184,7 +184,7 @@ class BasePV:
         """
         return self._record
 
-    def get(self) -> RecordValueType:
+    def get_value(self) -> RecordValueType:
         """Get the value stored in this PVs softioc record.
 
         Returns:
@@ -192,7 +192,7 @@ class BasePV:
         """
         return self._record.get()
 
-    def set(self, value: RecordValueType) -> None:
+    def set_value(self, value: RecordValueType) -> None:
         """Set a value to this PVs softioc record.
 
         Args:
@@ -244,7 +244,7 @@ class ReadSimPV(BasePV):
                     self._pytac_field, units=pytac.ENG, data_source=pytac.SIM
                 ),
             )
-            self.set(value)
+            self.set_value(value)
         except pytac.exceptions.FieldException as e:
             logging.exception("PV is missing an expected pytac field")
             raise (e)
@@ -294,12 +294,12 @@ class ReadWriteSimPV(ReadSimPV):
         """
         logging.debug("Read value %s on pv %s", value, name)
         if self._offset_record is not None:
-            offset = self._offset_record.get()
-            self.set(value, offset)
+            offset = self._offset_record.get_value()
+            self.set_value(value, offset)
         else:
-            self.set(value, None)
+            self.set_value(value, None)
 
-    def set(
+    def set_value(
         self, value: RecordValueType, offset: RecordValueType | None = None
     ) -> None:
         """Set a value to this PVs softioc record, update its pytac element(s)
@@ -339,7 +339,7 @@ class ReadWriteSimPV(ReadSimPV):
         # We set our new value to the _read_pv directly, rather than triggering
         # the _read_pv to read the updated value from the simulation. This is
         # faster and gives the same result as we do not simulate hardware ramping.
-        self._read_pv.set(value)
+        self._read_pv.set_value(value)
 
     def attach_offset_record(self, offset_pv: BasePV) -> None:
         """Used to configure this PV with an offset PV in situations where the offset
@@ -458,7 +458,7 @@ class MonitorPV(BasePV):
         are monitoring a list of PVs then an index is passed to this function.
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
-        self.set(value)
+        self.set_value(value)
 
 
 class RefreshPV(MonitorPV):
@@ -583,7 +583,7 @@ class SummationPV(MonitorPV):
     def _callback(
         self, value: RecordValueType | None = None, index: int | None = None
     ) -> None:
-        value = sum([pv.get() for pv in self._summate_pvs])
+        value = sum([pv.get_value() for pv in self._summate_pvs])
         self._record.set(value)
         logging.debug(f"SummationPV: {self.name} summing data. New value: {value}")
 
