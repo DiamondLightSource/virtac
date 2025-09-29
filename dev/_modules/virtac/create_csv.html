@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.create_csv &#8212; virtac 0.2.1.dev101+g236b77609 documentation</title>
+    <title>virtac.create_csv &#8212; virtac 0.2.1.dev103+g0bed45929 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=95edecd2"></script>
+    <script src="../../_static/documentation_options.js?v=b32a8b08"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -443,13 +443,13 @@
 <div class="viewcode-block" id="generate_feedback_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_feedback_pvs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_feedback_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">EpicsLattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get feedback pvs. Also get families for tune feedback</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get feedback pvs. Also get families for tune feedback.</span>
+
 <span class="sd">    Args:</span>
-<span class="sd">        all_elements (list): a list of elements</span>
-<span class="sd">        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual</span>
-<span class="sd">        machine</span>
+<span class="sd">        all_elements: a list of elements</span>
+<span class="sd">        lattice: The pytac lattice being used by the virtual machine.</span>
 <span class="sd">    Returns:</span>
-<span class="sd">        CSVData: Data to be written to csv</span>
+<span class="sd">        Data to be written to csv.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tune_quad_elements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
         <span class="n">all_elements</span><span class="o">.</span><span class="n">q1d</span>
@@ -513,6 +513,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_bba_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">symmetry</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Data to be written is stored as a list of tuples each with structure:</span>
 <span class="sd">    element index (int), field (str), pv (str), value (int), record_type (str).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        all_elements: a list of elements</span>
+<span class="sd">        symmetry: The number of cells in the lattice.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Data to be written to csv.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;pv&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;record_type&quot;</span><span class="p">)]</span>
     <span class="n">pv_stem</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -594,11 +600,9 @@
 <span class="sd">    all normal PVS.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        pytac_item (pytac.element.Element | pytac.lattice.Lattice): An element of the</span>
-<span class="sd">            pytac lattice or the lattice itself</span>
-<span class="sd">        pvs (list[str]): A list of pv names which we have already found</span>
-<span class="sd">        data (CSVData): A list of tuples, with each tuple being a collection of data</span>
-<span class="sd">            about one pv.</span>
+<span class="sd">        pytac_item: An element of the pytac lattice or the lattice itself</span>
+<span class="sd">        pvs: A list of pv names which we have already found</span>
+<span class="sd">        data: A list of tuples, with each tuple being a collection of data about one pv.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">field_data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">pytac_item</span><span class="o">.</span><span class="n">get_fields</span><span class="p">()</span>
     <span class="n">lat_fields</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">field_data</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">LIVE</span><span class="p">])</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
@@ -652,8 +656,10 @@
 <span class="sd">    do a caget to get pv data for the element.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual</span>
-<span class="sd">            machine</span>
+<span class="sd">        lattice: The pytac lattice being used by the virtual machine.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Data to be written to csv.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[</span>
         <span class="p">(</span><span class="s2">&quot;pv&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">,</span> <span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;precision&quot;</span><span class="p">,</span> <span class="s2">&quot;drive_high&quot;</span><span class="p">,</span> <span class="s2">&quot;drive_low&quot;</span><span class="p">,</span> <span class="s2">&quot;scan&quot;</span><span class="p">)</span>
@@ -707,6 +713,11 @@
 <span class="sd">    refresh:</span>
 <span class="sd">        Whether the out_pv should have its softioc record&#39;s SCAN field set to</span>
 <span class="sd">        &#39;1 second&#39; which will cause it to process every second.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lattice: The pytac lattice being used by the virtual machine.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Data to be written to csv.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_type&quot;</span><span class="p">,</span> <span class="s2">&quot;mirror_type&quot;</span><span class="p">,</span> <span class="s2">&quot;in_pv&quot;</span><span class="p">,</span> <span class="s2">&quot;out_pv&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;scan&quot;</span><span class="p">)]</span>
     <span class="c1"># Tune PV aliases.</span>
@@ -816,9 +827,20 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_tune_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the PVs associated with the tune feedback system, the structure of</span>
 <span class="sd">    data is:</span>
-<span class="sd">    set_pv: The PV to set the offset to.</span>
-<span class="sd">    offset_pv: The PV which the set pv reads the offset from.</span>
-<span class="sd">    delta_pv: The PV to get the offset from.</span>
+
+<span class="sd">    set_pv:</span>
+<span class="sd">        The PV to set the offset to.</span>
+
+<span class="sd">    offset_pv:</span>
+<span class="sd">        The PV which the set pv reads the offset from.</span>
+
+<span class="sd">    delta_pv:</span>
+<span class="sd">        The PV to get the offset from.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        lattice: The pytac lattice being used by the virtual machine.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Data to be written to csv.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;set_pv&quot;</span><span class="p">,</span> <span class="s2">&quot;offset_pv&quot;</span><span class="p">,</span> <span class="s2">&quot;delta_pv&quot;</span><span class="p">)]</span>
     <span class="c1"># Offset PV for quadrupoles in tune feedback.</span>
@@ -845,8 +867,8 @@
 <span class="sd">    already exists it will be overwritten.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        data (list): a list of tuples, the data to write to the .csv file.</span>
-<span class="sd">        filename (str): the name of the .csv file to write the data to.</span>
+<span class="sd">        data: A list of tuples, the data to write to the .csv file.</span>
+<span class="sd">        filename: The name of the .csv file to write the data to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">):</span>
         <span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;.csv&quot;</span>

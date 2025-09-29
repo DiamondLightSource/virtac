@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>virtac.create_csv &#8212; virtac 0.2.1.dev101+g236b77609 documentation</title>
+    <title>virtac.create_csv &#8212; virtac 0.2.1.dev103+g0bed45929 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=95edecd2"></script>
+    <script src="../_static/documentation_options.js?v=b32a8b08"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -466,7 +466,7 @@ using CA port 5064 whenever the csv files need updating.</p>
 <td><p>Loop through each element in the lattice and spawn a cothread which will then do a caget to get pv data for the element.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.generate_tune_pvs" title="virtac.create_csv.generate_tune_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_tune_pvs</span></code></a></p></td>
-<td><p>Get the PVs associated with the tune feedback system, the structure of data is: set_pv: The PV to set the offset to.</p></td>
+<td><p>Get the PVs associated with the tune feedback system, the structure of data is:</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#virtac.create_csv.get_element_pv_data" title="virtac.create_csv.get_element_pv_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_element_pv_data</span></code></a></p></td>
 <td><p>Get the control limits and precision values from the live machine for all normal PVS.</p></td>
@@ -486,18 +486,16 @@ using CA port 5064 whenever the csv files need updating.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="virtac.create_csv.generate_feedback_pvs">
 <span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">generate_feedback_pvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EpicsLattice</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/virtac/create_csv.html#generate_feedback_pvs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.generate_feedback_pvs" title="Link to this definition">#</a></dt>
-<dd><p>Get feedback pvs. Also get families for tune feedback
-:param all_elements: a list of elements
-:type all_elements: list
-:param lattice: The pytac lattice being used by the virtual
-:type lattice: pytac.lattice.Lattice
-:param machine:</p>
+<dd><p>Get feedback pvs. Also get families for tune feedback.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Data to be written to csv</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_elements</strong> – a list of elements</p></li>
+<li><p><strong>lattice</strong> – The pytac lattice being used by the virtual machine.</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>CSVData</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data to be written to csv.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -507,6 +505,17 @@ using CA port 5064 whenever the csv files need updating.</p>
 <span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">generate_bba_pvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symmetry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/virtac/create_csv.html#generate_bba_pvs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.generate_bba_pvs" title="Link to this definition">#</a></dt>
 <dd><p>Data to be written is stored as a list of tuples each with structure:
 element index (int), field (str), pv (str), value (int), record_type (str).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_elements</strong> – a list of elements</p></li>
+<li><p><strong>symmetry</strong> – The number of cells in the lattice.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data to be written to csv.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -517,11 +526,9 @@ all normal PVS.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pytac_item</strong> (<em>pytac.element.Element</em><em> | </em><em>pytac.lattice.Lattice</em>) – An element of the
-pytac lattice or the lattice itself</p></li>
-<li><p><strong>pvs</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of pv names which we have already found</p></li>
-<li><p><strong>data</strong> (<em>CSVData</em>) – A list of tuples, with each tuple being a collection of data
-about one pv.</p></li>
+<li><p><strong>pytac_item</strong> – An element of the pytac lattice or the lattice itself</p></li>
+<li><p><strong>pvs</strong> – A list of pv names which we have already found</p></li>
+<li><p><strong>data</strong> – A list of tuples, with each tuple being a collection of data about one pv.</p></li>
 </ul>
 </dd>
 </dl>
@@ -534,8 +541,10 @@ about one pv.</p></li>
 do a caget to get pv data for the element.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>lattice</strong> (<em>pytac.lattice.Lattice</em>) – The pytac lattice being used by the virtual
-machine</p>
+<dd class="field-odd"><p><strong>lattice</strong> – The pytac lattice being used by the virtual machine.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data to be written to csv.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -580,16 +589,37 @@ record will be created and so must not exist already.</p>
 ‘1 second’ which will cause it to process every second.</p>
 </dd>
 </dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lattice</strong> – The pytac lattice being used by the virtual machine.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data to be written to csv.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="virtac.create_csv.generate_tune_pvs">
 <span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">generate_tune_pvs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lattice</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Lattice</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/virtac/create_csv.html#generate_tune_pvs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.generate_tune_pvs" title="Link to this definition">#</a></dt>
 <dd><p>Get the PVs associated with the tune feedback system, the structure of
-data is:
-set_pv: The PV to set the offset to.
-offset_pv: The PV which the set pv reads the offset from.
-delta_pv: The PV to get the offset from.</p>
+data is:</p>
+<dl class="simple">
+<dt>set_pv:</dt><dd><p>The PV to set the offset to.</p>
+</dd>
+<dt>offset_pv:</dt><dd><p>The PV which the set pv reads the offset from.</p>
+</dd>
+<dt>delta_pv:</dt><dd><p>The PV to get the offset from.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lattice</strong> – The pytac lattice being used by the virtual machine.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Data to be written to csv.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -600,8 +630,8 @@ already exists it will be overwritten.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data</strong> (<em>list</em>) – a list of tuples, the data to write to the .csv file.</p></li>
-<li><p><strong>filename</strong> (<em>str</em>) – the name of the .csv file to write the data to.</p></li>
+<li><p><strong>data</strong> – A list of tuples, the data to write to the .csv file.</p></li>
+<li><p><strong>filename</strong> – The name of the .csv file to write the data to.</p></li>
 </ul>
 </dd>
 </dl>

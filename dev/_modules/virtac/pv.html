@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.pv &#8212; virtac 0.2.1.dev101+g236b77609 documentation</title>
+    <title>virtac.pv &#8212; virtac 0.2.1.dev103+g0bed45929 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=95edecd2"></script>
+    <script src="../../_static/documentation_options.js?v=b32a8b08"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -478,10 +478,8 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stores the attributes and methods which allow the VIRTAC to control an</span>
 <span class="sd">    EPICS PV.</span>
 
-
 <span class="sd">    Attributes:</span>
-<span class="sd">        self.name (str): The name used to get both the PV and its softioc record.</span>
-<span class="sd">        self._record (softioc.pythonSoftIoc.RecordWrapper): This softioc record is the</span>
+<span class="sd">        self.__record (softioc.pythonSoftIoc.RecordWrapper): This softioc record is the</span>
 <span class="sd">            heart of the PV class, the main purpose of PV objects is to manage the</span>
 <span class="sd">            setting and getting of these records.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -489,15 +487,33 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">record_data</span><span class="p">:</span> <span class="n">RecordData</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): Used to identify this PV and its softioc record.</span>
-<span class="sd">            record_data (RecordData | None): Dataclass used to create this PVs softioc</span>
-<span class="sd">                record.</span>
+<span class="sd">            name: Used to identify this PV and its softioc record.</span>
+<span class="sd">            record_data: Dataclass used to create this PVs softioc record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating PV: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="p">:</span> <span class="n">RecordWrapper</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">__record</span><span class="p">:</span> <span class="n">RecordWrapper</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">record_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">create_softioc_record</span><span class="p">(</span><span class="n">record_data</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RecordWrapper</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__record</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="s2">&quot;Softioc record must be created before use.&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__record</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__record</span>
+
+    <span class="nd">@_record</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_record</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RecordWrapper</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">__record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;A softioc record could not be created for PV: </span><span class="si">{</span><span class="n">new_record</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="s2">&quot;That name is already in use!&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">__record</span> <span class="o">=</span> <span class="n">new_record</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_on_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">RecordValueType</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;The callback function called when the softioc record updates.</span>
@@ -506,8 +522,8 @@
 <span class="sd">        rapidly by CA clients.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            value (RecordValueType): The value that has just been set to the record.</span>
-<span class="sd">            name (str): The name of the softioc record that has just been set to.</span>
+<span class="sd">            value: The value that has just been set to the record.</span>
+<span class="sd">            name: The name of the softioc record that has just been set to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read value </span><span class="si">%s</span><span class="s2"> on pv </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
@@ -517,8 +533,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a field on this PVs softioc record.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            field (softioc.field): The EPICS field to set on the softioc record</span>
-<span class="sd">            value (RecordValueType | str): The value to set to the EPICS field</span>
+<span class="sd">            field: The EPICS field to set on the softioc record</span>
+<span class="sd">            value: The value to set to the EPICS field</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="o">.</span><span class="n">set_field</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
@@ -532,14 +548,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create this PVs softioc record.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            record_data (RecordData): Dataclass used to create this PVs softioc record.</span>
+<span class="sd">            record_data: Dataclass used to create this PVs softioc record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="s2">&quot;self._record&quot;</span> <span class="ow">in</span> <span class="nb">locals</span><span class="p">():</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;A softioc record could not be created for PV: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">. It already&quot;</span>
-                <span class="s2">&quot;has an attached record.&quot;</span>
-            <span class="p">)</span>
-
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Creating softioc record </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">record_data</span><span class="o">.</span><span class="n">record_type</span> <span class="o">==</span> <span class="n">RecordTypes</span><span class="o">.</span><span class="n">AI</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_record</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="n">aIn</span><span class="p">(</span>
@@ -597,6 +607,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_record</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RecordWrapper</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return this PVs softioc record, care should be taken when manipulating the</span>
 <span class="sd">        returned record.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The softioc record object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record</span></div>
 
@@ -604,7 +617,11 @@
 <div class="viewcode-block" id="BasePV.get">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.BasePV.get">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RecordValueType</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the value stored in this PVs softioc record&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get the value stored in this PVs softioc record.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The softioc record&#39;s value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="o">.</span><span class="n">get</span><span class="p">()</span></div>
 
 
@@ -614,7 +631,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set a value to this PVs softioc record.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            value (RecordValueType): The value to set to the softioc record.</span>
+<span class="sd">            value: The value to set to the softioc record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PV: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> changed to: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_record</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
@@ -638,12 +655,11 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): Used to identify this PV and its softioc record.</span>
-<span class="sd">            record_data (RecordData | None): Dataclass used to create this PVs softioc</span>
-<span class="sd">                record.</span>
-<span class="sd">            pytac_items (list[PytacItemType]):  A list of pytac elements or the pytac</span>
-<span class="sd">                lattice itself which should be linked to this PV.</span>
-<span class="sd">            pytac_field (str): The field on the pytac item(s) to set/get.</span>
+<span class="sd">            name: Used to identify this PV and its softioc record.</span>
+<span class="sd">            record_data: Dataclass used to create this PVs softioc record.</span>
+<span class="sd">            pytac_items:  A list of pytac elements or the pytac lattice itself which</span>
+<span class="sd">                should be linked to this PV.</span>
+<span class="sd">            pytac_field: The field on the pytac item(s) to set/get.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pytac_items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PytacItemType</span><span class="p">]</span> <span class="o">=</span> <span class="n">pytac_items</span>
@@ -655,7 +671,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Append a pytac item to the list of pytac items defined for this PV</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            pytac_item (PytacItem): The pytac element or lattice to append.</span>
+<span class="sd">            pytac_item: The pytac element or lattice to append.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pytac_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pytac_item</span><span class="p">)</span></div>
 
@@ -663,9 +679,7 @@
 <div class="viewcode-block" id="ReadSimPV.update_from_sim">
 <a class="viewcode-back" href="../../_api/virtac.pv.html#virtac.pv.ReadSimPV.update_from_sim">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_from_sim</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a value from the simulation and set it to this PVs softioc</span>
-<span class="sd">        record.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read a value from the simulation and set it to this PVs softioc record.&quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Updating pv </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
@@ -704,16 +718,14 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): Used to identify this PV and its softioc record.</span>
-<span class="sd">            record_data (RecordData | None): Dataclass used to create this PVs softioc</span>
-<span class="sd">                record.</span>
-<span class="sd">            read_pv (ReadSimPV): The readback PV linked to this PV which reads</span>
-<span class="sd">                from the lattice</span>
-<span class="sd">            pytac_items (list[PytacItemType]):  A list of pytac elements or the pytac</span>
-<span class="sd">                lattice itself which should be linked to this PV.</span>
-<span class="sd">            pytac_field (str): The field on the pytac item(s) to set/get.</span>
-<span class="sd">            offset_pv (BasePV | None) An optional PV which can be used to get an offset</span>
-<span class="sd">                value which is appended to this pvs pytac item(s) when writing.</span>
+<span class="sd">            name: Used to identify this PV and its softioc record.</span>
+<span class="sd">            record_data: Dataclass used to create this PVs softioc record.</span>
+<span class="sd">            read_pv: The readback PV linked to this PV which reads from the lattice.</span>
+<span class="sd">            pytac_items:  A list of pytac elements or the pytac lattice itself which</span>
+<span class="sd">                should be linked to this PV.</span>
+<span class="sd">            pytac_field: The field on the pytac item(s) to set/get.</span>
+<span class="sd">            offset_pv: An optional PV which can be used to get an offset value which is</span>
+<span class="sd">                appended to this pvs pytac item(s) when writing.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">,</span> <span class="n">pytac_items</span><span class="p">,</span> <span class="n">pytac_field</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_pv</span> <span class="o">=</span> <span class="n">read_pv</span>
@@ -725,8 +737,8 @@
 <span class="sd">        self._offset_pv) to the pytac item and field configured for self._pv_to_update.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            value (RecordValueType): The value that has just been set to self._record.</span>
-<span class="sd">            name (str): The name of self._record object.</span>
+<span class="sd">            value: The value that has just been set to self._record.</span>
+<span class="sd">            name: The name of self._record object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Read value </span><span class="si">%s</span><span class="s2"> on pv </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_offset_record</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -744,9 +756,9 @@
 <span class="sd">            with the same value and then set the value to its read pv.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            value (RecordValueType): The value to set to the softioc record.</span>
-<span class="sd">            offset (RecordValueType): An optional offset value to add to this PVs pytac</span>
-<span class="sd">                element but NOT to its softioc record.</span>
+<span class="sd">            value: The value to set to the softioc record.</span>
+<span class="sd">            offset: An optional offset value to add to this PVs pytac element but NOT to</span>
+<span class="sd">                its softioc record.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PV: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> changed to: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -787,8 +799,8 @@
 <span class="sd">        was created after this PV.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            offset_pv (PV): The PV object to be used during this PVs&#39; records&#39; on_update</span>
-<span class="sd">            function.</span>
+<span class="sd">            offset_pv: The PV object to be used during this PVs&#39; records&#39; on_update</span>
+<span class="sd">                function.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attaching offset record: </span><span class="si">{</span><span class="n">offset_pv</span><span class="si">}</span><span class="s2"> to PV: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_offset_record</span> <span class="o">=</span> <span class="n">offset_pv</span></div>
@@ -819,12 +831,11 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): Used to set self.name</span>
-<span class="sd">            record_data (RecordData): Dataclass used to create this PVs softioc record.</span>
-<span class="sd">            monitored_pvs (list[str]): A list of PV names used to setup camonitoring.</span>
-<span class="sd">            callbacks (list[CallbackType] | None): A list of functions to be called when</span>
-<span class="sd">                the monitored PVs return. If none, then this PVs set function is called</span>
-<span class="sd">                as the callback.</span>
+<span class="sd">            name: Used to set self.name</span>
+<span class="sd">            record_data: Dataclass used to create this PVs softioc record.</span>
+<span class="sd">            monitored_pvs: A list of PV names used to setup camonitoring.</span>
+<span class="sd">            callbacks: A list of functions to be called when the monitored PVs return.</span>
+<span class="sd">                If none, then this PVs set function is called as the callback.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_monitor_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">CallbackType</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -846,9 +857,9 @@
 <span class="sd">        changed value.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            pv_names (list[str]): A list of PV names to monitor using channel access.</span>
-<span class="sd">            callbacks (list[CallbackType]): A list of functions to execute when the</span>
-<span class="sd">                associated PV changes value.</span>
+<span class="sd">            pv_names: A list of PV names to monitor using channel access.</span>
+<span class="sd">            callbacks: A list of functions to execute when the associated PV changes</span>
+<span class="sd">                value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">callbacks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">callbacks</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">]</span>
@@ -929,7 +940,7 @@
 <span class="sd">        lattice.</span>
 
 <span class="sd">    TODO: This PV does a lot of work at the moment, possible candidate for refactoring</span>
-<span class="sd">        or removal.</span>
+<span class="sd">        or removal. Removal would also allow us to guarentee that _record is not None.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        _record_to_refresh (PV): The PV to refresh.</span>
@@ -944,11 +955,11 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): Used to set self.name</span>
-<span class="sd">            monitored_pv_name (str): A PV to monitor and trigger refreshing.</span>
-<span class="sd">            record_to_refresh (BasePV): The PV to pass to _record_to_refresh</span>
-<span class="sd">            pv_to_cannibalise (BasePV): We take relevant variables from this PV, after</span>
-<span class="sd">                which it should be discarded.</span>
+<span class="sd">            name: Used to set self.name</span>
+<span class="sd">            monitored_pv_name: A PV to monitor and trigger refreshing.</span>
+<span class="sd">            record_to_refresh: The PV to pass to _record_to_refresh</span>
+<span class="sd">            pv_to_cannibalise: We take relevant variables from this PV, after which it</span>
+<span class="sd">                should be discarded.</span>
 
 <span class="sd">        TODO: It would be better if we didnt have to.</span>
 <span class="sd">            cannibalise an existing PV and could just create a new one.</span>
@@ -989,10 +1000,9 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): Used to set self.name</span>
-<span class="sd">            record_data (RecordData): Dataclass used to create this PVs softioc record.</span>
-<span class="sd">            invert_pvs (list[BasePV]): A list of PVs to monitor and then invert when</span>
-<span class="sd">                they change value.</span>
+<span class="sd">            name: Used to set self.name</span>
+<span class="sd">            record_data: Dataclass used to create this PVs softioc record.</span>
+<span class="sd">            invert_pvs: A list of PVs to monitor and then invert when they change value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">invert_pvs</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;InversionPV was not provided with any PVs to invert&quot;</span><span class="p">)</span>
@@ -1033,10 +1043,9 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): Used to set self.name</span>
-<span class="sd">            record_data (RecordData): Dataclass used to create this PVs softioc record.</span>
-<span class="sd">            summate_pvs (list[BasePV]): A list of PVs to monitor and then sum when they</span>
-<span class="sd">                change value.</span>
+<span class="sd">            name: Used to set self.name</span>
+<span class="sd">            record_data: Dataclass used to create this PVs softioc record.</span>
+<span class="sd">            summate_pvs: A list of PVs to monitor and then sum when they change value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span> <span class="n">record_data</span><span class="p">,</span> <span class="p">[</span><span class="n">pv</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">pv</span> <span class="ow">in</span> <span class="n">summate_pvs</span><span class="p">],</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">]</span>
@@ -1064,10 +1073,10 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            name (str): Used to set self.name</span>
-<span class="sd">            record_data (RecordData): Dataclass used to create this PVs softioc record.</span>
-<span class="sd">            collate_pvs (list[BasePV]): A list of PVs to monitor and then collate when</span>
-<span class="sd">                they change value.</span>
+<span class="sd">            name: Used to set self.name</span>
+<span class="sd">            record_data: Dataclass used to create this PVs softioc record.</span>
+<span class="sd">            collate_pv: A list of PVs to monitor and then collate when they change</span>
+<span class="sd">                value.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">name</span><span class="p">,</span>

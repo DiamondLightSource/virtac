@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>virtac.pv &#8212; virtac 0.2.1.dev101+g236b77609 documentation</title>
+    <title>virtac.pv &#8212; virtac 0.2.1.dev103+g0bed45929 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=95edecd2"></script>
+    <script src="../_static/documentation_options.js?v=b32a8b08"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -502,19 +502,8 @@ the softioc records and the simulation.</p>
 <dd><p>Stores the attributes and methods which allow the VIRTAC to control an
 EPICS PV.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="virtac.pv.BasePV.self.name">
-<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#virtac.pv.BasePV.self.name" title="Link to this definition">#</a></dt>
-<dd><p>The name used to get both the PV and its softioc record.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="virtac.pv.BasePV.self._record">
-<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">_record</span></span><a class="headerlink" href="#virtac.pv.BasePV.self._record" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="virtac.pv.BasePV.self.__record">
+<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">__record</span></span><a class="headerlink" href="#virtac.pv.BasePV.self.__record" title="Link to this definition">#</a></dt>
 <dd><p>This softioc record is the
 heart of the PV class, the main purpose of PV objects is to manage the
 setting and getting of these records.</p>
@@ -528,9 +517,8 @@ setting and getting of these records.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Used to identify this PV and its softioc record.</p></li>
-<li><p><strong>record_data</strong> (<a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><em>RecordData</em></a><em> | </em><em>None</em>) – Dataclass used to create this PVs softioc
-record.</p></li>
+<li><p><strong>name</strong> – Used to identify this PV and its softioc record.</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
 </ul>
 </dd>
 </dl>
@@ -541,8 +529,8 @@ record.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>field</strong> (<em>softioc.field</em>) – The EPICS field to set on the softioc record</p></li>
-<li><p><strong>value</strong> (<em>RecordValueType</em><em> | </em><em>str</em>) – The value to set to the EPICS field</p></li>
+<li><p><strong>field</strong> – The EPICS field to set on the softioc record</p></li>
+<li><p><strong>value</strong> – The value to set to the EPICS field</p></li>
 </ul>
 </dd>
 </dl>
@@ -554,7 +542,7 @@ record.</p></li>
 <dd><p>Create this PVs softioc record.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>record_data</strong> (<a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><em>RecordData</em></a>) – Dataclass used to create this PVs softioc record.</p>
+<dd class="field-odd"><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -564,12 +552,22 @@ record.</p></li>
 <span class="sig-name descname"><span class="pre">get_record</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RecordWrapper</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.get_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.get_record" title="Link to this definition">#</a></dt>
 <dd><p>Return this PVs softioc record, care should be taken when manipulating the
 returned record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The softioc record object.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="virtac.pv.BasePV.get">
 <span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.get" title="Link to this definition">#</a></dt>
-<dd><p>Get the value stored in this PVs softioc record</p>
+<dd><p>Get the value stored in this PVs softioc record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The softioc record’s value.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -578,7 +576,7 @@ returned record.</p>
 <dd><p>Set a value to this PVs softioc record.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>value</strong> (<em>RecordValueType</em>) – The value to set to the softioc record.</p>
+<dd class="field-odd"><p><strong>value</strong> – The value to set to the softioc record.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -593,12 +591,11 @@ then set it to a softioc record.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Used to identify this PV and its softioc record.</p></li>
-<li><p><strong>record_data</strong> (<a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><em>RecordData</em></a><em> | </em><em>None</em>) – Dataclass used to create this PVs softioc
-record.</p></li>
-<li><p><strong>pytac_items</strong> (<em>list</em><em>[</em><em>PytacItemType</em><em>]</em>) – A list of pytac elements or the pytac
-lattice itself which should be linked to this PV.</p></li>
-<li><p><strong>pytac_field</strong> (<em>str</em>) – The field on the pytac item(s) to set/get.</p></li>
+<li><p><strong>name</strong> – Used to identify this PV and its softioc record.</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>pytac_items</strong> – A list of pytac elements or the pytac lattice itself which
+should be linked to this PV.</p></li>
+<li><p><strong>pytac_field</strong> – The field on the pytac item(s) to set/get.</p></li>
 </ul>
 </dd>
 </dl>
@@ -608,7 +605,7 @@ lattice itself which should be linked to this PV.</p></li>
 <dd><p>Append a pytac item to the list of pytac items defined for this PV</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>pytac_item</strong> (<em>PytacItem</em>) – The pytac element or lattice to append.</p>
+<dd class="field-odd"><p><strong>pytac_item</strong> – The pytac element or lattice to append.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -616,8 +613,7 @@ lattice itself which should be linked to this PV.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="virtac.pv.ReadSimPV.update_from_sim">
 <span class="sig-name descname"><span class="pre">update_from_sim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#ReadSimPV.update_from_sim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadSimPV.update_from_sim" title="Link to this definition">#</a></dt>
-<dd><p>Read a value from the simulation and set it to this PVs softioc
-record.</p>
+<dd><p>Read a value from the simulation and set it to this PVs softioc record.</p>
 </dd></dl>
 
 </dd></dl>
@@ -633,15 +629,14 @@ this PV.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Used to identify this PV and its softioc record.</p></li>
-<li><p><strong>record_data</strong> (<a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><em>RecordData</em></a><em> | </em><em>None</em>) – Dataclass used to create this PVs softioc
-record.</p></li>
-<li><p><strong>read_pv</strong> (<a class="reference internal" href="#virtac.pv.ReadSimPV" title="virtac.pv.ReadSimPV"><em>ReadSimPV</em></a>) – The readback PV linked to this PV which reads
-from the lattice</p></li>
-<li><p><strong>pytac_items</strong> (<em>list</em><em>[</em><em>PytacItemType</em><em>]</em>) – A list of pytac elements or the pytac
-lattice itself which should be linked to this PV.</p></li>
-<li><p><strong>pytac_field</strong> (<em>str</em>) – The field on the pytac item(s) to set/get.</p></li>
-<li><p><strong>offset_pv</strong> (<a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><em>BasePV</em></a><em> | </em><em>None</em>) – value which is appended to this pvs pytac item(s) when writing.</p></li>
+<li><p><strong>name</strong> – Used to identify this PV and its softioc record.</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>read_pv</strong> – The readback PV linked to this PV which reads from the lattice.</p></li>
+<li><p><strong>pytac_items</strong> – A list of pytac elements or the pytac lattice itself which
+should be linked to this PV.</p></li>
+<li><p><strong>pytac_field</strong> – The field on the pytac item(s) to set/get.</p></li>
+<li><p><strong>offset_pv</strong> – An optional PV which can be used to get an offset value which is
+appended to this pvs pytac item(s) when writing.</p></li>
 </ul>
 </dd>
 </dl>
@@ -655,9 +650,9 @@ lattice itself which should be linked to this PV.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>value</strong> (<em>RecordValueType</em>) – The value to set to the softioc record.</p></li>
-<li><p><strong>offset</strong> (<em>RecordValueType</em>) – An optional offset value to add to this PVs pytac
-element but NOT to its softioc record.</p></li>
+<li><p><strong>value</strong> – The value to set to the softioc record.</p></li>
+<li><p><strong>offset</strong> – An optional offset value to add to this PVs pytac element but NOT to
+its softioc record.</p></li>
 </ul>
 </dd>
 </dl>
@@ -670,10 +665,8 @@ element but NOT to its softioc record.</p></li>
 was created after this PV.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>offset_pv</strong> (<em>PV</em>) – The PV object to be used during this PVs’ records’ on_update</p></li>
-<li><p><strong>function.</strong></p></li>
-</ul>
+<dd class="field-odd"><p><strong>offset_pv</strong> – The PV object to be used during this PVs’ records’ on_update
+function.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -713,12 +706,11 @@ command is sent to pause monitoring.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Used to set self.name</p></li>
-<li><p><strong>record_data</strong> (<a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><em>RecordData</em></a>) – Dataclass used to create this PVs softioc record.</p></li>
-<li><p><strong>monitored_pvs</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – A list of PV names used to setup camonitoring.</p></li>
-<li><p><strong>callbacks</strong> (<em>list</em><em>[</em><em>CallbackType</em><em>] </em><em>| </em><em>None</em>) – A list of functions to be called when
-the monitored PVs return. If none, then this PVs set function is called
-as the callback.</p></li>
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>monitored_pvs</strong> – A list of PV names used to setup camonitoring.</p></li>
+<li><p><strong>callbacks</strong> – A list of functions to be called when the monitored PVs return.
+If none, then this PVs set function is called as the callback.</p></li>
 </ul>
 </dd>
 </dl>
@@ -751,7 +743,7 @@ which it adds to its own value before setting the result to itself and the pytac
 lattice.</p>
 </div>
 <dl class="simple">
-<dt>TODO: This PV does a lot of work at the moment, possible candidate for refactoring</dt><dd><p>or removal.</p>
+<dt>TODO: This PV does a lot of work at the moment, possible candidate for refactoring</dt><dd><p>or removal. Removal would also allow us to guarentee that _record is not None.</p>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -768,11 +760,11 @@ lattice.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Used to set self.name</p></li>
-<li><p><strong>monitored_pv_name</strong> (<em>str</em>) – A PV to monitor and trigger refreshing.</p></li>
-<li><p><strong>record_to_refresh</strong> (<a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><em>BasePV</em></a>) – The PV to pass to _record_to_refresh</p></li>
-<li><p><strong>pv_to_cannibalise</strong> (<a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><em>BasePV</em></a>) – We take relevant variables from this PV, after
-which it should be discarded.</p></li>
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>monitored_pv_name</strong> – A PV to monitor and trigger refreshing.</p></li>
+<li><p><strong>record_to_refresh</strong> – The PV to pass to _record_to_refresh</p></li>
+<li><p><strong>pv_to_cannibalise</strong> – We take relevant variables from this PV, after which it
+should be discarded.</p></li>
 </ul>
 </dd>
 </dl>
@@ -801,10 +793,9 @@ a single waveform.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Used to set self.name</p></li>
-<li><p><strong>record_data</strong> (<a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><em>RecordData</em></a>) – Dataclass used to create this PVs softioc record.</p></li>
-<li><p><strong>invert_pvs</strong> (<em>list</em><em>[</em><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><em>BasePV</em></a><em>]</em>) – A list of PVs to monitor and then invert when
-they change value.</p></li>
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>invert_pvs</strong> – A list of PVs to monitor and then invert when they change value.</p></li>
 </ul>
 </dd>
 </dl>
@@ -817,10 +808,9 @@ they change value.</p></li>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Used to set self.name</p></li>
-<li><p><strong>record_data</strong> (<a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><em>RecordData</em></a>) – Dataclass used to create this PVs softioc record.</p></li>
-<li><p><strong>summate_pvs</strong> (<em>list</em><em>[</em><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><em>BasePV</em></a><em>]</em>) – A list of PVs to monitor and then sum when they
-change value.</p></li>
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>summate_pvs</strong> – A list of PVs to monitor and then sum when they change value.</p></li>
 </ul>
 </dd>
 </dl>
@@ -834,10 +824,10 @@ this PVs _record.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Used to set self.name</p></li>
-<li><p><strong>record_data</strong> (<a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><em>RecordData</em></a>) – Dataclass used to create this PVs softioc record.</p></li>
-<li><p><strong>collate_pvs</strong> (<em>list</em><em>[</em><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><em>BasePV</em></a><em>]</em>) – A list of PVs to monitor and then collate when
-they change value.</p></li>
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>collate_pv</strong> – A list of PVs to monitor and then collate when they change
+value.</p></li>
 </ul>
 </dd>
 </dl>
@@ -895,8 +885,7 @@ they change value.</p></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.RecordTypes"><code class="docutils literal notranslate"><span class="pre">RecordTypes</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.RecordData"><code class="docutils literal notranslate"><span class="pre">RecordData</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV"><code class="docutils literal notranslate"><span class="pre">BasePV</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.self.name"><code class="docutils literal notranslate"><span class="pre">BasePV.self.name</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.self._record"><code class="docutils literal notranslate"><span class="pre">BasePV.self._record</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.self.__record"><code class="docutils literal notranslate"><span class="pre">BasePV.self.__record</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.set_record_field"><code class="docutils literal notranslate"><span class="pre">BasePV.set_record_field()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.create_softioc_record"><code class="docutils literal notranslate"><span class="pre">BasePV.create_softioc_record()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.get_record"><code class="docutils literal notranslate"><span class="pre">BasePV.get_record()</span></code></a></li>

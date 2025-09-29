@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.virtac_server &#8212; virtac 0.2.1.dev101+g236b77609 documentation</title>
+    <title>virtac.virtac_server &#8212; virtac 0.2.1.dev103+g0bed45929 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../_static/documentation_options.js?v=95edecd2"></script>
+    <script src="../../_static/documentation_options.js?v=b32a8b08"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -489,19 +489,19 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Args:</span>
-<span class="sd">            ring_mode (str): The ring mode to create the lattice in.</span>
-<span class="sd">            limits_csv (str): The filepath to the .csv file from which to load the pv</span>
+<span class="sd">            ring_mode: The ring mode to create the lattice in.</span>
+<span class="sd">            limits_csv: The filepath to the .csv file from which to load the pv</span>
 <span class="sd">                limits. For more information see create_csv.py.</span>
-<span class="sd">            bba_csv (str): The filepath to the .csv file from which to load the bba</span>
+<span class="sd">            bba_csv: The filepath to the .csv file from which to load the bba</span>
 <span class="sd">                records, for more information see create_csv.py.</span>
-<span class="sd">            feedback_csv (str): The filepath to the .csv file from which to load the</span>
+<span class="sd">            feedback_csv: The filepath to the .csv file from which to load the</span>
 <span class="sd">                feedback records, for more information see create_csv.py.</span>
-<span class="sd">            mirror_csv (str): The filepath to the .csv file from which to load the</span>
+<span class="sd">            mirror_csv: The filepath to the .csv file from which to load the</span>
 <span class="sd">                mirror records, for more information see create_csv.py.</span>
-<span class="sd">            tune_csv (str): The filepath to the .csv file from which to load the tune</span>
+<span class="sd">            tune_csv: The filepath to the .csv file from which to load the tune</span>
 <span class="sd">                feedback records, for more information see create_csv.py.</span>
-<span class="sd">            disable_emittance (bool): Whether emittance should be disabled.</span>
-<span class="sd">            disable_tunefb (bool): Whether tune feedback should be disabled.</span>
+<span class="sd">            disable_emittance: Whether emittance should be disabled.</span>
+<span class="sd">            disable_tunefb: Whether tune feedback should be disabled.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_disable_emittance</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">disable_emittance</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_disable_tunefb</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">disable_tunefb</span>
@@ -549,8 +549,8 @@
 <span class="sd">        element pytac data.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits_csv (Path | None): The filepath to the .csv file from which to</span>
-<span class="sd">                load pv field data to configure softioc records with.</span>
+<span class="sd">            limits_csv: The filepath to the .csv file from which to load pv field data</span>
+<span class="sd">                to configure softioc records with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">limits_dict</span><span class="p">:</span> <span class="n">LimitsDictType</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">limits_csv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -590,7 +590,7 @@
 <span class="sd">            these PVs read their value from it.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits_dict (LimitsDictType): A dictionary containing the limits data for</span>
+<span class="sd">            limits_dict: A dictionary containing the limits data for</span>
 <span class="sd">                the PVs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">bend_in_record</span> <span class="o">=</span> <span class="kc">None</span>
@@ -683,8 +683,7 @@
 <span class="sd">            the lattice.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            limits_dict (LimitsDictType): A dictionary containing the limits data for</span>
-<span class="sd">                the PVs.</span>
+<span class="sd">            limits_dict: A dictionary containing the limits data for the PVs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">lat_field_dict</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="bp">self</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_fields</span><span class="p">())</span>
         <span class="n">lat_field_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">lat_field_dict</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">LIVE</span><span class="p">])</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">lat_field_dict</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">])</span>
@@ -721,8 +720,8 @@
 <span class="sd">        location passed, see create_csv.py for more information.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            bba_csv (Path | None): The filepath to the .csv file to load the</span>
-<span class="sd">                                    records in accordance with.</span>
+<span class="sd">            bba_csv: The filepath to the .csv file to load the records in accordance</span>
+<span class="sd">                with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_feedback_or_bba_records_from_csv</span><span class="p">(</span><span class="n">bba_csv</span><span class="p">)</span>
 
@@ -732,8 +731,8 @@
 <span class="sd">        case are also created.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            feedback_csv (Path | None): The filepath to the .csv file to load the</span>
-<span class="sd">                                    records in accordance with.</span>
+<span class="sd">            feedback_csv: The filepath to the .csv file to load the records in</span>
+<span class="sd">                accordance with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_feedback_or_bba_records_from_csv</span><span class="p">(</span><span class="n">feedback_csv</span><span class="p">)</span>
 
@@ -750,8 +749,8 @@
 <span class="sd">        its contents.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            csv_file (Path | None): The filepath to the .csv file to load the</span>
-<span class="sd">                                    records in accordance with.</span>
+<span class="sd">            csv_file: The filepath to the .csv file to load the records in accordance</span>
+<span class="sd">                with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># We don&#39;t set limits or precision but this shouldn&#39;t be an issue as these</span>
         <span class="c1"># records aren&#39;t intended to be set to by a user.</span>
@@ -787,8 +786,8 @@
 <span class="sd">        passed, see create_csv.py for more information.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            mirror_csv (Path | None): The filepath to the .csv file to load the</span>
-<span class="sd">                                    records in accordance with.</span>
+<span class="sd">            mirror_csv : The filepath to the .csv file to load the records in accordance</span>
+<span class="sd">                with.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mirror_csv</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">val</span><span class="p">:</span> <span class="n">RecordValueType</span> <span class="o">=</span> <span class="mi">0</span>
@@ -876,8 +875,8 @@
 <span class="sd">            &#39;offset_pv&#39; and adds it to its own value.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            tune_csv (Path | None): A path to a tune feedback .csv file to be used</span>
-<span class="sd">                             instead of the default filepath passed at startup.</span>
+<span class="sd">            tune_csv: A path to a tune feedback .csv file to be used instead of the</span>
+<span class="sd">                default filepath passed at startup.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">tune_csv</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">csv_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">DictReader</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
@@ -936,8 +935,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Print helpful statistics based on passed verbosity level</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            verbosity (int): The verbosity level to print at, higher levels</span>
-<span class="sd">                             print more information.</span>
+<span class="sd">            verbosity: The verbosity level to print at, higher levels print more</span>
+<span class="sd">                information.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">pv_type_count</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="n">BasePV</span><span class="p">],</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
