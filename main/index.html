@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>virtac &#8212; virtac 0.1.dev412+gb958b92 documentation</title>
+    <title>virtac &#8212; virtac 0.2.1.dev105+gc7c27ca79 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=1b74b0d8"></script>
+    <script src="_static/documentation_options.js?v=59fa993f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -213,18 +213,6 @@
           <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">PyPI</span></a>
-        </li>
 </ul></div>
       
         <div class="navbar-item">
@@ -350,18 +338,6 @@
           <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">PyPI</span></a>
-        </li>
 </ul></div>
         
           <div class="navbar-item">
@@ -418,7 +394,6 @@
                   
   <p><a class="reference external" href="https://github.com/DiamondLightSource/virtac/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/DiamondLightSource/virtac/actions/workflows/ci.yml/badge.svg" /></a>
 <a class="reference external" href="https://codecov.io/gh/DiamondLightSource/virtac"><img alt="Coverage" src="https://codecov.io/gh/DiamondLightSource/virtac/branch/main/graph/badge.svg" /></a>
-<a class="reference external" href="https://pypi.org/project/virtac"><img alt="PyPI" src="https://img.shields.io/pypi/v/virtac.svg" /></a>
 <a class="reference external" href="https://www.apache.org/licenses/LICENSE-2.0"><img alt="License" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg" /></a></p>
 <section id="virtac">
 <h1>virtac<a class="headerlink" href="#virtac" title="Link to this heading">#</a></h1>
@@ -434,19 +409,16 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td class="text-center"><p>PyPI</p></td>
-<td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">virtac</span></code></p></td>
+<tr class="row-even"><td class="text-center"><p>Docker</p></td>
+<td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">-it</span> <span class="pre">--network=host</span> <span class="pre">ghcr.io/diamondlightsource/virtac:latest</span></code></p></td>
 </tr>
-<tr class="row-odd"><td class="text-center"><p>Docker</p></td>
-<td class="text-center"><p><code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span> <span class="pre">ghcr.io/diamondlightsource/virtac:latest</span></code></p></td>
-</tr>
-<tr class="row-even"><td class="text-center"><p>Documentation</p></td>
+<tr class="row-odd"><td class="text-center"><p>Documentation</p></td>
 <td class="text-center"><p><a class="reference external" href="https://diamondlightsource.github.io/virtac">https://diamondlightsource.github.io/virtac</a></p></td>
 </tr>
-<tr class="row-odd"><td class="text-center"><p>Installation</p></td>
+<tr class="row-even"><td class="text-center"><p>Installation</p></td>
 <td class="text-center"><p><a class="reference external" href="https://diamondlightsource.github.io/virtac/tutorials/installation">https://diamondlightsource.github.io/virtac/tutorials/installation</a></p></td>
 </tr>
-<tr class="row-even"><td class="text-center"><p>Releases</p></td>
+<tr class="row-odd"><td class="text-center"><p>Releases</p></td>
 <td class="text-center"><p><a class="github reference external" href="https://github.com/DiamondLightSource/virtac/releases">DiamondLightSource/virtac</a></p></td>
 </tr>
 </tbody>
@@ -467,7 +439,9 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="tutorials/installation.html">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="tutorials/virtac_example.html">VIRTAC example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/overview.html">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/using_virtac.html">Using the Virtac</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorials/virtac_pvs.html">PVs Provided by the Virtac</a></li>
 </ul>
 </li>
 </ul>
@@ -488,6 +462,7 @@
 <li class="toctree-l1"><a class="reference internal" href="how-to.html">How-to Guides</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="how-to/contribute.html">Contribute to the project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="how-to/run-container.html">Run in a container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="how-to/update_csv_files.html">Update CSV Files</a></li>
 </ul>
 </li>
 </ul>

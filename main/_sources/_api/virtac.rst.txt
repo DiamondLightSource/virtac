@@ -15,8 +15,7 @@
     
         virtac_server
         create_csv
-        masks
-        mirror_objects
+        pv
     
     
 

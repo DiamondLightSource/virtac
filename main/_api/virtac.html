@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>virtac &#8212; virtac 0.1.dev412+gb958b92 documentation</title>
+    <title>virtac &#8212; virtac 0.2.1.dev105+gc7c27ca79 documentation</title>
   
   
   
@@ -30,7 +30,7 @@
   <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 <link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
 
-    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=1b74b0d8"></script>
+    <script src="../_static/documentation_options.js?v=59fa993f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -214,18 +214,6 @@
           <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">PyPI</span></a>
-        </li>
 </ul></div>
       
         <div class="navbar-item">
@@ -353,18 +341,6 @@
           <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
         </li>
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://pypi.org/project/virtac" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">PyPI</span></a>
-        </li>
 </ul></div>
         
           <div class="navbar-item">
@@ -400,8 +376,7 @@
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="virtac.virtac_server.html"><code class="docutils literal notranslate"><span class="pre">virtac.virtac_server</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="virtac.create_csv.html"><code class="docutils literal notranslate"><span class="pre">virtac.create_csv</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="virtac.masks.html"><code class="docutils literal notranslate"><span class="pre">virtac.masks</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="virtac.mirror_objects.html"><code class="docutils literal notranslate"><span class="pre">virtac.mirror_objects</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="virtac.pv.html"><code class="docutils literal notranslate"><span class="pre">virtac.pv</span></code></a></li>
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
@@ -471,7 +446,7 @@
 <p>virtac: a python based virtual accelerator using ATIP.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="virtac.__version__">
-<span class="sig-prename descclassname"><span class="pre">virtac.</span></span><span class="sig-name descname"><span class="pre">__version__</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></em><a class="headerlink" href="#virtac.__version__" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">virtac.</span></span><span class="sig-name descname"><span class="pre">__version__</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#virtac.__version__" title="Link to this definition">#</a></dt>
 <dd><p>Version number as calculated by <a class="github reference external" href="https://github.com/pypa/setuptools_scm">pypa/setuptools_scm</a></p>
 </dd></dl>
 
@@ -479,16 +454,13 @@
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="virtac.virtac_server.html#module-virtac.virtac_server" title="virtac.virtac_server"><code class="xref py py-obj docutils literal notranslate"><span class="pre">virtac_server</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Contains the VirtacServer class which creates and manages the PV interface to the VIRTAC.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="virtac.create_csv.html#module-virtac.create_csv" title="virtac.create_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_csv</span></code></a></p></td>
-<td><p>N/B all of the data collection functions in the file should be run on the default EPICS port for the live machine not 6064.</p></td>
+<td><p>This script does cagets from the live machine to get control limits and then uses this data in combination with hardcoded data in this file to generate csv files.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="virtac.masks.html#module-virtac.masks" title="virtac.masks"><code class="xref py py-obj docutils literal notranslate"><span class="pre">masks</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="virtac.mirror_objects.html#module-virtac.mirror_objects" title="virtac.mirror_objects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mirror_objects</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="virtac.pv.html#module-virtac.pv" title="virtac.pv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pv</span></code></a></p></td>
+<td><p>Contains the PV subclasses which wrap softioc records and provide the link between the softioc records and the simulation.</p></td>
 </tr>
 </tbody>
 </table>

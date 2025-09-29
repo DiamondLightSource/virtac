@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Installation &#8212; virtac 0.2.1.dev105+gc7c27ca79 documentation</title>
+    <title>PVs Provided by the Virtac &#8212; virtac 0.2.1.dev105+gc7c27ca79 documentation</title>
   
   
   
@@ -47,7 +47,7 @@
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=30646c52"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/installation';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/virtac_pvs';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
@@ -58,8 +58,8 @@
     <link rel="icon" href="../_static/dls-logo.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Overview" href="overview.html" />
-    <link rel="prev" title="Tutorials" href="../tutorials.html" />
+    <link rel="next" title="How-to Guides" href="../how-to.html" />
+    <link rel="prev" title="Using the Virtac" href="using_virtac.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="main" />
@@ -373,10 +373,10 @@
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="using_virtac.html">Using the Virtac</a></li>
-<li class="toctree-l1"><a class="reference internal" href="virtac_pvs.html">PVs Provided by the Virtac</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">PVs Provided by the Virtac</a></li>
 </ul>
 </div>
 </nav></div>
@@ -420,7 +420,7 @@
     
     <li class="breadcrumb-item"><a href="../tutorials.html" class="nav-link">Tutorials</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Installation</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PVs Provided by the Virtac</span></li>
   </ul>
 </nav>
 </div>
@@ -437,39 +437,74 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">#</a></h1>
-<section id="check-your-version-of-python">
-<h2>Check your version of python<a class="headerlink" href="#check-your-version-of-python" title="Link to this heading">#</a></h2>
-<p>You will need python 3.11 or later. You can check your version of python by
-typing into a terminal:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 --version
+  <section id="pvs-provided-by-the-virtac">
+<h1>PVs Provided by the Virtac<a class="headerlink" href="#pvs-provided-by-the-virtac" title="Link to this heading">#</a></h1>
+<p>Many of these PVs are, by design, identical to those used in the real machine. But there are some additional PVs either for conveniance or to simplify some behaviour.</p>
+<p>All of these PVs can be read using <code class="docutils literal notranslate"><span class="pre">caget</span></code> and some PVs can be written to using <code class="docutils literal notranslate"><span class="pre">caput</span></code></p>
+<p>This page only documents the PVs which are most useful to the user, a complete list of provided PVs is available by entering the <code class="docutils literal notranslate"><span class="pre">dbl()</span></code> command into the Virtac’s interactive terminal.</p>
+<section id="bpms">
+<h2>BPMs<a class="headerlink" href="#bpms" title="Link to this heading">#</a></h2>
+<p>To read the x/y position of the first bpm in the first cell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR01C</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EBPM</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SA</span><span class="p">:</span><span class="n">X</span>
+<span class="n">caget</span> <span class="n">SR01C</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EBPM</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SA</span><span class="p">:</span><span class="n">Y</span>
+</pre></div>
+</div>
+<p>To read the PVs which contain an array of x/y positions from all bpms:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EBPM</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SA</span><span class="p">:</span><span class="n">X</span>
+<span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EBPM</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SA</span><span class="p">:</span><span class="n">Y</span>
 </pre></div>
 </div>
 </section>
-<section id="create-a-virtual-environment">
-<h2>Create a virtual environment<a class="headerlink" href="#create-a-virtual-environment" title="Link to this heading">#</a></h2>
-<p>It is recommended that you install into a “virtual environment” so this
-installation will not interfere with any existing Python software:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m venv /path/to/venv
-$ source /path/to/venv/bin/activate
+<section id="emittance">
+<h2>Emittance<a class="headerlink" href="#emittance" title="Link to this heading">#</a></h2>
+<p>To get the combined, x and y emittance of the ring as a whole:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EMIT</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">EMITTANCE</span>
+<span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EMIT</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">HEMIT</span>
+<span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">EMIT</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">VEMIT</span>
 </pre></div>
 </div>
 </section>
-<section id="installing-the-library">
-<h2>Installing the library<a class="headerlink" href="#installing-the-library" title="Link to this heading">#</a></h2>
-<p>You can now use <code class="docutils literal notranslate"><span class="pre">pip</span></code> to install the library and its dependencies:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install virtac
+<section id="tune">
+<h2>Tune<a class="headerlink" href="#tune" title="Link to this heading">#</a></h2>
+<p>To get the x and y tunes for the ring as a whole:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR23C</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">TMBF</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">TUNE</span><span class="p">:</span><span class="n">TUNE</span>
+<span class="n">caget</span> <span class="n">SR23C</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">TMBF</span><span class="o">-</span><span class="mi">02</span><span class="p">:</span><span class="n">TUNE</span><span class="p">:</span><span class="n">TUNE</span>
 </pre></div>
 </div>
-<p>If you require a feature that is not currently released you can also install
-from github:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python3 -m pip install git+https://github.com/DiamondLightSource/virtac.git
+</section>
+<section id="magnets">
+<h2>Magnets<a class="headerlink" href="#magnets" title="Link to this heading">#</a></h2>
+<p>These setpoints PVs can all be read and written to using channel access. They are used to set the currents (in engineering units) to a variety of magnet families.</p>
+<p>Example caputs using sensible values:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caput</span> <span class="n">SR</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">DIPOL</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="mf">1354.61</span>
+<span class="n">caput</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">HSTR</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="o">-</span><span class="mf">0.247326</span>
+<span class="n">caput</span> <span class="n">SR02A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">HSCOR</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="o">-</span><span class="mf">0.0314738</span>
+<span class="n">caput</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">Q1D</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="mf">71.545</span>
+<span class="n">caput</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">S1D</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="mf">35.3174</span>
+<span class="n">caput</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">SQUAD</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SETI</span> <span class="mf">0.2689</span>
 </pre></div>
 </div>
-<p>The library should now be installed and the commandline interface on your path.
-You can check the version that has been installed by typing:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ virtac --version
+<p>To read the current value for these magnets used by the simulation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">DIPOL</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">HSTR</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR02A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">HSCOR</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">Q1D</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">S1D</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+<span class="n">caget</span> <span class="n">SR01A</span><span class="o">-</span><span class="n">PC</span><span class="o">-</span><span class="n">SQUAD</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">I</span>
+</pre></div>
+</div>
+<p>For the most part the SETI and I PVs such give the same value, one exception is for the quadrupoles used by tunefeedbacks, where the SETI current is offset by the tune offset prior to being set to the I PV used in the simulation.</p>
+</section>
+<section id="others">
+<h2>Others<a class="headerlink" href="#others" title="Link to this heading">#</a></h2>
+<p>These PVs only store setpoints, they are not updated by the simulation, but can be used to adjust it.</p>
+<p>The master oscillator is used to configure RF cavities:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">LI</span><span class="o">-</span><span class="n">RF</span><span class="o">-</span><span class="n">MOSC</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">FREQ</span>
+<span class="n">caput</span> <span class="n">LI</span><span class="o">-</span><span class="n">RF</span><span class="o">-</span><span class="n">MOSC</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">FREQ_SET</span> <span class="mi">499687000</span>
+</pre></div>
+</div>
+<p>The beam current does not have any effect on the simulation, but can be read:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">caget</span> <span class="n">SR</span><span class="o">-</span><span class="n">DI</span><span class="o">-</span><span class="n">DCCT</span><span class="o">-</span><span class="mi">01</span><span class="p">:</span><span class="n">SIGNAL</span>
 </pre></div>
 </div>
 </section>
@@ -486,20 +521,20 @@ You can check the version that has been installed by typing:</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="../tutorials.html"
+       href="using_virtac.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">Tutorials</p>
+        <p class="prev-next-title">Using the Virtac</p>
       </div>
     </a>
     <a class="right-next"
-       href="overview.html"
+       href="../how-to.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Overview</p>
+        <p class="prev-next-title">How-to Guides</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -522,9 +557,11 @@ You can check the version that has been installed by typing:</p>
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#check-your-version-of-python">Check your version of python</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-a-virtual-environment">Create a virtual environment</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#installing-the-library">Installing the library</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bpms">BPMs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#emittance">Emittance</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tune">Tune</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#magnets">Magnets</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#others">Others</a></li>
 </ul>
   </nav></div>
 
@@ -532,7 +569,7 @@ You can check the version that has been installed by typing:</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/virtac/edit/main/docs/tutorials/installation.md">
+    <a href="https://github.com/DiamondLightSource/virtac/edit/main/docs/tutorials/virtac_pvs.md">
       <i class="fa-solid fa-pencil"></i>
       
       
@@ -548,7 +585,7 @@ You can check the version that has been installed by typing:</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/tutorials/installation.md.txt"
+      <li><a href="../_sources/tutorials/virtac_pvs.md.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div></div>

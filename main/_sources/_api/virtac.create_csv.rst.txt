@@ -7,6 +7,8 @@
         
         
         
+        
+        
 
 .. automodule:: virtac.create_csv
     :members:
@@ -27,6 +29,8 @@
         generate_mirrored_pvs
         generate_pv_limits
         generate_tune_pvs
+        get_element_pv_data
+        main
         parse_arguments
         write_data_to_file
     

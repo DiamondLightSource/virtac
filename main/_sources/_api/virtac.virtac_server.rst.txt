@@ -1,6 +1,7 @@
 ``virtac.virtac_server``
 ========================
         
+        
 
 .. automodule:: virtac.virtac_server
     :members:
@@ -16,6 +17,7 @@
     .. autosummary::
         :nosignatures:
     
+        MirrorType
         VirtacServer
     
     

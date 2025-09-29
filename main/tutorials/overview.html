@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Overview &#8212; atip 0.1.dev394+gf570406 documentation</title>
+    <title>Overview &#8212; virtac 0.2.1.dev105+gc7c27ca79 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=37940537"></script>
+    <script src="../_static/documentation_options.js?v=59fa993f"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,7 +50,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'tutorials/overview';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
-        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/atip/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
@@ -58,7 +58,7 @@
     <link rel="icon" href="../_static/dls-logo.svg"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="ATIP example" href="atip_example.html" />
+    <link rel="next" title="Using the Virtac" href="using_virtac.html" />
     <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -132,7 +132,7 @@
     <img src="../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
   
   
-    <p class="title logo__title">atip</p>
+    <p class="title logo__title">virtac</p>
   
 </a></div>
     
@@ -211,20 +211,8 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/atip" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
-        </li>
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://pypi.org/project/atip" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">PyPI</span></a>
         </li>
 </ul></div>
       
@@ -350,20 +338,8 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/atip" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
             <span class="sr-only">GitHub</span></a>
-        </li>
-        <li class="nav-item">
-          
-          
-          
-          
-          
-          
-          
-          
-          <a href="https://pypi.org/project/atip" title="PyPI" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fas fa-cube fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">PyPI</span></a>
         </li>
 </ul></div>
         
@@ -399,8 +375,8 @@
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="atip_example.html">ATIP example</a></li>
-<li class="toctree-l1"><a class="reference internal" href="virtac_example.html">VIRTAC example</a></li>
+<li class="toctree-l1"><a class="reference internal" href="using_virtac.html">Using the Virtac</a></li>
+<li class="toctree-l1"><a class="reference internal" href="virtac_pvs.html">PVs Provided by the Virtac</a></li>
 </ul>
 </div>
 </nav></div>
@@ -463,39 +439,86 @@
                   
   <section id="overview">
 <h1>Overview<a class="headerlink" href="#overview" title="Link to this heading">#</a></h1>
-<p>ATIP is an addition to <a class="reference external" href="https://github.com/DiamondLightSource/pytac">Pytac</a>
-a framework for controlling particle accelerators. ATIP adds a simulator to
-Pytac, which can be used and addressed in the same way as a real accelerator.
-This enables the easy offline testing of high level accelerator controls
-applications.</p>
-<p>ATIP is hosted on Github <a class="reference external" href="https://github.com/DiamondLightSource/atip">here</a></p>
-<p>The python implementation of
-<a class="reference external" href="https://github.com/atcollab/at">Accelerator Toolbox</a> (pyAT) is used
-for the simulation.</p>
-<div class="sidebar docutils">
-<a class="bg-primary reference internal image-reference" href="../_images/control_structure.png"><img alt="How ATIP fits into the combined control structure." class="bg-primary align-right" src="../_images/control_structure.png" style="width: 300px;" />
-</a>
-</div>
-<p>ATIP allows an AT lattice to be fitted into the simulation data source of a
-Pytac lattice. This integrated lattice acts like a normal Pytac lattice, and
-enables the AT simulator to react and respond to changes as the real
-accelerator would.</p>
-<p>ATIP also makes use of a <a class="reference external" href="https://github.com/DiamondLightSource/cothread">Cothread</a>
-thread to recalculate and update the stored physics data any time a change is
-made to the lattice.</p>
-<p>ATIP can also be run in a standalone application as a “virtual accelerator”,
-publishing the same control system interface as the live machine. At Diamond
-Light Source this has been implemented with EPICS, using
-<a class="reference external" href="https://github.com/Araneidae/pythonIoc">PythonSoftIOC</a></p>
-<p>More documentation on how to use the virtual accelerator can be found <a class="reference external" href="https://github.com/DiamondLightSource/atip/tutorials/VIRTAC_example">here</a></p>
-<section id="helpful-tips">
-<h2>Helpful tips:<a class="headerlink" href="#helpful-tips" title="Link to this heading">#</a></h2>
-<p>In order for ATIP to function correctly, the AT and Pytac lattices used must be directly equivalent, i.e. they must have the same length and elements in the same positions.</p>
-<p>If local (not pip) installations are used, ATIP, AT, and Pytac must all be located in the same source directory in order for ATIP to function correctly.</p>
-<p>The methods on ATIP’s data sources that take handle and throw arguments do so only to conform with the Pytac DataSource base class from which they inherit. Inside ATIP they are not used and can be ignored.</p>
-<p>To interpret which data is to be returned or set, both ATElementDataSource and ATLatticeDataSource use a dictionary of functions corresponding to fields. In the case where a cell needs to be passed to the data handling functions, for further specification, functools’ partial() is used.</p>
-<p>The physics data is received from AT all together; to make it easier to manage, it is split by ATIP and accessed by a number of methods of the ATSimulator object. This aims to be more convenient for the user but does result in the ATSimulator object having a large number of methods.</p>
-<p>A number of functions that perform tasks that are frequent or long-winded are included in utils.py to make life easier for the user.</p>
+<section id="what-is-the-virtac">
+<h2>What is the Virtac?<a class="headerlink" href="#what-is-the-virtac" title="Link to this heading">#</a></h2>
+<p>The Diamond Virtual Accelerator (Virtac for short) was created to simulate the high level controls interface to the real accelerator, mostly the storage ring. There are three main parts:</p>
+<ol class="arabic simple">
+<li><p>An EPICS IOC which aims to faithfully reproduce the PVs available on the real machine and their behavior.</p></li>
+<li><p>A pytac lattice which contains the same elements (dipoles, quadrupoles, etc) as the real machine and is updated via the aforementioned PV interface.</p></li>
+<li><p>A pyAT simulation which is updated from the pytac lattice and indirectly from the Virtac PV interface.</p></li>
+</ol>
+<section id="pv-interface">
+<h3>1. PV interface<a class="headerlink" href="#pv-interface" title="Link to this heading">#</a></h3>
+<p>The Virtac provides over 4000 PVs which allow you to control the Virtac and to read information about it using channel access. We use <a class="reference external" href="https://diamondlightsource.github.io/pythonSoftIOC/master/tutorials/creating-an-ioc.html">PythonSoftIOC</a> to create the EPICS IOC. We use information from pytac (which in turn derives its data from matlab middlelayer) in addition to information contained in csv files to create PVs. The data in our csv files is largely created by reading PVs from the real machine, with some manually generated configuration.</p>
+</section>
+<section id="pytac-lattice">
+<h3>2. Pytac lattice<a class="headerlink" href="#pytac-lattice" title="Link to this heading">#</a></h3>
+<p><a class="reference external" href="https://pytac.readthedocs.io/en/latest/">Pytac</a> is used to define the lattice which describes the layout of the storage ring. The lattice tracks over 2000 elements, including different types of dipoles, quadrupoles, sextupoles, drifts and bpms.</p>
+<p>Pytac supports many lattice modes, but the Virtac currently supports just three: ‘DIAD’, ‘I04’ and the Diamond 2 ringmode, ‘48’.</p>
+</section>
+<section id="pyat-simulation">
+<h3>3. pyAT simulation<a class="headerlink" href="#pyat-simulation" title="Link to this heading">#</a></h3>
+<p><a class="reference external" href="https://atcollab.github.io/at/p/index.html">pyAT</a> is used to simulate the physics inside the particle accelerator. More specifically, we mostly use pyAT to simulate the path of a single electron around the storage ring. pyAT also contains a lattice, this is linked to and configured from the pytac lattice.</p>
+<p>Our main use-case of pyAT is to allow modifications of the lattice (such as setting magnet currents via the PV interface) and then calculating how these modifications affect the reference orbit of an electron travelling around the storage ring. This core premise allows us to test certain feedback algorithms against the Virtac by setting magnet currents, then reading bpm positions and repeating until we find an idealized orbit.</p>
+</section>
+<section id="what-can-currently-be-tested-against-the-virtac">
+<h3>What can currently be tested against the Virtac?<a class="headerlink" href="#what-can-currently-be-tested-against-the-virtac" title="Link to this heading">#</a></h3>
+<p>Currently the Virtac only simulates the storage ring, but this may change in the future.</p>
+<p>The main use-case is IOCs which write to magnet current PVs and then need to see what effect this has on the ring.</p>
+<p>We simulate the following magnet families:</p>
+<ul class="simple">
+<li><p>Bends</p></li>
+<li><p>Quadrupoles</p></li>
+<li><p>Skew quadrupoles</p></li>
+<li><p>Horizontal and vertical steerers/correctors</p></li>
+<li><p>Horizontal and vertical ID trim coils</p></li>
+<li><p>Chicanes</p></li>
+<li><p>Sextupoles</p></li>
+<li><p>Octupoles (for Diamond 2)</p></li>
+<li><p>Combined dipole-quadrupoles (for Diamond 2)</p></li>
+<li><p>Anti-bend dipoles (for Diamond 2)</p></li>
+</ul>
+<p>We simulate the following ring parameters and provide them as PVs:</p>
+<ul class="simple">
+<li><p>BPM positions</p></li>
+<li><p>Emittance</p></li>
+<li><p>Tune</p></li>
+</ul>
+<p>Some of the things that we dont simulate:</p>
+<ul class="simple">
+<li><p>The linac</p></li>
+<li><p>The booster ring</p></li>
+<li><p>The transfer lines</p></li>
+<li><p>Particle injection</p></li>
+<li><p>Bunches</p></li>
+<li><p>Electrons outside of the reference orbit</p></li>
+<li><p>Beam decay</p></li>
+<li><p>Insertion devices (only the trim coils for ID corrections are simulated)</p></li>
+</ul>
+<p>With the default settings, the simulation can only be recalculated at a maximum rate of:</p>
+<ul class="simple">
+<li><p>Approximately 2Hz for Diamond 1</p></li>
+<li><p>Approximately 0.7Hz for Diamond 2</p></li>
+</ul>
+</section>
+<section id="apps-currently-being-tested-against-the-virtac">
+<h3>Apps currently being tested against the Virtac<a class="headerlink" href="#apps-currently-being-tested-against-the-virtac" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Slow orbit feedback</p></li>
+<li><p>Tune feedback</p></li>
+<li><p>Vertical emittance feedback</p></li>
+<li><p>Response matrix calculation</p></li>
+</ul>
+</section>
+<section id="future-plans">
+<h3>Future plans<a class="headerlink" href="#future-plans" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Allow the Virtac to be run using the Diamond II lattice configuration</p></li>
+<li><p>Simulate the booster to storage ring transfer line</p></li>
+<li><p>Simulate electrons which do not follow the reference orbit, ie by giving them a non-zero initial position in the beam tube.</p></li>
+<li><p>Reduce the simulation recalculation delay</p></li>
+</ul>
+</section>
 </section>
 </section>
 
@@ -519,11 +542,11 @@ Light Source this has been implemented with EPICS, using
       </div>
     </a>
     <a class="right-next"
-       href="atip_example.html"
+       href="using_virtac.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">ATIP example</p>
+        <p class="prev-next-title">Using the Virtac</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -546,7 +569,15 @@ Light Source this has been implemented with EPICS, using
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#helpful-tips">Helpful tips:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-the-virtac">What is the Virtac?</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pv-interface">1. PV interface</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pytac-lattice">2. Pytac lattice</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyat-simulation">3. pyAT simulation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-can-currently-be-tested-against-the-virtac">What can currently be tested against the Virtac?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#apps-currently-being-tested-against-the-virtac">Apps currently being tested against the Virtac</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#future-plans">Future plans</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
@@ -554,7 +585,7 @@ Light Source this has been implemented with EPICS, using
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/atip/edit/main/docs/tutorials/overview.md">
+    <a href="https://github.com/DiamondLightSource/virtac/edit/main/docs/tutorials/overview.md">
       <i class="fa-solid fa-pencil"></i>
       
       

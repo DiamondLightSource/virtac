@@ -1,0 +1,983 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>virtac.pv &#8212; virtac 0.2.1.dev105+gc7c27ca79 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=59fa993f"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=30646c52"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_api/virtac.pv';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/dls-logo.svg"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Index" href="../genindex.html" />
+    <link rel="prev" title="virtac.create_csv" href="virtac.create_csv.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="main" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/dls-logo.svg" class="logo__image only-light" alt=""/>
+    <img src="../_static/dls-logo.svg" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">virtac</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../tutorials.html">
+    Tutorials
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../how-to.html">
+    How-to Guides
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../explanations.html">
+    Explanations
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../reference.html">
+    Reference
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="virtac.html">API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="virtac.virtac_server.html"><code class="docutils literal notranslate"><span class="pre">virtac.virtac_server</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="virtac.create_csv.html"><code class="docutils literal notranslate"><span class="pre">virtac.create_csv</span></code></a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">virtac.pv</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/DiamondLightSource/virtac/releases">Release Notes</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../reference.html" class="nav-link">Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="virtac.html" class="nav-link"><code class="docutils literal notranslate"><span class="pre">virtac</span></code></a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><code class="docutils literal notranslate"><span class="pre">virtac.pv</span></code></span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-virtac.pv">
+<span id="virtac-pv"></span><h1><code class="docutils literal notranslate"><span class="pre">virtac.pv</span></code><a class="headerlink" href="#module-virtac.pv" title="Link to this heading">#</a></h1>
+<p>Contains the PV subclasses which wrap softioc records and provide the link between
+the softioc records and the simulation.</p>
+<p class="rubric">Members</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BasePV</span></code></a></p></td>
+<td><p>Stores the attributes and methods which allow the VIRTAC to control an EPICS PV.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.pv.CollationPV" title="virtac.pv.CollationPV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CollationPV</span></code></a></p></td>
+<td><p>Used to collate values from a list of PVs into an array, with the result set to this PVs _record.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.pv.InversionPV" title="virtac.pv.InversionPV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InversionPV</span></code></a></p></td>
+<td><p>Used to invert records containing a boolean or array of booleans, ie swap true to false and false to true and then save the result in its own waveform _record.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.pv.MonitorPV" title="virtac.pv.MonitorPV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MonitorPV</span></code></a></p></td>
+<td><p>This type of PV monitors one or more PVs using channal access and does a callback when one of the camonitors returns</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.pv.ReadSimPV" title="virtac.pv.ReadSimPV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReadSimPV</span></code></a></p></td>
+<td><p>This PV is used to read a value from the simulation using the pytac lattice and then set it to a softioc record.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.pv.ReadWriteSimPV" title="virtac.pv.ReadWriteSimPV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ReadWriteSimPV</span></code></a></p></td>
+<td><p>This PV is used to write a value to the simulation from a softioc record using the pytac lattice.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RecordData</span></code></a></p></td>
+<td><p>Class for holding information required to create a softioc record</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.pv.RecordTypes" title="virtac.pv.RecordTypes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RecordTypes</span></code></a></p></td>
+<td><p>Currently supported EPICS sofioc record types</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.pv.RefreshPV" title="virtac.pv.RefreshPV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RefreshPV</span></code></a></p></td>
+<td><p>This PV monitors another PV and when it updates, we set our _record to the returned value and then force a third PV to update (refresh).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.pv.SummationPV" title="virtac.pv.SummationPV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SummationPV</span></code></a></p></td>
+<td><p>Used to sum values from a list of PVs, with the result set to this PVs _record.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.RecordTypes">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">RecordTypes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#RecordTypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.RecordTypes" title="Link to this definition">#</a></dt>
+<dd><p>Currently supported EPICS sofioc record types</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.RecordData">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">RecordData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lower</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">upper</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive_high</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">drive_low</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zrvl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zrst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scan</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'I/O</span> <span class="pre">Intr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pini</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'YES'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">always_update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#RecordData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.RecordData" title="Link to this definition">#</a></dt>
+<dd><p>Class for holding information required to create a softioc record</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.BasePV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">BasePV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><span class="pre">RecordData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV" title="Link to this definition">#</a></dt>
+<dd><p>Stores the attributes and methods which allow the VIRTAC to control an
+EPICS PV.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="virtac.pv.BasePV.self.__record">
+<span class="sig-prename descclassname"><span class="pre">self.</span></span><span class="sig-name descname"><span class="pre">__record</span></span><a class="headerlink" href="#virtac.pv.BasePV.self.__record" title="Link to this definition">#</a></dt>
+<dd><p>This softioc record is the
+heart of the PV class, the main purpose of PV objects is to manage the
+setting and getting of these records.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>softioc.pythonSoftIoc.RecordWrapper</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Used to identify this PV and its softioc record.</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.BasePV.set_record_field">
+<span class="sig-name descname"><span class="pre">set_record_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.set_record_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.set_record_field" title="Link to this definition">#</a></dt>
+<dd><p>Set a field on this PVs softioc record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>field</strong> – The EPICS field to set on the softioc record</p></li>
+<li><p><strong>value</strong> – The value to set to the EPICS field</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.BasePV.create_softioc_record">
+<span class="sig-name descname"><span class="pre">create_softioc_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><span class="pre">RecordData</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.create_softioc_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.create_softioc_record" title="Link to this definition">#</a></dt>
+<dd><p>Create this PVs softioc record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.BasePV.get_record">
+<span class="sig-name descname"><span class="pre">get_record</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">RecordWrapper</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.get_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.get_record" title="Link to this definition">#</a></dt>
+<dd><p>Return this PVs softioc record, care should be taken when manipulating the
+returned record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The softioc record object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.BasePV.get_value">
+<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.get_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.get_value" title="Link to this definition">#</a></dt>
+<dd><p>Get the value stored in this PVs softioc record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The softioc record’s value.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.BasePV.set_value">
+<span class="sig-name descname"><span class="pre">set_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.set_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.set_value" title="Link to this definition">#</a></dt>
+<dd><p>Set a value to this PVs softioc record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> – The value to set to the softioc record.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.ReadSimPV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">ReadSimPV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><span class="pre">RecordData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pytac_items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">EpicsLattice</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Element</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#ReadSimPV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadSimPV" title="Link to this definition">#</a></dt>
+<dd><p>This PV is used to read a value from the simulation using the pytac lattice and
+then set it to a softioc record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Used to identify this PV and its softioc record.</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>pytac_items</strong> – A list of pytac elements or the pytac lattice itself which
+should be linked to this PV.</p></li>
+<li><p><strong>pytac_field</strong> – The field on the pytac item(s) to set/get.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.ReadSimPV.append_pytac_item">
+<span class="sig-name descname"><span class="pre">append_pytac_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pytac_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">EpicsLattice</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Element</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#ReadSimPV.append_pytac_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadSimPV.append_pytac_item" title="Link to this definition">#</a></dt>
+<dd><p>Append a pytac item to the list of pytac items defined for this PV</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pytac_item</strong> – The pytac element or lattice to append.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.ReadSimPV.update_from_sim">
+<span class="sig-name descname"><span class="pre">update_from_sim</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#ReadSimPV.update_from_sim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadSimPV.update_from_sim" title="Link to this definition">#</a></dt>
+<dd><p>Read a value from the simulation and set it to this PVs softioc record.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.ReadWriteSimPV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">ReadWriteSimPV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><span class="pre">RecordData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">read_pv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.ReadSimPV" title="virtac.pv.ReadSimPV"><span class="pre">ReadSimPV</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pytac_items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">EpicsLattice</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Element</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pytac_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset_pv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><span class="pre">BasePV</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#ReadWriteSimPV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadWriteSimPV" title="Link to this definition">#</a></dt>
+<dd><p>This PV is used to write a value to the simulation from a softioc record using
+the pytac lattice.</p>
+<p>These PVs always have an associated readback PV, we do not simulate how the hardware
+would ramp up this readback PV, instead we simply set it equal to the value set to
+this PV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Used to identify this PV and its softioc record.</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>read_pv</strong> – The readback PV linked to this PV which reads from the lattice.</p></li>
+<li><p><strong>pytac_items</strong> – A list of pytac elements or the pytac lattice itself which
+should be linked to this PV.</p></li>
+<li><p><strong>pytac_field</strong> – The field on the pytac item(s) to set/get.</p></li>
+<li><p><strong>offset_pv</strong> – An optional PV which can be used to get an offset value which is
+appended to this pvs pytac item(s) when writing.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.ReadWriteSimPV.set_value">
+<span class="sig-name descname"><span class="pre">set_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#ReadWriteSimPV.set_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadWriteSimPV.set_value" title="Link to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>Set a value to this PVs softioc record, update its pytac element(s)</dt><dd><p>with the same value and then set the value to its read pv.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – The value to set to the softioc record.</p></li>
+<li><p><strong>offset</strong> – An optional offset value to add to this PVs pytac element but NOT to
+its softioc record.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.ReadWriteSimPV.attach_offset_record">
+<span class="sig-name descname"><span class="pre">attach_offset_record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">offset_pv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><span class="pre">BasePV</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#ReadWriteSimPV.attach_offset_record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadWriteSimPV.attach_offset_record" title="Link to this definition">#</a></dt>
+<dd><p>Used to configure this PV with an offset PV in situations where the offset
+was created after this PV.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>offset_pv</strong> – The PV object to be used during this PVs’ records’ on_update
+function.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.MonitorPV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">MonitorPV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><span class="pre">RecordData</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitored_pv_names</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callbacks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#MonitorPV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.MonitorPV" title="Link to this definition">#</a></dt>
+<dd><p>This type of PV monitors one or more PVs using channal access and does a callback
+when one of the camonitors returns</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="virtac.pv.MonitorPV._monitor_data">
+<span class="sig-name descname"><span class="pre">_monitor_data</span></span><a class="headerlink" href="#virtac.pv.MonitorPV._monitor_data" title="Link to this definition">#</a></dt>
+<dd><p>Used to keep track
+of which PVs we are monitoring and which functions the camonitor calls when
+they change value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(list[tuple[list[str], list[CallbackType]]])</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="virtac.pv.MonitorPV._camonitor_handles">
+<span class="sig-name descname"><span class="pre">_camonitor_handles</span></span><a class="headerlink" href="#virtac.pv.MonitorPV._camonitor_handles" title="Link to this definition">#</a></dt>
+<dd><p>Used to close camonitors if a
+command is sent to pause monitoring.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[_Subscription]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>monitored_pvs</strong> – A list of PV names used to setup camonitoring.</p></li>
+<li><p><strong>callbacks</strong> – A list of functions to be called when the monitored PVs return.
+If none, then this PVs set function is called as the callback.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.MonitorPV.enable_monitoring">
+<span class="sig-name descname"><span class="pre">enable_monitoring</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#MonitorPV.enable_monitoring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.MonitorPV.enable_monitoring" title="Link to this definition">#</a></dt>
+<dd><p>Used to re-enable monitoring of this PV by re-creating the subscriptions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="virtac.pv.MonitorPV.disable_monitoring">
+<span class="sig-name descname"><span class="pre">disable_monitoring</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#MonitorPV.disable_monitoring"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.MonitorPV.disable_monitoring" title="Link to this definition">#</a></dt>
+<dd><p>Used to switch off this PVs monitoring by closing camonitor subscriptions.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.RefreshPV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">RefreshPV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitored_pv_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_to_refresh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><span class="pre">BasePV</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">pv_to_cannibalise</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><span class="pre">BasePV</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#RefreshPV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.RefreshPV" title="Link to this definition">#</a></dt>
+<dd><p>This PV monitors another PV and when it updates, we set our _record to the
+returned value and then force a third PV to update (refresh).</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the current implementation of VIRTAC, this PV is used to monitor an
+external PV in the tune feedbacks IOC. We store the value from the monitored
+PV in our _record, we then force a third PV (OffsetPV) to update. When this
+third PV updates, it reads the value from our _record and uses it as an offset
+which it adds to its own value before setting the result to itself and the pytac
+lattice.</p>
+</div>
+<dl class="simple">
+<dt>TODO: This PV does a lot of work at the moment, possible candidate for refactoring</dt><dd><p>or removal. Removal would also allow us to guarentee that _record is not None.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="virtac.pv.RefreshPV._record_to_refresh">
+<span class="sig-name descname"><span class="pre">_record_to_refresh</span></span><a class="headerlink" href="#virtac.pv.RefreshPV._record_to_refresh" title="Link to this definition">#</a></dt>
+<dd><p>The PV to refresh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PV</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>monitored_pv_name</strong> – A PV to monitor and trigger refreshing.</p></li>
+<li><p><strong>record_to_refresh</strong> – The PV to pass to _record_to_refresh</p></li>
+<li><p><strong>pv_to_cannibalise</strong> – We take relevant variables from this PV, after which it
+should be discarded.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="simple">
+<dt>TODO: It would be better if we didnt have to.</dt><dd><p>cannibalise an existing PV and could just create a new one.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.InversionPV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">InversionPV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><span class="pre">RecordData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">invert_pvs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><span class="pre">BasePV</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#InversionPV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.InversionPV" title="Link to this definition">#</a></dt>
+<dd><p>Used to invert records containing a boolean or array of booleans, ie swap true to
+false and false to true and then save the result in its own waveform _record.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This class can either invert a single waveform record or a list of ai
+records. If invert_pvs contains more than 1 PV, then we assume the latter.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the current implementation of VIRTAC, this PV is being used to invert a
+list of SR01C-DI-EBPM-01:CF:ENABLED_S PVs, each containing a boolean value into
+a single waveform.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>invert_pvs</strong> – A list of PVs to monitor and then invert when they change value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.SummationPV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">SummationPV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><span class="pre">RecordData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">summate_pvs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><span class="pre">BasePV</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#SummationPV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.SummationPV" title="Link to this definition">#</a></dt>
+<dd><p>Used to sum values from a list of PVs, with the result set to this PVs _record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>summate_pvs</strong> – A list of PVs to monitor and then sum when they change value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="virtac.pv.CollationPV">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">virtac.pv.</span></span><span class="sig-name descname"><span class="pre">CollationPV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">record_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#virtac.pv.RecordData" title="virtac.pv.RecordData"><span class="pre">RecordData</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">collate_pvs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#virtac.pv.BasePV" title="virtac.pv.BasePV"><span class="pre">BasePV</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/pv.html#CollationPV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.CollationPV" title="Link to this definition">#</a></dt>
+<dd><p>Used to collate values from a list of PVs into an array, with the result set to
+this PVs _record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> – Used to set self.name</p></li>
+<li><p><strong>record_data</strong> – Dataclass used to create this PVs softioc record.</p></li>
+<li><p><strong>collate_pv</strong> – A list of PVs to monitor and then collate when they change
+value.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="virtac.create_csv.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="docutils literal notranslate"><span class="pre">virtac.create_csv</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../genindex.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Index</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.RecordTypes"><code class="docutils literal notranslate"><span class="pre">RecordTypes</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.RecordData"><code class="docutils literal notranslate"><span class="pre">RecordData</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV"><code class="docutils literal notranslate"><span class="pre">BasePV</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.self.__record"><code class="docutils literal notranslate"><span class="pre">BasePV.self.__record</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.set_record_field"><code class="docutils literal notranslate"><span class="pre">BasePV.set_record_field()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.create_softioc_record"><code class="docutils literal notranslate"><span class="pre">BasePV.create_softioc_record()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.get_record"><code class="docutils literal notranslate"><span class="pre">BasePV.get_record()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.get_value"><code class="docutils literal notranslate"><span class="pre">BasePV.get_value()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.set_value"><code class="docutils literal notranslate"><span class="pre">BasePV.set_value()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadSimPV"><code class="docutils literal notranslate"><span class="pre">ReadSimPV</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadSimPV.append_pytac_item"><code class="docutils literal notranslate"><span class="pre">ReadSimPV.append_pytac_item()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadSimPV.update_from_sim"><code class="docutils literal notranslate"><span class="pre">ReadSimPV.update_from_sim()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadWriteSimPV"><code class="docutils literal notranslate"><span class="pre">ReadWriteSimPV</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadWriteSimPV.set_value"><code class="docutils literal notranslate"><span class="pre">ReadWriteSimPV.set_value()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadWriteSimPV.attach_offset_record"><code class="docutils literal notranslate"><span class="pre">ReadWriteSimPV.attach_offset_record()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.MonitorPV"><code class="docutils literal notranslate"><span class="pre">MonitorPV</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.MonitorPV._monitor_data"><code class="docutils literal notranslate"><span class="pre">MonitorPV._monitor_data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.MonitorPV._camonitor_handles"><code class="docutils literal notranslate"><span class="pre">MonitorPV._camonitor_handles</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.MonitorPV.enable_monitoring"><code class="docutils literal notranslate"><span class="pre">MonitorPV.enable_monitoring()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.MonitorPV.disable_monitoring"><code class="docutils literal notranslate"><span class="pre">MonitorPV.disable_monitoring()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.RefreshPV"><code class="docutils literal notranslate"><span class="pre">RefreshPV</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.RefreshPV._record_to_refresh"><code class="docutils literal notranslate"><span class="pre">RefreshPV._record_to_refresh</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.InversionPV"><code class="docutils literal notranslate"><span class="pre">InversionPV</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.SummationPV"><code class="docutils literal notranslate"><span class="pre">SummationPV</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.CollationPV"><code class="docutils literal notranslate"><span class="pre">CollationPV</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/DiamondLightSource/virtac/edit/main/docs/_api/virtac.pv.rst">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_api/virtac.pv.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
