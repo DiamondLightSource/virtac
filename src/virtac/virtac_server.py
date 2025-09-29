@@ -67,19 +67,19 @@ class VirtacServer:
     ) -> None:
         """
         Args:
-            ring_mode (str): The ring mode to create the lattice in.
-            limits_csv (str): The filepath to the .csv file from which to load the pv
+            ring_mode: The ring mode to create the lattice in.
+            limits_csv: The filepath to the .csv file from which to load the pv
                 limits. For more information see create_csv.py.
-            bba_csv (str): The filepath to the .csv file from which to load the bba
+            bba_csv: The filepath to the .csv file from which to load the bba
                 records, for more information see create_csv.py.
-            feedback_csv (str): The filepath to the .csv file from which to load the
+            feedback_csv: The filepath to the .csv file from which to load the
                 feedback records, for more information see create_csv.py.
-            mirror_csv (str): The filepath to the .csv file from which to load the
+            mirror_csv: The filepath to the .csv file from which to load the
                 mirror records, for more information see create_csv.py.
-            tune_csv (str): The filepath to the .csv file from which to load the tune
+            tune_csv: The filepath to the .csv file from which to load the tune
                 feedback records, for more information see create_csv.py.
-            disable_emittance (bool): Whether emittance should be disabled.
-            disable_tunefb (bool): Whether tune feedback should be disabled.
+            disable_emittance: Whether emittance should be disabled.
+            disable_tunefb: Whether tune feedback should be disabled.
         """
         self._disable_emittance: bool = disable_emittance
         self._disable_tunefb: bool = disable_tunefb
@@ -124,8 +124,8 @@ class VirtacServer:
         element pytac data.
 
         Args:
-            limits_csv (Path | None): The filepath to the .csv file from which to
-                load pv field data to configure softioc records with.
+            limits_csv: The filepath to the .csv file from which to load pv field data
+                to configure softioc records with.
         """
         limits_dict: LimitsDictType = {}
         if limits_csv is not None:
@@ -165,7 +165,7 @@ class VirtacServer:
             these PVs read their value from it.
 
         Args:
-            limits_dict (LimitsDictType): A dictionary containing the limits data for
+            limits_dict: A dictionary containing the limits data for
                 the PVs.
         """
         bend_in_record = None
@@ -258,8 +258,7 @@ class VirtacServer:
             the lattice.
 
         Args:
-            limits_dict (LimitsDictType): A dictionary containing the limits data for
-                the PVs.
+            limits_dict: A dictionary containing the limits data for the PVs.
         """
         lat_field_dict = cast(dict[str, list[str]], self.lattice.get_fields())
         lat_field_set = set(lat_field_dict[pytac.LIVE]) & set(lat_field_dict[pytac.SIM])
@@ -296,8 +295,8 @@ class VirtacServer:
         location passed, see create_csv.py for more information.
 
         Args:
-            bba_csv (Path | None): The filepath to the .csv file to load the
-                                    records in accordance with.
+            bba_csv: The filepath to the .csv file to load the records in accordance
+                with.
         """
         self._create_feedback_or_bba_records_from_csv(bba_csv)
 
@@ -307,8 +306,8 @@ class VirtacServer:
         case are also created.
 
         Args:
-            feedback_csv (Path | None): The filepath to the .csv file to load the
-                                    records in accordance with.
+            feedback_csv: The filepath to the .csv file to load the records in
+                accordance with.
         """
         self._create_feedback_or_bba_records_from_csv(feedback_csv)
 
@@ -325,8 +324,8 @@ class VirtacServer:
         its contents.
 
         Args:
-            csv_file (Path | None): The filepath to the .csv file to load the
-                                    records in accordance with.
+            csv_file: The filepath to the .csv file to load the records in accordance
+                with.
         """
         # We don't set limits or precision but this shouldn't be an issue as these
         # records aren't intended to be set to by a user.
@@ -362,8 +361,8 @@ class VirtacServer:
         passed, see create_csv.py for more information.
 
         Args:
-            mirror_csv (Path | None): The filepath to the .csv file to load the
-                                    records in accordance with.
+            mirror_csv : The filepath to the .csv file to load the records in accordance
+                with.
         """
         with open(mirror_csv) as f:
             val: RecordValueType = 0
@@ -451,8 +450,8 @@ class VirtacServer:
             'offset_pv' and adds it to its own value.
 
         Args:
-            tune_csv (Path | None): A path to a tune feedback .csv file to be used
-                             instead of the default filepath passed at startup.
+            tune_csv: A path to a tune feedback .csv file to be used instead of the
+                default filepath passed at startup.
         """
         with open(tune_csv) as f:
             csv_reader = csv.DictReader(f)
@@ -503,8 +502,8 @@ class VirtacServer:
         """Print helpful statistics based on passed verbosity level
 
         Args:
-            verbosity (int): The verbosity level to print at, higher levels
-                             print more information.
+            verbosity: The verbosity level to print at, higher levels print more
+                information.
         """
         pv_type_count: dict[type[BasePV], int] = defaultdict(int)
 

@@ -50,9 +50,7 @@ class BasePV:
     """Stores the attributes and methods which allow the VIRTAC to control an
     EPICS PV.
 
-
     Attributes:
-        self.name (str): The name used to get both the PV and its softioc record.
         self._record (softioc.pythonSoftIoc.RecordWrapper): This softioc record is the
             heart of the PV class, the main purpose of PV objects is to manage the
             setting and getting of these records.
@@ -61,13 +59,12 @@ class BasePV:
     def __init__(self, name: str, record_data: RecordData | None) -> None:
         """
         Args:
-            name (str): Used to identify this PV and its softioc record.
-            record_data (RecordData | None): Dataclass used to create this PVs softioc
-                record.
+            name: Used to identify this PV and its softioc record.
+            record_data: Dataclass used to create this PVs softioc record.
         """
         logging.debug(f"Creating PV: {name}")
         self.name: str = name
-        self._record: RecordWrapper
+        self._record: RecordWrapper | None
         if record_data is not None:
             self.create_softioc_record(record_data)
 
@@ -78,8 +75,8 @@ class BasePV:
         rapidly by CA clients.
 
         Args:
-            value (RecordValueType): The value that has just been set to the record.
-            name (str): The name of the softioc record that has just been set to.
+            value: The value that has just been set to the record.
+            name: The name of the softioc record that has just been set to.
         """
         logging.debug("Read value %s on pv %s", value, name)
 
@@ -87,8 +84,8 @@ class BasePV:
         """Set a field on this PVs softioc record.
 
         Args:
-            field (softioc.field): The EPICS field to set on the softioc record
-            value (RecordValueType | str): The value to set to the EPICS field
+            field: The EPICS field to set on the softioc record
+            value: The value to set to the EPICS field
         """
         self._record.set_field(field, value)
 
@@ -99,7 +96,7 @@ class BasePV:
         """Create this PVs softioc record.
 
         Args:
-            record_data (RecordData): Dataclass used to create this PVs softioc record.
+            record_data: Dataclass used to create this PVs softioc record.
         """
         if "self._record" in locals():
             raise AttributeError(
@@ -161,18 +158,25 @@ class BasePV:
     def get_record(self) -> RecordWrapper:
         """Return this PVs softioc record, care should be taken when manipulating the
         returned record.
+
+        Returns:
+            The softioc record object.
         """
         return self._record
 
     def get(self) -> RecordValueType:
-        """Get the value stored in this PVs softioc record"""
+        """Get the value stored in this PVs softioc record.
+
+        Returns:
+            The softioc record's value.
+        """
         return self._record.get()
 
     def set(self, value: RecordValueType) -> None:
         """Set a value to this PVs softioc record.
 
         Args:
-            value (RecordValueType): The value to set to the softioc record.
+            value: The value to set to the softioc record.
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
         self._record.set(value)
@@ -192,12 +196,11 @@ class ReadSimPV(BasePV):
     ) -> None:
         """
         Args:
-            name (str): Used to identify this PV and its softioc record.
-            record_data (RecordData | None): Dataclass used to create this PVs softioc
-                record.
-            pytac_items (list[PytacItemType]):  A list of pytac elements or the pytac
-                lattice itself which should be linked to this PV.
-            pytac_field (str): The field on the pytac item(s) to set/get.
+            name: Used to identify this PV and its softioc record.
+            record_data: Dataclass used to create this PVs softioc record.
+            pytac_items:  A list of pytac elements or the pytac lattice itself which
+                should be linked to this PV.
+            pytac_field: The field on the pytac item(s) to set/get.
         """
         super().__init__(name, record_data)
         self._pytac_items: list[PytacItemType] = pytac_items
@@ -207,14 +210,12 @@ class ReadSimPV(BasePV):
         """Append a pytac item to the list of pytac items defined for this PV
 
         Args:
-            pytac_item (PytacItem): The pytac element or lattice to append.
+            pytac_item: The pytac element or lattice to append.
         """
         self._pytac_items.append(pytac_item)
 
     def update_from_sim(self) -> None:
-        """Read a value from the simulation and set it to this PVs softioc
-        record.
-        """
+        """Read a value from the simulation and set it to this PVs softioc record."""
         logging.debug(f"Updating pv {self.name}")
         try:
             value = cast(
@@ -249,16 +250,14 @@ class ReadWriteSimPV(ReadSimPV):
     ) -> None:
         """
         Args:
-            name (str): Used to identify this PV and its softioc record.
-            record_data (RecordData | None): Dataclass used to create this PVs softioc
-                record.
-            read_pv (ReadSimPV): The readback PV linked to this PV which reads
-                from the lattice
-            pytac_items (list[PytacItemType]):  A list of pytac elements or the pytac
-                lattice itself which should be linked to this PV.
-            pytac_field (str): The field on the pytac item(s) to set/get.
-            offset_pv (BasePV | None) An optional PV which can be used to get an offset
-                value which is appended to this pvs pytac item(s) when writing.
+            name: Used to identify this PV and its softioc record.
+            record_data: Dataclass used to create this PVs softioc record.
+            read_pv: The readback PV linked to this PV which reads from the lattice.
+            pytac_items:  A list of pytac elements or the pytac lattice itself which
+                should be linked to this PV.
+            pytac_field: The field on the pytac item(s) to set/get.
+            offset_pv: An optional PV which can be used to get an offset value which is
+                appended to this pvs pytac item(s) when writing.
         """
         super().__init__(name, record_data, pytac_items, pytac_field)
         self._read_pv = read_pv
@@ -270,8 +269,8 @@ class ReadWriteSimPV(ReadSimPV):
         self._offset_pv) to the pytac item and field configured for self._pv_to_update.
 
         Args:
-            value (RecordValueType): The value that has just been set to self._record.
-            name (str): The name of self._record object.
+            value: The value that has just been set to self._record.
+            name: The name of self._record object.
         """
         logging.debug("Read value %s on pv %s", value, name)
         if self._offset_record is not None:
@@ -287,9 +286,9 @@ class ReadWriteSimPV(ReadSimPV):
             with the same value and then set the value to its read pv.
 
         Args:
-            value (RecordValueType): The value to set to the softioc record.
-            offset (RecordValueType): An optional offset value to add to this PVs pytac
-                element but NOT to its softioc record.
+            value: The value to set to the softioc record.
+            offset: An optional offset value to add to this PVs pytac element but NOT to
+                its softioc record.
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
         if offset is not None:
@@ -327,8 +326,8 @@ class ReadWriteSimPV(ReadSimPV):
         was created after this PV.
 
         Args:
-            offset_pv (PV): The PV object to be used during this PVs' records' on_update
-            function.
+            offset_pv: The PV object to be used during this PVs' records' on_update
+                function.
         """
         logging.debug(f"Attaching offset record: {offset_pv} to PV: {self.name}")
         self._offset_record = offset_pv
@@ -355,12 +354,11 @@ class MonitorPV(BasePV):
     ) -> None:
         """
         Args:
-            name (str): Used to set self.name
-            record_data (RecordData): Dataclass used to create this PVs softioc record.
-            monitored_pvs (list[str]): A list of PV names used to setup camonitoring.
-            callbacks (list[CallbackType] | None): A list of functions to be called when
-                the monitored PVs return. If none, then this PVs set function is called
-                as the callback.
+            name: Used to set self.name
+            record_data: Dataclass used to create this PVs softioc record.
+            monitored_pvs: A list of PV names used to setup camonitoring.
+            callbacks: A list of functions to be called when the monitored PVs return.
+                If none, then this PVs set function is called as the callback.
         """
         super().__init__(name, record_data)
         self._monitor_data: list[tuple[list[str], list[CallbackType]]] = []
@@ -382,9 +380,9 @@ class MonitorPV(BasePV):
         changed value.
 
         Args:
-            pv_names (list[str]): A list of PV names to monitor using channel access.
-            callbacks (list[CallbackType]): A list of functions to execute when the
-                associated PV changes value.
+            pv_names: A list of PV names to monitor using channel access.
+            callbacks: A list of functions to execute when the associated PV changes
+                value.
         """
         if callbacks is None:
             callbacks = [self._callback]
@@ -456,7 +454,7 @@ class RefreshPV(MonitorPV):
         lattice.
 
     TODO: This PV does a lot of work at the moment, possible candidate for refactoring
-        or removal.
+        or removal. Removal would also allow us to guarentee that _record is not None.
 
     Attributes:
         _record_to_refresh (PV): The PV to refresh.
@@ -471,11 +469,11 @@ class RefreshPV(MonitorPV):
     ) -> None:
         """
         Args:
-            name (str): Used to set self.name
-            monitored_pv_name (str): A PV to monitor and trigger refreshing.
-            record_to_refresh (BasePV): The PV to pass to _record_to_refresh
-            pv_to_cannibalise (BasePV): We take relevant variables from this PV, after
-                which it should be discarded.
+            name: Used to set self.name
+            monitored_pv_name: A PV to monitor and trigger refreshing.
+            record_to_refresh: The PV to pass to _record_to_refresh
+            pv_to_cannibalise: We take relevant variables from this PV, after which it
+                should be discarded.
 
         TODO: It would be better if we didnt have to.
             cannibalise an existing PV and could just create a new one.
@@ -513,10 +511,9 @@ class InversionPV(MonitorPV):
     ) -> None:
         """
         Args:
-            name (str): Used to set self.name
-            record_data (RecordData): Dataclass used to create this PVs softioc record.
-            invert_pvs (list[BasePV]): A list of PVs to monitor and then invert when
-                they change value.
+            name: Used to set self.name
+            record_data: Dataclass used to create this PVs softioc record.
+            invert_pvs: A list of PVs to monitor and then invert when they change value.
         """
         if (len(invert_pvs)) == 0:
             raise AttributeError("InversionPV was not provided with any PVs to invert")
@@ -554,10 +551,9 @@ class SummationPV(MonitorPV):
     ) -> None:
         """
         Args:
-            name (str): Used to set self.name
-            record_data (RecordData): Dataclass used to create this PVs softioc record.
-            summate_pvs (list[BasePV]): A list of PVs to monitor and then sum when they
-                change value.
+            name: Used to set self.name
+            record_data: Dataclass used to create this PVs softioc record.
+            summate_pvs: A list of PVs to monitor and then sum when they change value.
         """
         super().__init__(
             name, record_data, [pv.name for pv in summate_pvs], [self._callback]
@@ -582,10 +578,10 @@ class CollationPV(MonitorPV):
     ) -> None:
         """
         Args:
-            name (str): Used to set self.name
-            record_data (RecordData): Dataclass used to create this PVs softioc record.
-            collate_pvs (list[BasePV]): A list of PVs to monitor and then collate when
-                they change value.
+            name: Used to set self.name
+            record_data: Dataclass used to create this PVs softioc record.
+            collate_pv: A list of PVs to monitor and then collate when they change
+                value.
         """
         super().__init__(
             name,

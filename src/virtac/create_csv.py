@@ -21,13 +21,13 @@ CSVData = list[tuple[str | int, ...]]
 
 
 def generate_feedback_pvs(all_elements, lattice: pytac.lattice.EpicsLattice) -> CSVData:
-    """Get feedback pvs. Also get families for tune feedback
+    """Get feedback pvs. Also get families for tune feedback.
+
     Args:
-        all_elements (list): a list of elements
-        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
-        machine
+        all_elements: a list of elements
+        lattice: The pytac lattice being used by the virtual machine.
     Returns:
-        CSVData: Data to be written to csv
+        Data to be written to csv.
     """
     tune_quad_elements = set(
         all_elements.q1d
@@ -88,6 +88,12 @@ def generate_feedback_pvs(all_elements, lattice: pytac.lattice.EpicsLattice) -> 
 def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
     """Data to be written is stored as a list of tuples each with structure:
     element index (int), field (str), pv (str), value (int), record_type (str).
+
+    Args:
+        all_elements: a list of elements
+        symmetry: The number of cells in the lattice.
+    Returns:
+        Data to be written to csv.
     """
     data: CSVData = [("index", "field", "pv", "value", "record_type")]
     pv_stem: str = ""
@@ -166,11 +172,9 @@ def get_element_pv_data(
     all normal PVS.
 
     Args:
-        pytac_item (pytac.element.Element | pytac.lattice.Lattice): An element of the
-            pytac lattice or the lattice itself
-        pvs (list[str]): A list of pv names which we have already found
-        data (CSVData): A list of tuples, with each tuple being a collection of data
-            about one pv.
+        pytac_item: An element of the pytac lattice or the lattice itself
+        pvs: A list of pv names which we have already found
+        data: A list of tuples, with each tuple being a collection of data about one pv.
     """
     field_data: dict = pytac_item.get_fields()
     lat_fields: set[str] = set(field_data[pytac.LIVE]).intersection(
@@ -221,8 +225,10 @@ def generate_pv_limits(lattice: pytac.lattice.Lattice) -> CSVData:
     do a caget to get pv data for the element.
 
     Args:
-        lattice (pytac.lattice.Lattice): The pytac lattice being used by the virtual
-            machine
+        lattice: The pytac lattice being used by the virtual machine.
+
+    Returns:
+        Data to be written to csv.
     """
     data: CSVData = [
         ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")
@@ -273,6 +279,11 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     refresh:
         Whether the out_pv should have its softioc record's SCAN field set to
         '1 second' which will cause it to process every second.
+
+    Args:
+        lattice: The pytac lattice being used by the virtual machine.
+    Returns:
+        Data to be written to csv.
     """
     data: CSVData = [("output_type", "mirror_type", "in_pv", "out_pv", "value", "scan")]
     # Tune PV aliases.
@@ -379,9 +390,20 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
 def generate_tune_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     """Get the PVs associated with the tune feedback system, the structure of
     data is:
-    set_pv: The PV to set the offset to.
-    offset_pv: The PV which the set pv reads the offset from.
-    delta_pv: The PV to get the offset from.
+
+    set_pv:
+        The PV to set the offset to.
+
+    offset_pv:
+        The PV which the set pv reads the offset from.
+
+    delta_pv:
+        The PV to get the offset from.
+
+    Args:
+        lattice: The pytac lattice being used by the virtual machine.
+    Returns:
+        Data to be written to csv.
     """
     data: CSVData = [("set_pv", "offset_pv", "delta_pv")]
     # Offset PV for quadrupoles in tune feedback.
@@ -405,8 +427,8 @@ def write_data_to_file(data: CSVData, filename: str, ring_mode: str) -> None:
     already exists it will be overwritten.
 
     Args:
-        data (list): a list of tuples, the data to write to the .csv file.
-        filename (str): the name of the .csv file to write the data to.
+        data: A list of tuples, the data to write to the .csv file.
+        filename: The name of the .csv file to write the data to.
     """
     if not filename.endswith(".csv"):
         filename += ".csv"
