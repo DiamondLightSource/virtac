@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>virtac.pv &#8212; virtac 0.2.1.dev103+g0bed45929 documentation</title>
+    <title>virtac.pv &#8212; virtac 0.2.1.dev104+ge547546c1 documentation</title>
   
   
   
@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=b32a8b08"></script>
+    <script src="../_static/documentation_options.js?v=29bd99a2"></script>
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -560,8 +560,8 @@ returned record.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="virtac.pv.BasePV.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.get" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="virtac.pv.BasePV.get_value">
+<span class="sig-name descname"><span class="pre">get_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.get_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.get_value" title="Link to this definition">#</a></dt>
 <dd><p>Get the value stored in this PVs softioc record.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -571,8 +571,8 @@ returned record.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="virtac.pv.BasePV.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.set" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="virtac.pv.BasePV.set_value">
+<span class="sig-name descname"><span class="pre">set_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#BasePV.set_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.BasePV.set_value" title="Link to this definition">#</a></dt>
 <dd><p>Set a value to this PVs softioc record.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -641,8 +641,8 @@ appended to this pvs pytac item(s) when writing.</p></li>
 </dd>
 </dl>
 <dl class="py method">
-<dt class="sig sig-object py" id="virtac.pv.ReadWriteSimPV.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#ReadWriteSimPV.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadWriteSimPV.set" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="virtac.pv.ReadWriteSimPV.set_value">
+<span class="sig-name descname"><span class="pre">set_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/pv.html#ReadWriteSimPV.set_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.pv.ReadWriteSimPV.set_value" title="Link to this definition">#</a></dt>
 <dd><dl class="simple">
 <dt>Set a value to this PVs softioc record, update its pytac element(s)</dt><dd><p>with the same value and then set the value to its read pv.</p>
 </dd>
@@ -889,8 +889,8 @@ value.</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.set_record_field"><code class="docutils literal notranslate"><span class="pre">BasePV.set_record_field()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.create_softioc_record"><code class="docutils literal notranslate"><span class="pre">BasePV.create_softioc_record()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.get_record"><code class="docutils literal notranslate"><span class="pre">BasePV.get_record()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.get"><code class="docutils literal notranslate"><span class="pre">BasePV.get()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.set"><code class="docutils literal notranslate"><span class="pre">BasePV.set()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.get_value"><code class="docutils literal notranslate"><span class="pre">BasePV.get_value()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.BasePV.set_value"><code class="docutils literal notranslate"><span class="pre">BasePV.set_value()</span></code></a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadSimPV"><code class="docutils literal notranslate"><span class="pre">ReadSimPV</span></code></a><ul class="nav section-nav flex-column">
@@ -899,7 +899,7 @@ value.</p></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadWriteSimPV"><code class="docutils literal notranslate"><span class="pre">ReadWriteSimPV</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadWriteSimPV.set"><code class="docutils literal notranslate"><span class="pre">ReadWriteSimPV.set()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadWriteSimPV.set_value"><code class="docutils literal notranslate"><span class="pre">ReadWriteSimPV.set_value()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.pv.ReadWriteSimPV.attach_offset_record"><code class="docutils literal notranslate"><span class="pre">ReadWriteSimPV.attach_offset_record()</span></code></a></li>
 </ul>
 </li>
