@@ -51,7 +51,7 @@ class BasePV:
     EPICS PV.
 
     Attributes:
-        self._record (softioc.pythonSoftIoc.RecordWrapper): This softioc record is the
+        self.__record (softioc.pythonSoftIoc.RecordWrapper): This softioc record is the
             heart of the PV class, the main purpose of PV objects is to manage the
             setting and getting of these records.
     """
@@ -64,9 +64,28 @@ class BasePV:
         """
         logging.debug(f"Creating PV: {name}")
         self.name: str = name
-        self._record: RecordWrapper | None
+        self.__record: RecordWrapper | None = None
         if record_data is not None:
             self.create_softioc_record(record_data)
+
+    @property
+    def _record(self) -> RecordWrapper:
+        if self.__record is None:
+            raise AttributeError(
+                "Softioc record must be created before use.", name=self.__record
+            )
+
+        return self.__record
+
+    @_record.setter
+    def _record(self, new_record: RecordWrapper) -> None:
+        if self.__record is not None:
+            raise AttributeError(
+                f"A softioc record could not be created for PV: {new_record.name}."
+                "That name is already in use!"
+            )
+
+        self.__record = new_record
 
     def _on_update(self, value: RecordValueType, name: str) -> None:
         """The callback function called when the softioc record updates.
@@ -98,13 +117,14 @@ class BasePV:
         Args:
             record_data: Dataclass used to create this PVs softioc record.
         """
-        if "self._record" in locals():
+        logging.debug(f"Creating softioc record {self.name}")
+
+        if self.__record is not None:
             raise AttributeError(
-                f"A softioc record could not be created for PV: {self.name}. It already"
-                "has an attached record."
+                f"A softioc record could not be created for PV: {self.name}."
+                "That name is already in use!"
             )
 
-        logging.debug(f"Creating softioc record {self.name}")
         if record_data.record_type == RecordTypes.AI:
             self._record = builder.aIn(
                 self.name,
