@@ -15,7 +15,7 @@ description = "Diamond virtual accelerator"
 dependencies = [
     "numpy",
     "scipy",
-    "pytac==0.6.0",
+    "pytac==0.6.2",
     "cothread",
     "softioc",
     "atip>=0.2.0",
