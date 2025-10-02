@@ -193,7 +193,7 @@ def get_element_pv_data(
     lat_fields: set[str] = set(field_data[pytac.LIVE]).intersection(
         set(field_data[pytac.SIM])
     )
-    # These pvs need to be configured with their SCAN fields set to 1 second. This is
+    # These pvs need to be configured with their SCAN fields set to .1 second. This is
     # different to the SCAN field in the LIVE pv, so we cant just caget it.
     scan_pvs: list[str] = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
     for field in lat_fields:
@@ -210,7 +210,7 @@ def get_element_pv_data(
                         ctrl.precision,
                         ctrl.upper_disp_limit,
                         ctrl.lower_disp_limit,
-                        "1 second" if rb_pv in scan_pvs else "I/O Intr",
+                        ".1 second" if rb_pv in scan_pvs else "I/O Intr",
                     )
                 )
                 try:
@@ -228,7 +228,7 @@ def get_element_pv_data(
                                 ctrl.precision,
                                 ctrl.upper_disp_limit,
                                 ctrl.lower_disp_limit,
-                                "1 second" if sp_pv in scan_pvs else "Passive",
+                                ".1 second" if sp_pv in scan_pvs else "Passive",
                             )
                         )
 
@@ -291,7 +291,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
 
     refresh:
         Whether the out_pv should have its softioc record's SCAN field set to
-        '1 second' which will cause it to process every second.
+        '.1 second' which will cause it to process every second.
 
     Args:
         lattice: The pytac lattice being used by the virtual machine.
@@ -311,7 +311,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
             "SR23C-DI-TMBF-01:X:TUNE:TUNE",
             "SR23C-DI-TMBF-01:TUNE:TUNE",
             tune[0],
-            "1 second",
+            ".1 second",
         )
     )
     data.append(
@@ -321,7 +321,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
             "SR23C-DI-TMBF-01:Y:TUNE:TUNE",
             "SR23C-DI-TMBF-02:TUNE:TUNE",
             tune[1],
-            "1 second",
+            ".1 second",
         )
     )
     # Combined emittance and average emittance PVs.
