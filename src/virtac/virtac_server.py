@@ -212,7 +212,6 @@ class VirtacServer:
                 for field in cast(
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
                 ):
-                    readback_only_pv = False
                     try:
                         value = element.get_value(
                             field, units=pytac.ENG, data_source=pytac.SIM
