@@ -54,8 +54,9 @@ class VirtacServer:
             simulator data source derived from pyAT.
     """
 
-    def __init__(
-        self,
+    @classmethod
+    async def create(
+        cls,
         ring_mode: str,
         limits_csv: Path | None = None,
         bba_csv: Path | None = None,
@@ -82,14 +83,14 @@ class VirtacServer:
                 simulation parameters to use.
             disable_tunefb: Whether tune feedback should be disabled.
         """
+        self = cls()
 
         if sim_params is None:
             sim_params = atip.simulator.SimParams()
         self._sim_params: atip.simulator.SimParams = sim_params
-        self._disable_tunefb: bool = disable_tunefb
         self._pv_monitoring: bool = True
 
-        self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
+        self.lattice: pytac.lattice.EpicsLattice = await atip.utils.loader(
             ring_mode,
             sim_params,
             self.update_pvs,
@@ -103,7 +104,7 @@ class VirtacServer:
         self._readback_pvs_dict: dict[str, ReadSimPV] = {}
 
         print("Starting PV creation.")
-        self._create_core_pvs(limits_csv)
+        await self._create_core_pvs(limits_csv)
 
         if bba_csv is not None:
             self._create_bba_records(bba_csv)
@@ -116,7 +117,7 @@ class VirtacServer:
 
         self.print_virtac_stats()
 
-    def update_pvs(self) -> None:
+    async def update_pvs(self) -> None:
         """The callback function passed to ATSimulator during lattice creation,
         which is called each time a calculation of physics data is completed and
         updates all the in records that do not have a corresponding out record
@@ -124,10 +125,10 @@ class VirtacServer:
         """
         logging.info("Updating output PVs")
         for pv in self._readback_pvs_dict.values():
-            pv.update_from_sim()
+            await pv.update_from_sim()
         logging.debug("Finished updating output PVs")
 
-    def _create_core_pvs(self, limits_csv: Path | None) -> None:
+    async def _create_core_pvs(self, limits_csv: Path | None) -> None:
         """Create the core records required for the virtac using both lattice and
         element pytac data.
 
@@ -157,12 +158,12 @@ class VirtacServer:
                 )
 
         # Create PVs from lattice elements.
-        self._create_element_pvs(limits_dict)
+        await self._create_element_pvs(limits_dict)
 
         # Create PVs from the lattice itself.
-        self._create_lattice_pvs(limits_dict)
+        await self._create_lattice_pvs(limits_dict)
 
-    def _create_element_pvs(self, limits_dict: LimitsDictType) -> None:
+    async def _create_element_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice element.
 
         .. note::  There are currently two exceptions of the rule of one PV per lattice
@@ -199,7 +200,7 @@ class VirtacServer:
                 for field in cast(
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
                 ):
-                    value = element.get_value(
+                    value = await element.get_value(
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
 
@@ -273,7 +274,7 @@ class VirtacServer:
                         if family in many_to_one_pvs.keys():
                             many_to_one_pvs[family] = read_write_pv
 
-    def _create_lattice_pvs(self, limits_dict: LimitsDictType) -> None:
+    async def _create_lattice_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice itself.
 
         .. note:: For fields which have an in type record (RB) and an out type record
@@ -302,7 +303,7 @@ class VirtacServer:
                 upper, lower, precision, _, _, scan, mdel = limits_dict.get(
                     get_pv_name, (None, None, None, None, None, "I/O Intr", None)
                 )
-                value = self.lattice.get_value(
+                value = await self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
                 record_data = RecordData(
