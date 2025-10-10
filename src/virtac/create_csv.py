@@ -176,7 +176,7 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
     return data
 
 
-def get_element_pv_data(
+async def get_element_pv_data(
     pytac_item: pytac.lattice.Lattice | pytac.element.Element,
     pvs: list[str],
     data: CSVData,
@@ -200,7 +200,7 @@ def get_element_pv_data(
         if not isinstance(pytac_item.get_device(field), pytac.device.SimpleDevice):
             rb_pv: str = pytac_item.get_pv_name(field, pytac.RB)
             if rb_pv not in pvs:
-                ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
+                ctrl = await caget(rb_pv, format=FORMAT_CTRL, timeout=10)
                 pvs.append(rb_pv)
                 data.append(
                     (
@@ -219,7 +219,7 @@ def get_element_pv_data(
                     pass
                 else:
                     if sp_pv not in pvs:
-                        ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
+                        ctrl = await caget(sp_pv, format=FORMAT_CTRL, timeout=10)
                         data.append(
                             (
                                 sp_pv,

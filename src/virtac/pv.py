@@ -9,7 +9,7 @@ from typing import TypeAlias, cast
 
 import numpy
 import pytac
-from cothread.catools import _Subscription, camonitor
+from aioca import Subscription, camonitor
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
@@ -234,13 +234,13 @@ class ReadSimPV(BasePV):
         """
         self._pytac_items.append(pytac_item)
 
-    def update_from_sim(self) -> None:
+    async def update_from_sim(self) -> None:
         """Read a value from the simulation and set it to this PVs softioc record."""
         logging.debug(f"Updating pv {self.name}")
         try:
             value = cast(
                 RecordValueType,
-                self._pytac_items[0].get_value(
+                await self._pytac_items[0].get_value(
                     self._pytac_field, units=pytac.ENG, data_source=pytac.SIM
                 ),
             )
@@ -283,7 +283,7 @@ class ReadWriteSimPV(ReadSimPV):
         self._read_pv = read_pv
         self._offset_record: BasePV | None = offset_pv
 
-    def _on_update(self, value: RecordValueType, name: str) -> None:
+    async def _on_update(self, value: RecordValueType, name: str) -> None:
         """This function sets the passed value to self._pv_to_update._record by calling
         its set method. The set also sets value (with an additional offset from
         self._offset_pv) to the pytac item and field configured for self._pv_to_update.
@@ -295,11 +295,11 @@ class ReadWriteSimPV(ReadSimPV):
         logging.debug("Read value %s on pv %s", value, name)
         if self._offset_record is not None:
             offset = self._offset_record.get_value()
-            self.set_value(value, offset)
+            await self.set_value(value, offset)
         else:
-            self.set_value(value, None)
+            await self.set_value(value, None)
 
-    def set_value(
+    async def set_value(
         self, value: RecordValueType, offset: RecordValueType | None = None
     ) -> None:
         """Set a value to this PVs softioc record, update its pytac element(s)
@@ -329,7 +329,7 @@ class ReadWriteSimPV(ReadSimPV):
                 self.name,
                 value,
             )
-            item.set_value(
+            await item.set_value(
                 self._pytac_field,
                 value,
                 units=pytac.ENG,
@@ -361,7 +361,7 @@ class MonitorPV(BasePV):
         _monitor_data ((list[tuple[list[str], list[CallbackType]]])): Used to keep track
             of which PVs we are monitoring and which functions the camonitor calls when
             they change value.
-        _camonitor_handles (list[_Subscription]): Used to close camonitors if a
+        _camonitor_handles (list[Subscription]): Used to close camonitors if a
             command is sent to pause monitoring.
     """
 
@@ -382,7 +382,7 @@ class MonitorPV(BasePV):
         """
         super().__init__(name, record_data)
         self._monitor_data: list[tuple[list[str], list[CallbackType]]] = []
-        self._camonitor_handles: list[_Subscription] = []
+        self._camonitor_handles: list[Subscription] = []
         self._setup_pv_monitoring(monitored_pv_names, callbacks)
 
     def _setup_pv_monitoring(

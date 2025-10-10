@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import socket
@@ -6,12 +7,10 @@ from pathlib import Path
 from typing import cast
 from warnings import warn
 
-from cothread.catools import ca_nothing, caget
-from softioc import builder, softioc
+from aioca import CANothing, caget
+from softioc import asyncio_dispatcher, builder, softioc
 
 from virtac import virtac_server
-
-from ._version import __version__
 
 __all__ = ["main"]
 
@@ -74,7 +73,7 @@ def parse_arguments():
     parser.add_argument(
         "--version",
         action="version",
-        version=__version__,
+        version="__version__",
     )
     return parser.parse_args()
 
@@ -143,8 +142,12 @@ def configure_ca():
         os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
 
 
-def main() -> None:
+async def async_main() -> None:
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
+
+    # Create an asyncio dispatcher
+    loop = asyncio.get_running_loop()
+
     args = parse_arguments()
     if args.verbose >= 2:
         log_level = logging.DEBUG
@@ -165,19 +168,19 @@ def main() -> None:
             ring_mode = str(os.environ["RINGMODE"])
         except KeyError:
             try:
-                value = caget("SR-CS-RING-01:MODE", timeout=1, format=2)
+                value = await caget("SR-CS-RING-01:MODE", timeout=1, format=2)
                 ring_mode = cast(str, value.enums[int(value)])
                 logging.warning(
                     "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
                     f"as the default: {ring_mode}"
                 )
-            except ca_nothing:
+            except CANothing:
                 ring_mode = "I04"
                 logging.warning(f"Ring mode not specified, using default: {ring_mode}")
 
     # Create PVs.
     logging.debug("Creating ATIP server")
-    server = virtac_server.VirtacServer(
+    server = await virtac_server.VirtacServer.create(
         ring_mode,
         DATADIR / ring_mode / "limits.csv",
         DATADIR / ring_mode / "bba.csv",
@@ -192,11 +195,20 @@ def main() -> None:
     )
 
     # Start the IOC.
+    dispatcher = asyncio_dispatcher.AsyncioDispatcher(loop=loop)
     builder.LoadDatabase()
-    softioc.iocInit()
+    softioc.iocInit(dispatcher)
 
-    context = globals() | {"server": server}
-    softioc.interactive_ioc(context)
+    # context = globals() | {"server": server}
+    # softioc.interactive_ioc(context)
+
+    while True:
+        # logging.info("Sleeping")
+        await asyncio.sleep(10)
+
+
+def main() -> None:
+    asyncio.run(async_main())
 
 
 if __name__ == "__main__":

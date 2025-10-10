@@ -54,8 +54,9 @@ class VirtacServer:
             simulator data source derived from pyAT.
     """
 
-    def __init__(
-        self,
+    @classmethod
+    async def create(
+        cls,
         ring_mode: str,
         limits_csv: Path | None = None,
         bba_csv: Path | None = None,
@@ -84,6 +85,7 @@ class VirtacServer:
             disable_emittance: Whether emittance should be disabled.
             disable_tunefb: Whether tune feedback should be disabled.
         """
+        self = cls()
         self._linopt_function: str = linopt_function
         self._disable_emittance: bool = disable_emittance
         self._disable_chromaticity: bool = disable_chromaticity
@@ -91,7 +93,7 @@ class VirtacServer:
 
         self._disable_tunefb: bool = disable_tunefb
         self._pv_monitoring: bool = True
-        self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
+        self.lattice: pytac.lattice.EpicsLattice = await atip.utils.loader(
             ring_mode,
             self._linopt_function,
             self._disable_emittance,
@@ -107,7 +109,7 @@ class VirtacServer:
         self._readback_pvs_dict: dict[str, ReadSimPV] = {}
 
         print("Starting PV creation.")
-        self._create_core_pvs(limits_csv)
+        await self._create_core_pvs(limits_csv)
 
         if bba_csv is not None:
             self._create_bba_records(bba_csv)
@@ -120,7 +122,7 @@ class VirtacServer:
 
         self.print_virtac_stats()
 
-    def update_pvs(self) -> None:
+    async def update_pvs(self) -> None:
         """The callback function passed to ATSimulator during lattice creation,
         which is called each time a calculation of physics data is completed and
         updates all the in records that do not have a corresponding out record
@@ -128,10 +130,10 @@ class VirtacServer:
         """
         logging.info("Updating output PVs")
         for pv in self._readback_pvs_dict.values():
-            pv.update_from_sim()
+            await pv.update_from_sim()
         logging.debug("Finished updating output PVs")
 
-    def _create_core_pvs(self, limits_csv: Path | None) -> None:
+    async def _create_core_pvs(self, limits_csv: Path | None) -> None:
         """Create the core records required for the virtac using both lattice and
         element pytac data.
 
@@ -160,12 +162,12 @@ class VirtacServer:
                 )
 
         # Create PVs from lattice elements.
-        self._create_element_pvs(limits_dict)
+        await self._create_element_pvs(limits_dict)
 
         # Create PVs from the lattice itself.
-        self._create_lattice_pvs(limits_dict)
+        await self._create_lattice_pvs(limits_dict)
 
-    def _create_element_pvs(self, limits_dict: LimitsDictType) -> None:
+    async def _create_element_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice element.
 
         .. note::  One exception to the rule of one PV per field is the RF cavities.
@@ -201,7 +203,7 @@ class VirtacServer:
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
                 ):
                     try:
-                        value = element.get_value(
+                        value = await element.get_value(
                             field, units=pytac.ENG, data_source=pytac.SIM
                         )
                     except pytac.exceptions.UnitsException as e:
@@ -280,7 +282,7 @@ class VirtacServer:
                         if element.type_.upper() == "RFCAVITY":
                             rf_write_record = read_write_pv
 
-    def _create_lattice_pvs(self, limits_dict: LimitsDictType) -> None:
+    async def _create_lattice_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice itself.
 
         .. note:: For fields which have an in type record (RB) and an out type record
@@ -309,7 +311,7 @@ class VirtacServer:
                 upper, lower, precision, _, _, scan = limits_dict.get(
                     get_pv_name, (None, None, None, None, None, "I/O Intr")
                 )
-                value = self.lattice.get_value(
+                value = await self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
                 )
                 record_data = RecordData(
