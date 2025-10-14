@@ -1,11 +1,12 @@
 import logging
 import os
 import socket
-from argparse import ArgumentError, ArgumentParser
+from argparse import ArgumentParser
 from pathlib import Path
 from typing import cast
 from warnings import warn
 
+from atip.simulator import SimParams
 from cothread.catools import ca_nothing, caget
 from softioc import builder, softioc
 
@@ -79,29 +80,6 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def check_sim_params(args):
-    """Check that we have a valid combination of simulation parameters."""
-    if args.disable_radiation:
-        if args.linopt_function == "linopt6":
-            raise ArgumentError(
-                None,
-                f"Cannot disable radiation when using linopt function: "
-                f"{args.linopt_function}",
-            )
-        if not args.disable_emittance:
-            raise ArgumentError(
-                None,
-                "You cannot calculate emittance with radiation disabled",
-            )
-    else:
-        if args.linopt_function == "linopt2" or args.linopt_function == "linopt4":
-            raise ArgumentError(
-                None,
-                "You must disable radiation to use linopt function: "
-                f"{args.linopt_function}",
-            )
-
-
 def configure_ca():
     """Setup channel access settings for our CA server and for accessing PVs
     from other IOCs. We will be creating a python softioc IOC which automatically
@@ -155,7 +133,13 @@ def main() -> None:
     logging.basicConfig(level=log_level, format=LOG_FORMAT)
 
     configure_ca()
-    check_sim_params(args)
+
+    sim_params = SimParams(
+        args.linopt_function,
+        not args.disable_emittance,
+        not args.disable_chromaticity,
+        not args.disable_radiation,
+    )
 
     # Determine the ring mode
     if args.ring_mode is not None:
@@ -184,10 +168,7 @@ def main() -> None:
         DATADIR / ring_mode / "feedback.csv",
         DATADIR / ring_mode / "mirrored.csv",
         DATADIR / ring_mode / "tunefb.csv",
-        args.linopt_function,
-        args.disable_emittance,
-        args.disable_chromaticity,
-        args.disable_radiation,
+        sim_params,
         args.disable_tfb,
     )
 
