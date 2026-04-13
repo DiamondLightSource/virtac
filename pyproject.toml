@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
+requires = ["setuptools>=82.0.1", "setuptools_scm[toml]>=10.0.5"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -15,7 +15,7 @@ description = "Diamond virtual accelerator"
 dependencies = [
     "numpy",
     "scipy",
-    "pytac==0.6.0",
+    "pytac==1.0.0",
     "cothread",
     "softioc",
     "atip>=0.2.0",
@@ -34,7 +34,7 @@ dev = [
     "myst-parser",
     "pipdeptree",
     "pre-commit",
-    "pydata-sphinx-theme>=0.12",
+    "pydata-sphinx-theme>=0.17.0",
     "pytest",
     "pytest-cov",
     "testfixtures",
