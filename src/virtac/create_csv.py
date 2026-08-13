@@ -19,7 +19,7 @@ from cothread.catools import FORMAT_CTRL, caget
 # Type alias for data to be stored in VIRTAC csv files
 CSVData = list[tuple[str | int, ...]]
 
-D2_RING_MODES = ["48"]
+D2_RING_MODES = ["48", "49"]
 
 
 def generate_feedback_pvs(all_elements, lattice: pytac.lattice.EpicsLattice) -> CSVData:

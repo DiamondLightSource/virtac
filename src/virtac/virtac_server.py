@@ -93,9 +93,6 @@ class VirtacServer:
             ring_mode,
             sim_params,
             self.update_pvs,
-            ring_mode,
-            sim_params,
-            self.update_pvs,
         )
         self.lattice.set_default_data_source(pytac.SIM)
 
