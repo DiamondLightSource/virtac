@@ -132,6 +132,7 @@ class BasePV:
                 HOPR=record_data.upper,
                 LOPR=record_data.lower,
                 SCAN=record_data.scan,
+                MDEL=-1,
                 initial_value=record_data.initial_value,
             )
         elif record_data.record_type == RecordTypes.AO:
