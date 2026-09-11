@@ -432,8 +432,15 @@ def generate_tune_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     for family in tune_quad_families:
         tune_pvs.extend(lattice.get_element_pv_names(family, "b1", pytac.SP))
     for pv in tune_pvs:
+        # This mirrors the code in tunefb which creates the original PVs which are
+        # hosted by tunefb and only monitored by Virtac.
         offset_pvs.append(":".join([pv.split(":")[0], "OFFSET1"]))
-        delta_pvs.append(f"SR-CS-TFB-01:{pv[2:4]}{pv[9:12]}{pv[13:15]}:I")
+        parts = pv.split("-")
+        cell = parts[0][2:4]
+        fam = parts[2]
+        num = parts[3].split(":")[0]
+        delta_pv_name = f"SR-CS-TFB-01:{cell}{fam}{num}:I"
+        delta_pvs.append(delta_pv_name)
     for tune_pv, offset_pv, delta_pv in zip(
         tune_pvs, offset_pvs, delta_pvs, strict=False
     ):
