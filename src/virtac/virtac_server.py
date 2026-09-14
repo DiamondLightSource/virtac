@@ -196,18 +196,9 @@ class VirtacServer:
                 for field in cast(
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
                 ):
-                    try:
-                        value = element.get_value(
-                            field, units=pytac.ENG, data_source=pytac.SIM
-                        )
-                    except pytac.exceptions.UnitsException as e:
-                        # For D2 the conversion is not currently working as AP has not
-                        # yet updated their 'calibration_Data' matlab structure with
-                        # realistic values. This means that when we attempt conversion
-                        # we get halfway through, and then have the wrong values and
-                        # the converted value becomes too large for the limits.
-                        value = 0
-                        print(e)
+                    value = element.get_value(
+                        field, units=pytac.ENG, data_source=pytac.SIM
+                    )
 
                     read_pv_name = cast(str, element.get_pv_name(field, pytac.RB))
 
