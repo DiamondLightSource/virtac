@@ -506,7 +506,7 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         "--offline",
-        help="Generate csv files without gettiing limits data from the live machine",
+        help="Generate csv files without getting limits data from the live machine",
         action="store_true",
         default=False,
     )

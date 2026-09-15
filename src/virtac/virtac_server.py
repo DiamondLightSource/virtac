@@ -164,9 +164,14 @@ class VirtacServer:
     def _create_element_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice element.
 
-        .. note:: The one exception to the rule of one PV per field is for the bend
-            magnets. Each of the 50 bend magnets shares a single PV which stores their
-            current value as they have a shared power supply in the real machine.
+        .. note::  One exception to the rule of one PV per field is the RF cavities.
+                Currently there are 7 RF cavities and 1 harmonic RF cavity in the D2
+                lattice, we set their working frequency to be that of the master
+                oscillator (MOSC) frequency, meaning they all share a single PV. Really,
+                the HRF cavity should be about 3x the MOSC frequency, but the HRF isnt
+                simulated anyway, so it doesnt matter that we set the wrong value to it.
+                In the future it should either have its own PV, or we should add a way
+                to apply a scaling factor to the value we get/set.
 
         .. note:: For fields which have an in type record (RB) and an out type record
             (SP)we create SetpointPVs (or a derivative). SetpointPVs are used to set the
@@ -182,12 +187,13 @@ class VirtacServer:
             limits_dict: A dictionary containing the limits data for
                 the PVs.
         """
-        bend_in_record = None
+        # Dictionary of element families where multiple elements are set by a single PV
+        many_to_one_pvs = {"BEND": None, "RFCAVITY": None}
         for element in self.lattice:
-            # There is only 1 bend PV for all bend magnets, each bend element is added
-            # to this PV
-            if element.type_.upper() == "BEND" and bend_in_record is not None:
-                bend_in_record.append_pytac_item(element)
+            family = element.type_.upper()
+            if family in many_to_one_pvs.keys() and many_to_one_pvs[family] is not None:
+                # Add a pytac element to the PV which will update when the PV changes
+                many_to_one_pvs[family].append_pytac_item(element)
             else:
                 for field in cast(
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
@@ -260,8 +266,8 @@ class VirtacServer:
                         )
                         self._pv_dict[read_write_pv_name] = read_write_pv
 
-                        if element.type_.upper() == "BEND" and bend_in_record is None:
-                            bend_in_record = read_write_pv
+                        if family in many_to_one_pvs.keys():
+                            many_to_one_pvs[family] = read_write_pv
 
     def _create_lattice_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice itself.
