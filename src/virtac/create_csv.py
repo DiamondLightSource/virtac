@@ -314,7 +314,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
 
     refresh:
         Whether the out_pv should have its softioc record's SCAN field set to
-        '.1 second' which will cause it to process every second.
+        '.1 second' which will cause it to process at 10 Hz.
 
     Args:
         lattice: The pytac lattice being used by the virtual machine.
