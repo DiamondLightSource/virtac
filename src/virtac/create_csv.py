@@ -19,6 +19,8 @@ from cothread.catools import FORMAT_CTRL, caget
 # Type alias for data to be stored in VIRTAC csv files
 CSVData = list[tuple[str | int, ...]]
 
+D2_RING_MODES = ["48", "49"]
+
 
 def generate_feedback_pvs(all_elements, lattice: pytac.lattice.EpicsLattice) -> CSVData:
     """Get feedback pvs. Also get families for tune feedback.
@@ -29,14 +31,25 @@ def generate_feedback_pvs(all_elements, lattice: pytac.lattice.EpicsLattice) -> 
     Returns:
         Data to be written to csv.
     """
-    tune_quad_elements = set(
-        all_elements.q1d
-        + all_elements.q2d
-        + all_elements.q3d
-        + all_elements.q3b
-        + all_elements.q2b
-        + all_elements.q1b
-    )
+
+    if lattice.name in D2_RING_MODES:
+        tune_quad_elements = set(
+            all_elements.q0l
+            + all_elements.q1l
+            + all_elements.q2l
+            + all_elements.q1n
+            + all_elements.q2n
+        )
+    else:
+        tune_quad_elements = set(
+            all_elements.q1d
+            + all_elements.q2d
+            + all_elements.q3d
+            + all_elements.q3b
+            + all_elements.q2b
+            + all_elements.q1b
+        )
+
     # Data to be written is stored as a list of tuples each with structure:
     #     element index (int), field (str), pv (str), value (int), record_type (str).
     # We have special cases for four lattice fields that feedback systems read from.
@@ -163,10 +176,23 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
     return data
 
 
+def create_dummy_limits_data():
+    """If running in offline mode, instead of getting limits data from live PVs, we
+    create some dummy data."""
+    dummy_ctrl_data = cothread.dbr.dbr_ctrl_double()
+    dummy_ctrl_data.upper_ctrl_limit = 1500
+    dummy_ctrl_data.lower_ctrl_limit = -1500
+    dummy_ctrl_data.precision = 3
+    dummy_ctrl_data.upper_disp_limit = 1500
+    dummy_ctrl_data.lower_disp_limit = -1500
+    return dummy_ctrl_data
+
+
 def get_element_pv_data(
     pytac_item: pytac.lattice.Lattice | pytac.element.Element,
     pvs: list[str],
     data: CSVData,
+    offline: bool = False,
 ) -> None:
     """Get the control limits and precision values from the live machine for
     all normal PVS.
@@ -180,14 +206,17 @@ def get_element_pv_data(
     lat_fields: set[str] = set(field_data[pytac.LIVE]).intersection(
         set(field_data[pytac.SIM])
     )
-    # These pvs need to be configured with their SCAN fields set to 1 second. This is
+    # These pvs need to be configured with their SCAN fields set to .1 second. This is
     # different to the SCAN field in the LIVE pv, so we cant just caget it.
     scan_pvs: list[str] = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
     for field in lat_fields:
         if not isinstance(pytac_item.get_device(field), pytac.device.SimpleDevice):
             rb_pv: str = pytac_item.get_pv_name(field, pytac.RB)
             if rb_pv not in pvs:
-                ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
+                if not offline:
+                    ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
+                else:
+                    ctrl = create_dummy_limits_data()
                 pvs.append(rb_pv)
                 data.append(
                     (
@@ -197,7 +226,7 @@ def get_element_pv_data(
                         ctrl.precision,
                         ctrl.upper_disp_limit,
                         ctrl.lower_disp_limit,
-                        "1 second" if rb_pv in scan_pvs else "I/O Intr",
+                        ".1 second" if rb_pv in scan_pvs else "I/O Intr",
                     )
                 )
                 try:
@@ -206,7 +235,10 @@ def get_element_pv_data(
                     pass
                 else:
                     if sp_pv not in pvs:
-                        ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
+                        if not offline:
+                            ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
+                        else:
+                            ctrl = create_dummy_limits_data()
                         data.append(
                             (
                                 sp_pv,
@@ -215,12 +247,14 @@ def get_element_pv_data(
                                 ctrl.precision,
                                 ctrl.upper_disp_limit,
                                 ctrl.lower_disp_limit,
-                                "1 second" if sp_pv in scan_pvs else "Passive",
+                                ".1 second" if sp_pv in scan_pvs else "Passive",
                             )
                         )
 
 
-def generate_pv_limits(lattice: pytac.lattice.Lattice) -> CSVData:
+def generate_pv_limits(
+    lattice: pytac.lattice.Lattice, offline: bool = False
+) -> CSVData:
     """Loop through each element in the lattice and spawn a cothread which will then
     do a caget to get pv data for the element.
 
@@ -239,7 +273,9 @@ def generate_pv_limits(lattice: pytac.lattice.Lattice) -> CSVData:
     pytac_items: list[pytac.lattice.Lattice | pytac.element.Element] = list(lattice)
     pytac_items.insert(0, lattice)
     for item in pytac_items:
-        caget_handles.append(cothread.Spawn(get_element_pv_data, item, pvs, data))
+        caget_handles.append(
+            cothread.Spawn(get_element_pv_data, item, pvs, data, offline)
+        )
     for caget_handle in caget_handles:
         caget_handle.Wait()
     return data
@@ -278,7 +314,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
 
     refresh:
         Whether the out_pv should have its softioc record's SCAN field set to
-        '1 second' which will cause it to process every second.
+        '.1 second' which will cause it to process at 10 Hz.
 
     Args:
         lattice: The pytac lattice being used by the virtual machine.
@@ -298,7 +334,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
             "SR23C-DI-TMBF-01:X:TUNE:TUNE",
             "SR23C-DI-TMBF-01:TUNE:TUNE",
             tune[0],
-            "1 second",
+            ".1 second",
         )
     )
     data.append(
@@ -308,7 +344,7 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
             "SR23C-DI-TMBF-01:Y:TUNE:TUNE",
             "SR23C-DI-TMBF-02:TUNE:TUNE",
             tune[1],
-            "1 second",
+            ".1 second",
         )
     )
     # Combined emittance and average emittance PVs.
@@ -410,11 +446,24 @@ def generate_tune_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     tune_pvs: list[str] = []
     offset_pvs: list[str] = []
     delta_pvs: list[str] = []
-    for family in ["Q1D", "Q2D", "Q3D", "Q3B", "Q2B", "Q1B"]:
+
+    if lattice.name in D2_RING_MODES:
+        tune_quad_families = ["Q0L", "Q1L", "Q2L", "Q1N", "Q2N"]
+    else:
+        tune_quad_families = ["Q1D", "Q2D", "Q3D", "Q3B", "Q2B", "Q1B"]
+
+    for family in tune_quad_families:
         tune_pvs.extend(lattice.get_element_pv_names(family, "b1", pytac.SP))
     for pv in tune_pvs:
+        # This mirrors the code in tunefb which creates the original PVs which are
+        # hosted by tunefb and only monitored by Virtac.
         offset_pvs.append(":".join([pv.split(":")[0], "OFFSET1"]))
-        delta_pvs.append(f"SR-CS-TFB-01:{pv[2:4]}{pv[9:12]}{pv[13:15]}:I")
+        parts = pv.split("-")
+        cell = parts[0][2:4]
+        fam = parts[2]
+        num = parts[3].split(":")[0]
+        delta_pv_name = f"SR-CS-TFB-01:{cell}{fam}{num}:I"
+        delta_pvs.append(delta_pv_name)
     for tune_pv, offset_pv, delta_pv in zip(
         tune_pvs, offset_pvs, delta_pvs, strict=False
     ):
@@ -456,6 +505,12 @@ def parse_arguments() -> argparse.Namespace:
         default="I04",
     )
     parser.add_argument(
+        "--offline",
+        help="Generate csv files without getting limits data from the live machine",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
         "--feedback",
         help="Filename for output feedback PVs CSV file",
         default="feedback.csv",
@@ -492,18 +547,26 @@ def main():
         # all_elements is a class with an attribute for each element family, where
         # that attribute is a list of all elements of that family.
         all_elements = atip.utils.preload(lattice)
+
         print("Creating feedback PVs CSV file.")
         data = generate_feedback_pvs(all_elements, lattice)
         write_data_to_file(data, args.feedback, args.ring_mode)
+
         print("Creating BBA PVs CSV file.")
         data = generate_bba_pvs(all_elements, cast(int, lattice.symmetry))
         write_data_to_file(data, args.bba, args.ring_mode)
+
         print("Creating limits PVs CSV file.")
-        data = generate_pv_limits(lattice)
-        write_data_to_file(data, args.limits, args.ring_mode)
+        data = generate_pv_limits(lattice, offline=args.offline)
+        if len(data) <= 1:
+            print("No limits data found, limits.csv will not be updated.")
+        else:
+            write_data_to_file(data, args.limits, args.ring_mode)
+
         print("Creating mirrored PVs CSV file.")
         data = generate_mirrored_pvs(lattice)
         write_data_to_file(data, args.mirrored, args.ring_mode)
+
         print("Creating tune PVs CSV file.")
         data = generate_tune_pvs(lattice)
         write_data_to_file(data, args.tune, args.ring_mode)

@@ -1,11 +1,12 @@
-import argparse
 import logging
 import os
 import socket
+from argparse import ArgumentParser
 from pathlib import Path
 from typing import cast
 from warnings import warn
 
+from atip.simulator import SimParams
 from cothread.catools import ca_nothing, caget
 from softioc import builder, softioc
 
@@ -21,7 +22,7 @@ DATADIR = Path(__file__).absolute().parent / "data"
 
 def parse_arguments():
     """Parse command line arguments sent to virtac"""
-    parser = argparse.ArgumentParser()
+    parser = ArgumentParser()
     parser.add_argument(
         "ring_mode",
         nargs="?",
@@ -34,6 +35,28 @@ def parse_arguments():
         help="Disable the simulator's time-consuming emittance calculation",
         action="store_true",
         default=False,
+    )
+    parser.add_argument(
+        "-c",
+        "--disable-chromaticity",
+        help="Disable chromaticity calculations",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-r",
+        "--disable-radiation",
+        help="Disable radiation calculations in the simulation",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-l",
+        "--linopt-function",
+        help="Which pyAT linear optics function to use: linopt2, linopt4, linopt6. "
+        "Default is linopt6",
+        default="linopt6",
+        type=str,
     )
     parser.add_argument(
         "-t",
@@ -111,6 +134,13 @@ def main() -> None:
 
     configure_ca()
 
+    sim_params = SimParams(
+        args.linopt_function,
+        not args.disable_emittance,
+        not args.disable_chromaticity,
+        not args.disable_radiation,
+    )
+
     # Determine the ring mode
     if args.ring_mode is not None:
         ring_mode = args.ring_mode
@@ -138,7 +168,7 @@ def main() -> None:
         DATADIR / ring_mode / "feedback.csv",
         DATADIR / ring_mode / "mirrored.csv",
         DATADIR / ring_mode / "tunefb.csv",
-        args.disable_emittance,
+        sim_params,
         args.disable_tfb,
     )
 
