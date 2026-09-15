@@ -187,11 +187,13 @@ class VirtacServer:
             limits_dict: A dictionary containing the limits data for
                 the PVs.
         """
-        rf_write_record = None
+        # Dictionary of element families where multiple elements are set by a single PV
+        many_to_one_pvs = {"BEND": None, "RFCAVITY": None}
         for element in self.lattice:
-            # Exception for the RF cavities, 8 of which share a single PV
-            if element.type_.upper() == "RFCAVITY" and rf_write_record is not None:
-                rf_write_record.append_pytac_item(element)
+            family = element.type_.upper()
+            if family in many_to_one_pvs.keys() and many_to_one_pvs[family] is not None:
+                # Add a pytac element to the PV which will update when the PV changes
+                many_to_one_pvs[family].append_pytac_item(element)
             else:
                 for field in cast(
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
@@ -264,8 +266,8 @@ class VirtacServer:
                         )
                         self._pv_dict[read_write_pv_name] = read_write_pv
 
-                        if element.type_.upper() == "RFCAVITY":
-                            rf_write_record = read_write_pv
+                        if family in many_to_one_pvs.keys():
+                            many_to_one_pvs[family] = read_write_pv
 
     def _create_lattice_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice itself.
