@@ -188,12 +188,16 @@ class VirtacServer:
                 the PVs.
         """
         # Dictionary of element families where multiple elements are set by a single PV
-        many_to_one_pvs = {"BEND": None, "RFCAVITY": None}
+        many_to_one_pvs: dict[str, None | ReadWriteSimPV] = {
+            "BEND": None,
+            "RFCAVITY": None,
+        }
         for element in self.lattice:
             family = element.type_.upper()
-            if family in many_to_one_pvs.keys() and many_to_one_pvs[family] is not None:
+            many_to_one_pv = many_to_one_pvs.get(family)
+            if many_to_one_pv is not None:
                 # Add a pytac element to the PV which will update when the PV changes
-                many_to_one_pvs[family].append_pytac_item(element)
+                many_to_one_pv.append_pytac_item(element)
             else:
                 for field in cast(
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
