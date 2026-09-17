@@ -227,6 +227,7 @@ def get_element_pv_data(
                         ctrl.upper_disp_limit,
                         ctrl.lower_disp_limit,
                         "1 second" if rb_pv in scan_pvs else "I/O Intr",
+                        "-1" if rb_pv in scan_pvs else "0",
                     )
                 )
                 try:
@@ -265,7 +266,7 @@ def generate_pv_limits(
         Data to be written to csv.
     """
     data: CSVData = [
-        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan")
+        ("pv", "upper", "lower", "precision", "drive_high", "drive_low", "scan", "mdel")
     ]
     pvs: list[str] = []
     caget_handles: list[cothread.Spawn] = []
