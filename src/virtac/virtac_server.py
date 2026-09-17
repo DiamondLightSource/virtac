@@ -27,7 +27,7 @@ from .pv import (
     SummationPV,
 )
 
-LimitsDictType = dict[str, tuple[str, str, str, str, str, str]]
+LimitsDictType = dict[str, tuple[str, str, str, str, str, str, str]]
 
 
 class MirrorType(StrEnum):
@@ -148,6 +148,7 @@ class VirtacServer:
                             str(line["drive_high"]),
                             str(line["drive_low"]),
                             str(line["scan"]),
+                            str(line["mdel"]),
                         )
             except FileNotFoundError:
                 logging.warning(
@@ -212,9 +213,10 @@ class VirtacServer:
                         print(f"PV: {read_pv_name} already exists! Dupe!")
                         continue
 
-                    upper, lower, precision, drive_high, drive_low, scan = (
+                    upper, lower, precision, drive_high, drive_low, scan, mdel = (
                         limits_dict.get(
-                            read_pv_name, (None, None, None, None, None, "I/O Intr")
+                            read_pv_name,
+                            (None, None, None, None, None, "I/O Intr", None),
                         )
                     )
                     record_data = RecordData(
@@ -226,6 +228,7 @@ class VirtacServer:
                         drive_low=drive_low,
                         initial_value=value,
                         scan=scan,
+                        mdel=mdel,
                     )
 
                     read_pv = ReadSimPV(
@@ -245,10 +248,10 @@ class VirtacServer:
                         # Add to list of PVs to be updated from the simulation
                         self._readback_pvs_dict[read_pv_name] = read_pv
                     else:
-                        upper, lower, precision, drive_high, drive_low, scan = (
+                        upper, lower, precision, drive_high, drive_low, scan, mdel = (
                             limits_dict.get(
                                 read_write_pv_name,
-                                (None, None, None, None, None, "Passive"),
+                                (None, None, None, None, None, "Passive", None),
                             )
                         )
                         record_data = RecordData(
@@ -259,6 +262,7 @@ class VirtacServer:
                             drive_high=drive_high,
                             drive_low=drive_low,
                             initial_value=value,
+                            mdel=mdel,
                             always_update=True,
                         )
                         read_write_pv = ReadWriteSimPV(
@@ -299,8 +303,8 @@ class VirtacServer:
                 self.lattice.get_device(field), pytac.device.SimpleDevice
             ):
                 get_pv_name = cast(str, self.lattice.get_pv_name(field, pytac.RB))
-                upper, lower, precision, _, _, scan = limits_dict.get(
-                    get_pv_name, (None, None, None, None, None, "I/O Intr")
+                upper, lower, precision, _, _, scan, mdel = limits_dict.get(
+                    get_pv_name, (None, None, None, None, None, "I/O Intr", None)
                 )
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
@@ -312,6 +316,7 @@ class VirtacServer:
                     precision=precision,
                     scan=scan,
                     initial_value=value,
+                    mdel=mdel,
                 )
                 read_pv = ReadSimPV(
                     get_pv_name, record_data, pytac_items=[self.lattice], field=field
