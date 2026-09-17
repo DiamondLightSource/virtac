@@ -27,7 +27,7 @@ from .pv import (
     SummationPV,
 )
 
-LimitsDictType = dict[str, tuple[str, str, str, str, str, str]]
+LimitsDictType = dict[str, tuple[str, str, str, str, str, str, str]]
 
 
 class MirrorType(StrEnum):
@@ -62,7 +62,7 @@ class VirtacServer:
         feedback_csv: Path | None = None,
         mirror_csv: Path | None = None,
         tune_csv: Path | None = None,
-        disable_emittance: bool = False,
+        sim_params: atip.simulator.SimParams | None = None,
         disable_tunefb: bool = False,
     ) -> None:
         """
@@ -78,19 +78,27 @@ class VirtacServer:
                 mirror records, for more information see create_csv.py.
             tune_csv: The filepath to the .csv file from which to load the tune
                 feedback records, for more information see create_csv.py.
-            disable_emittance: Whether emittance should be disabled.
+            sim_params (SimParams | None): An optional dataclass containing the pyAT
+                simulation parameters to use.
             disable_tunefb: Whether tune feedback should be disabled.
         """
-        self._disable_emittance: bool = disable_emittance
+
+        if sim_params is None:
+            sim_params = atip.simulator.SimParams()
+        self._sim_params: atip.simulator.SimParams = sim_params
         self._disable_tunefb: bool = disable_tunefb
         self._pv_monitoring: bool = True
+
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
-            ring_mode, self.update_pvs, self._disable_emittance
+            ring_mode,
+            sim_params,
+            self.update_pvs,
         )
         self.lattice.set_default_data_source(pytac.SIM)
+
         # Holding dictionary for all PVs
         self._pv_dict: dict[str, BasePV] = {}
-        # Dictionary for the PVs which should be automatically updated when the
+        # Dictionary for the PVs which need to be automatically updated when the
         # simulation data is recalculated
         self._readback_pvs_dict: dict[str, ReadSimPV] = {}
 
@@ -129,17 +137,24 @@ class VirtacServer:
         """
         limits_dict: LimitsDictType = {}
         if limits_csv is not None:
-            with open(limits_csv) as f:
-                csv_reader = csv.DictReader(f)
-                for line in csv_reader:
-                    limits_dict[line["pv"]] = (
-                        str(line["upper"]),
-                        str(line["lower"]),
-                        str(line["precision"]),
-                        str(line["drive_high"]),
-                        str(line["drive_low"]),
-                        str(line["scan"]),
-                    )
+            try:
+                with open(limits_csv) as f:
+                    csv_reader = csv.DictReader(f)
+                    for line in csv_reader:
+                        limits_dict[line["pv"]] = (
+                            str(line["upper"]),
+                            str(line["lower"]),
+                            str(line["precision"]),
+                            str(line["drive_high"]),
+                            str(line["drive_low"]),
+                            str(line["scan"]),
+                            str(line["mdel"]),
+                        )
+            except FileNotFoundError:
+                logging.warning(
+                    f"Warning, could not find limits.csv file at {limits_csv}, limits "
+                    "data will not be used."
+                )
 
         # Create PVs from lattice elements.
         self._create_element_pvs(limits_dict)
@@ -150,9 +165,14 @@ class VirtacServer:
     def _create_element_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice element.
 
-        .. note:: The one exception to the rule of one PV per field is for the bend
-            magnets. Each of the 50 bend magnets shares a single PV which stores their
-            current value as they have a shared power supply in the real machine.
+        .. note::  One exception to the rule of one PV per field is the RF cavities.
+                Currently there are 7 RF cavities and 1 harmonic RF cavity in the D2
+                lattice, we set their working frequency to be that of the master
+                oscillator (MOSC) frequency, meaning they all share a single PV. Really,
+                the HRF cavity should be about 3x the MOSC frequency, but the HRF isnt
+                simulated anyway, so it doesnt matter that we set the wrong value to it.
+                In the future it should either have its own PV, or we should add a way
+                to apply a scaling factor to the value we get/set.
 
         .. note:: For fields which have an in type record (RB) and an out type record
             (SP)we create SetpointPVs (or a derivative). SetpointPVs are used to set the
@@ -168,12 +188,17 @@ class VirtacServer:
             limits_dict: A dictionary containing the limits data for
                 the PVs.
         """
-        bend_in_record = None
+        # Dictionary of element families where multiple elements are set by a single PV
+        many_to_one_pvs: dict[str, None | ReadWriteSimPV] = {
+            "BEND": None,
+            "RFCAVITY": None,
+        }
         for element in self.lattice:
-            # There is only 1 bend PV for all bend magnets, each bend element is added
-            # to this PV
-            if element.type_.upper() == "BEND" and bend_in_record is not None:
-                bend_in_record.append_pytac_item(element)
+            family = element.type_.upper()
+            many_to_one_pv = many_to_one_pvs.get(family)
+            if many_to_one_pv is not None:
+                # Add a pytac element to the PV which will update when the PV changes
+                many_to_one_pv.append_pytac_item(element)
             else:
                 for field in cast(
                     dict[str, list[str]], element.get_fields()[pytac.SIM]
@@ -181,11 +206,17 @@ class VirtacServer:
                     value = element.get_value(
                         field, units=pytac.ENG, data_source=pytac.SIM
                     )
+
                     read_pv_name = cast(str, element.get_pv_name(field, pytac.RB))
 
-                    upper, lower, precision, drive_high, drive_low, scan = (
+                    if read_pv_name in self._pv_dict.keys():
+                        print(f"PV: {read_pv_name} already exists! Dupe!")
+                        continue
+
+                    upper, lower, precision, drive_high, drive_low, scan, mdel = (
                         limits_dict.get(
-                            read_pv_name, (None, None, None, None, None, "I/O Intr")
+                            read_pv_name,
+                            (None, None, None, None, None, "I/O Intr", None),
                         )
                     )
                     record_data = RecordData(
@@ -197,6 +228,7 @@ class VirtacServer:
                         drive_low=drive_low,
                         initial_value=value,
                         scan=scan,
+                        mdel=mdel,
                     )
 
                     read_pv = ReadSimPV(
@@ -216,10 +248,10 @@ class VirtacServer:
                         # Add to list of PVs to be updated from the simulation
                         self._readback_pvs_dict[read_pv_name] = read_pv
                     else:
-                        upper, lower, precision, drive_high, drive_low, scan = (
+                        upper, lower, precision, drive_high, drive_low, scan, mdel = (
                             limits_dict.get(
                                 read_write_pv_name,
-                                (None, None, None, None, None, "Passive"),
+                                (None, None, None, None, None, "Passive", None),
                             )
                         )
                         record_data = RecordData(
@@ -230,6 +262,7 @@ class VirtacServer:
                             drive_high=drive_high,
                             drive_low=drive_low,
                             initial_value=value,
+                            mdel=mdel,
                             always_update=True,
                         )
                         read_write_pv = ReadWriteSimPV(
@@ -241,8 +274,8 @@ class VirtacServer:
                         )
                         self._pv_dict[read_write_pv_name] = read_write_pv
 
-                        if element.type_.upper() == "BEND" and bend_in_record is None:
-                            bend_in_record = read_write_pv
+                        if family in many_to_one_pvs.keys():
+                            many_to_one_pvs[family] = read_write_pv
 
     def _create_lattice_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice itself.
@@ -262,7 +295,7 @@ class VirtacServer:
         """
         lat_field_dict = cast(dict[str, list[str]], self.lattice.get_fields())
         lat_field_set = set(lat_field_dict[pytac.LIVE]) & set(lat_field_dict[pytac.SIM])
-        if self._disable_emittance:
+        if not self._sim_params.emittance:
             lat_field_set -= {"emittance_x", "emittance_y"}
         for field in lat_field_set:
             # Ignore basic devices as they do not have PVs.
@@ -270,8 +303,8 @@ class VirtacServer:
                 self.lattice.get_device(field), pytac.device.SimpleDevice
             ):
                 get_pv_name = cast(str, self.lattice.get_pv_name(field, pytac.RB))
-                upper, lower, precision, _, _, scan = limits_dict.get(
-                    get_pv_name, (None, None, None, None, None, "I/O Intr")
+                upper, lower, precision, _, _, scan, mdel = limits_dict.get(
+                    get_pv_name, (None, None, None, None, None, "I/O Intr", None)
                 )
                 value = self.lattice.get_value(
                     field, units=pytac.ENG, data_source=pytac.SIM
@@ -283,6 +316,7 @@ class VirtacServer:
                     precision=precision,
                     scan=scan,
                     initial_value=value,
+                    mdel=mdel,
                 )
                 read_pv = ReadSimPV(
                     get_pv_name, record_data, pytac_items=[self.lattice], field=field
@@ -313,7 +347,7 @@ class VirtacServer:
 
         # We can choose to not calculate emittance as it is not always required,
         # which decreases computation time.
-        if not self._disable_emittance:
+        if self._sim_params.emittance:
             name = "SR-DI-EMIT-01:STATUS"
             record_data = RecordData(RecordTypes.MBBI, zrvl="0", zrst="Successful")
             emit_status_pv = BasePV(name, record_data)
@@ -515,19 +549,32 @@ class VirtacServer:
             "\t Tune feedbacks is "
             f"{('disabled' if self._disable_tunefb else 'enabled')}"
         )
+        print(f"\t Linear optics function is {self._sim_params.linopt}")
         print(
             "\t Emittance calculations are "
-            f"{('disabled' if self._disable_emittance else 'enabled')}"
+            f"{('disabled' if not self._sim_params.emittance else 'enabled')}"
+        )
+        print(
+            "\t Chromaticity calculations are "
+            f"{('disabled' if not self._sim_params.chromaticity else 'enabled')}"
+        )
+        print(
+            "\t Radiation calculations are "
+            f"{('disabled' if not self._sim_params.radiation else 'enabled')}"
         )
         print(
             f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
         )
 
-        print(f"\t Total pvs: {len(self._pv_dict)}")
+        print(f"\t Total pvs: {len(self._pv_dict)}, consisting of:")
         for pv_type, count in pv_type_count.items():
             print(f"\t\t {pv_type.__name__} pvs: {count}")
+        print(
+            "\t Number of PVs to update after simulation recalculation: "
+            f"{len(self._readback_pvs_dict)}"
+        )
 
         if verbosity >= 1:
-            print("\tAvailable PVs")
+            print("\t Available PVs")
             for pv in self._pv_dict.values():
-                print(f"\t\t{pv.name}, {type(pv)}")
+                print(f"\t\t {pv.name}, {type(pv)}")
