@@ -41,6 +41,7 @@ class RecordData:
     zrvl: str | None = None
     zrst: str | None = None
     scan: str = "I/O Intr"
+    mdel: str | None = None
     pini: str = "YES"
     always_update: bool = False
     initial_value: RecordValueType = 0
@@ -132,7 +133,7 @@ class BasePV:
                 HOPR=record_data.upper,
                 LOPR=record_data.lower,
                 SCAN=record_data.scan,
-                MDEL=-1,
+                MDEL=record_data.mdel,
                 initial_value=record_data.initial_value,
             )
         elif record_data.record_type == RecordTypes.AO:
