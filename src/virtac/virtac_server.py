@@ -404,6 +404,12 @@ class VirtacServer:
             for line in csv_reader:
                 # Get a list of input pvs, these are all virtac owned pvs
                 input_pv_names = line["in_pv"].split(", ")
+
+                # Dont make emittance mirror PVs if not simulating emittance
+                if not self._sim_params.emittance:
+                    if "HEMIT" in line or "VEMIT" in line:
+                        continue
+
                 if (len(input_pv_names) > 1) and (line["mirror_type"] in ["basic"]):
                     raise IndexError(
                         "Transformation mirror type takes only one input PV."
