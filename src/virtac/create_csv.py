@@ -249,6 +249,7 @@ def get_element_pv_data(
                                 ctrl.upper_disp_limit,
                                 ctrl.lower_disp_limit,
                                 "1 second" if sp_pv in scan_pvs else "Passive",
+                                "-1" if rb_pv in scan_pvs else "0",
                             )
                         )
 
