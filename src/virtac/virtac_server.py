@@ -62,7 +62,7 @@ class VirtacServer:
         feedback_csv: Path | None = None,
         mirror_csv: Path | None = None,
         tune_csv: Path | None = None,
-        disable_emittance: bool = False,
+        sim_params: atip.simulator.SimParams | None = None,
         disable_tunefb: bool = False,
     ) -> None:
         """
@@ -78,19 +78,27 @@ class VirtacServer:
                 mirror records, for more information see create_csv.py.
             tune_csv: The filepath to the .csv file from which to load the tune
                 feedback records, for more information see create_csv.py.
-            disable_emittance: Whether emittance should be disabled.
+            sim_params (SimParams | None): An optional dataclass containing the pyAT
+                simulation parameters to use.
             disable_tunefb: Whether tune feedback should be disabled.
         """
-        self._disable_emittance: bool = disable_emittance
+
+        if sim_params is None:
+            sim_params = atip.simulator.SimParams()
+        self._sim_params: atip.simulator.SimParams = sim_params
         self._disable_tunefb: bool = disable_tunefb
         self._pv_monitoring: bool = True
+
         self.lattice: pytac.lattice.EpicsLattice = atip.utils.loader(
-            ring_mode, self.update_pvs, self._disable_emittance
+            ring_mode,
+            sim_params,
+            self.update_pvs,
         )
         self.lattice.set_default_data_source(pytac.SIM)
+
         # Holding dictionary for all PVs
         self._pv_dict: dict[str, BasePV] = {}
-        # Dictionary for the PVs which should be automatically updated when the
+        # Dictionary for the PVs which need to be automatically updated when the
         # simulation data is recalculated
         self._readback_pvs_dict: dict[str, ReadSimPV] = {}
 
@@ -262,7 +270,7 @@ class VirtacServer:
         """
         lat_field_dict = cast(dict[str, list[str]], self.lattice.get_fields())
         lat_field_set = set(lat_field_dict[pytac.LIVE]) & set(lat_field_dict[pytac.SIM])
-        if self._disable_emittance:
+        if not self._sim_params.emittance:
             lat_field_set -= {"emittance_x", "emittance_y"}
         for field in lat_field_set:
             # Ignore basic devices as they do not have PVs.
@@ -313,7 +321,7 @@ class VirtacServer:
 
         # We can choose to not calculate emittance as it is not always required,
         # which decreases computation time.
-        if not self._disable_emittance:
+        if self._sim_params.emittance:
             name = "SR-DI-EMIT-01:STATUS"
             record_data = RecordData(RecordTypes.MBBI, zrvl="0", zrst="Successful")
             emit_status_pv = BasePV(name, record_data)
@@ -515,19 +523,32 @@ class VirtacServer:
             "\t Tune feedbacks is "
             f"{('disabled' if self._disable_tunefb else 'enabled')}"
         )
+        print(f"\t Linear optics function is {self._sim_params.linopt}")
         print(
             "\t Emittance calculations are "
-            f"{('disabled' if self._disable_emittance else 'enabled')}"
+            f"{('disabled' if not self._sim_params.emittance else 'enabled')}"
+        )
+        print(
+            "\t Chromaticity calculations are "
+            f"{('disabled' if not self._sim_params.chromaticity else 'enabled')}"
+        )
+        print(
+            "\t Radiation calculations are "
+            f"{('disabled' if not self._sim_params.radiation else 'enabled')}"
         )
         print(
             f"\t PV monitoring is {('enabled' if self._pv_monitoring else 'disabled')}"
         )
 
-        print(f"\t Total pvs: {len(self._pv_dict)}")
+        print(f"\t Total pvs: {len(self._pv_dict)}, consisting of:")
         for pv_type, count in pv_type_count.items():
             print(f"\t\t {pv_type.__name__} pvs: {count}")
+        print(
+            "\t Number of PVs to update after simulation recalculation: "
+            f"{len(self._readback_pvs_dict)}"
+        )
 
         if verbosity >= 1:
-            print("\tAvailable PVs")
+            print("\t Available PVs")
             for pv in self._pv_dict.values():
-                print(f"\t\t{pv.name}, {type(pv)}")
+                print(f"\t\t {pv.name}, {type(pv)}")
