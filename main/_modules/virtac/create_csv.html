@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.create_csv &#8212; virtac 0.2.1.dev105+gc7c27ca79 documentation</title>
+    <title>virtac.create_csv &#8212; virtac 0.3.1.dev4+gface8e741 documentation</title>
   
   
   
@@ -26,8 +26,8 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=cb8930eaaf36d9849b67" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
@@ -35,45 +35,52 @@
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=cb8930eaaf36d9849b67"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67" />
 
-    <script src="../../_static/documentation_options.js?v=59fa993f"></script>
-    <script src="../../_static/doctools.js?v=9bcbadda"></script>
-    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/documentation_options.js?v=55a0e2c6"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=30646c52"></script>
     <script src="../../_static/design-tabs.js?v=f930bc37"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/virtac/create_csv';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.21.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="icon" href="../../_static/dls-logo.svg"/>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="main" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -99,7 +106,7 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
   <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
@@ -191,11 +198,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -208,8 +222,7 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -316,11 +329,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -333,8 +353,7 @@
           
           
           
-          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/DiamondLightSource/virtac" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -418,11 +437,11 @@
                 <article class="bd-article">
                   
   <h1>Source code for virtac.create_csv</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;This script does cagets from the live machine to get control limits and then uses</span>
+<span></span><span class="sd">"""This script does cagets from the live machine to get control limits and then uses</span>
 <span class="sd">this data in combination with hardcoded data in this file to generate csv files. These</span>
 <span class="sd">are used by the Virtac to create softioc records. This script should be manually run</span>
 <span class="sd">using CA port 5064 whenever the csv files need updating.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
@@ -443,14 +462,14 @@
 <div class="viewcode-block" id="generate_feedback_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_feedback_pvs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_feedback_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">EpicsLattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get feedback pvs. Also get families for tune feedback.</span>
+<span class="w">    </span><span class="sd">"""Get feedback pvs. Also get families for tune feedback.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        all_elements: a list of elements</span>
 <span class="sd">        lattice: The pytac lattice being used by the virtual machine.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Data to be written to csv.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">tune_quad_elements</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
         <span class="n">all_elements</span><span class="o">.</span><span class="n">q1d</span>
         <span class="o">+</span> <span class="n">all_elements</span><span class="o">.</span><span class="n">q2d</span>
@@ -463,44 +482,44 @@
     <span class="c1">#     element index (int), field (str), pv (str), value (int), record_type (str).</span>
     <span class="c1"># We have special cases for four lattice fields that feedback systems read from.</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;pv&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;record_type&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;beam_current&quot;</span><span class="p">,</span> <span class="s2">&quot;SR-DI-DCCT-01:SIGNAL&quot;</span><span class="p">,</span> <span class="s2">&quot;300&quot;</span><span class="p">,</span> <span class="s2">&quot;ai&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;feedback_status&quot;</span><span class="p">,</span> <span class="s2">&quot;CS-CS-MSTAT-01:FBSTAT&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;ai&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;fofb_status&quot;</span><span class="p">,</span> <span class="s2">&quot;SR01A-CS-FOFB-01:RUN&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ao&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;feedback_heart&quot;</span><span class="p">,</span> <span class="s2">&quot;CS-CS-MSTAT-01:FBHEART&quot;</span><span class="p">,</span> <span class="s2">&quot;10&quot;</span><span class="p">,</span> <span class="s2">&quot;ao&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"field"</span><span class="p">,</span> <span class="s2">"pv"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="s2">"record_type"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"beam_current"</span><span class="p">,</span> <span class="s2">"SR-DI-DCCT-01:SIGNAL"</span><span class="p">,</span> <span class="s2">"300"</span><span class="p">,</span> <span class="s2">"ai"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"feedback_status"</span><span class="p">,</span> <span class="s2">"CS-CS-MSTAT-01:FBSTAT"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">,</span> <span class="s2">"ai"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"fofb_status"</span><span class="p">,</span> <span class="s2">"SR01A-CS-FOFB-01:RUN"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ao"</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"feedback_heart"</span><span class="p">,</span> <span class="s2">"CS-CS-MSTAT-01:FBHEART"</span><span class="p">,</span> <span class="s2">"10"</span><span class="p">,</span> <span class="s2">"ao"</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="c1"># Iterate over our elements to get the PV names.</span>
     <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">all_elements</span><span class="o">.</span><span class="n">hstr</span><span class="p">:</span>
-        <span class="n">pv_stem</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s2">&quot;x_kick&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;error_sum&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:ERCSUM&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ai&quot;</span><span class="p">))</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:STATE&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;ai&quot;</span><span class="p">))</span>
+        <span class="n">pv_stem</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s2">"x_kick"</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"error_sum"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":ERCSUM"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ai"</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":STATE"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">,</span> <span class="s2">"ai"</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">all_elements</span><span class="o">.</span><span class="n">vstr</span><span class="p">:</span>
-        <span class="n">pv_stem</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s2">&quot;y_kick&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;error_sum&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:ERCSUM&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ai&quot;</span><span class="p">))</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:STATE&quot;</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;ai&quot;</span><span class="p">))</span>
+        <span class="n">pv_stem</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s2">"y_kick"</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"error_sum"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":ERCSUM"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ai"</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"state"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":STATE"</span><span class="p">,</span> <span class="s2">"2"</span><span class="p">,</span> <span class="s2">"ai"</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">all_elements</span><span class="o">.</span><span class="n">bpm</span><span class="p">:</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">),</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;ai&quot;</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"enabled"</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="s2">"enabled"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">),</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"ai"</span><span class="p">)</span>
         <span class="p">)</span>
     <span class="c1"># Add elements for Tune Feedback</span>
     <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">tune_quad_elements</span><span class="p">:</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s2">&quot;b1&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;:OFFSET1&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ai&quot;</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"offset"</span><span class="p">,</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s2">"b1"</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">":OFFSET1"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ai"</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="c1"># BPM ID for the x axis of beam position plot</span>
-    <span class="n">bpm_ids</span> <span class="o">=</span> <span class="s2">&quot;[&quot;</span>
-    <span class="k">for</span> <span class="n">pv</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">):</span>
-        <span class="n">bpm_ids</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">pv</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">pv</span><span class="p">[</span><span class="mi">14</span><span class="p">:</span><span class="mi">16</span><span class="p">])</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> &quot;</span>
+    <span class="n">bpm_ids</span> <span class="o">=</span> <span class="s2">"["</span>
+    <span class="k">for</span> <span class="n">pv</span> <span class="ow">in</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">"BPM"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">):</span>
+        <span class="n">bpm_ids</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">pv</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mf">0.1</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="nb">int</span><span class="p">(</span><span class="n">pv</span><span class="p">[</span><span class="mi">14</span><span class="p">:</span><span class="mi">16</span><span class="p">])</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> "</span>
     <span class="n">bpm_ids</span> <span class="o">=</span> <span class="n">bpm_ids</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
-    <span class="n">bpm_ids</span> <span class="o">+=</span> <span class="s2">&quot;]&quot;</span>  <span class="c1"># Should look like [1.1 1.2 1.3 ...]</span>
+    <span class="n">bpm_ids</span> <span class="o">+=</span> <span class="s2">"]"</span>  <span class="c1"># Should look like [1.1 1.2 1.3 ...]</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
             <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;bpm_id&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR-DI-EBPM-01:BPMID&quot;</span><span class="p">,</span>
+            <span class="s2">"bpm_id"</span><span class="p">,</span>
+            <span class="s2">"SR-DI-EBPM-01:BPMID"</span><span class="p">,</span>
             <span class="n">bpm_ids</span><span class="p">,</span>
-            <span class="s2">&quot;wfmi&quot;</span><span class="p">,</span>
+            <span class="s2">"wfmi"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
 
@@ -511,7 +530,7 @@
 <div class="viewcode-block" id="generate_bba_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_bba_pvs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_bba_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">symmetry</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Data to be written is stored as a list of tuples each with structure:</span>
+<span class="w">    </span><span class="sd">"""Data to be written is stored as a list of tuples each with structure:</span>
 <span class="sd">    element index (int), field (str), pv (str), value (int), record_type (str).</span>
 
 <span class="sd">    Args:</span>
@@ -519,70 +538,70 @@
 <span class="sd">        symmetry: The number of cells in the lattice.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Data to be written to csv.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;pv&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;record_type&quot;</span><span class="p">)]</span>
-    <span class="n">pv_stem</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="sd">    """</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"field"</span><span class="p">,</span> <span class="s2">"pv"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="s2">"record_type"</span><span class="p">)]</span>
+    <span class="n">pv_stem</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="c1"># Iterate over the BPMs to construct the PV names.</span>
     <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">all_elements</span><span class="o">.</span><span class="n">bpm</span><span class="p">:</span>
-        <span class="n">pv_stem</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s2">&quot;enabled&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">pv_stem</span> <span class="o">=</span> <span class="n">elem</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="s2">"enabled"</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;golden_offset_x&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:CF:GOLDEN_X_S&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ao&quot;</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"golden_offset_x"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":CF:GOLDEN_X_S"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ao"</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;golden_offset_y&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:CF:GOLDEN_Y_S&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ao&quot;</span><span class="p">)</span>
+            <span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"golden_offset_y"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":CF:GOLDEN_Y_S"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ao"</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;bcd_offset_x&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:CF:BCD_X_S&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ao&quot;</span><span class="p">))</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;bcd_offset_y&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:CF:BCD_Y_S&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ao&quot;</span><span class="p">))</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;bba_offset_x&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:CF:BBA_X_S&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ao&quot;</span><span class="p">))</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;bba_offset_y&quot;</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">&quot;:CF:BBA_Y_S&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="s2">&quot;ao&quot;</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"bcd_offset_x"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":CF:BCD_X_S"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ao"</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"bcd_offset_y"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":CF:BCD_Y_S"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ao"</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"bba_offset_x"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":CF:BBA_X_S"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ao"</span><span class="p">))</span>
+        <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">elem</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"bba_offset_y"</span><span class="p">,</span> <span class="n">pv_stem</span> <span class="o">+</span> <span class="s2">":CF:BBA_Y_S"</span><span class="p">,</span> <span class="s2">"0"</span><span class="p">,</span> <span class="s2">"ao"</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">cell</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">symmetry</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">padded_cell</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cell</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">pv_stem</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;SR</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">A-CS-FOFB-01&quot;</span>
+        <span class="n">pv_stem</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"SR</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">A-CS-FOFB-01"</span>
         <span class="c1"># Waveform records</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">cell</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_start_times&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:START_TIMES&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_start_times"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:START_TIMES"</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">18</span><span class="p">)),</span>
-                <span class="s2">&quot;wfmo&quot;</span><span class="p">,</span>
+                <span class="s2">"wfmo"</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">cell</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_amps&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:AMPS&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_amps"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:AMPS"</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">18</span><span class="p">)),</span>
-                <span class="s2">&quot;wfmo&quot;</span><span class="p">,</span>
+                <span class="s2">"wfmo"</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">cell</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_deltas&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:DELTAS&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_deltas"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:DELTAS"</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">18</span><span class="p">)),</span>
-                <span class="s2">&quot;wfmo&quot;</span><span class="p">,</span>
+                <span class="s2">"wfmo"</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">cell</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_ticks&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:TICKS&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_ticks"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:TICKS"</span><span class="p">,</span>
                 <span class="nb">str</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">18</span><span class="p">)),</span>
-                <span class="s2">&quot;wfmo&quot;</span><span class="p">,</span>
+                <span class="s2">"wfmo"</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
         <span class="c1"># ao record</span>
         <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
                 <span class="n">cell</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_prime&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:PRIME&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;0&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;ao&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"cell_</span><span class="si">{</span><span class="n">padded_cell</span><span class="si">}</span><span class="s2">_excite_prime"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pv_stem</span><span class="si">}</span><span class="s2">:EXCITE:PRIME"</span><span class="p">,</span>
+                <span class="s2">"0"</span><span class="p">,</span>
+                <span class="s2">"ao"</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span></div>
@@ -596,21 +615,21 @@
     <span class="n">pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the control limits and precision values from the live machine for</span>
+<span class="w">    </span><span class="sd">"""Get the control limits and precision values from the live machine for</span>
 <span class="sd">    all normal PVS.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        pytac_item: An element of the pytac lattice or the lattice itself</span>
 <span class="sd">        pvs: A list of pv names which we have already found</span>
 <span class="sd">        data: A list of tuples, with each tuple being a collection of data about one pv.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">field_data</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">pytac_item</span><span class="o">.</span><span class="n">get_fields</span><span class="p">()</span>
     <span class="n">lat_fields</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">field_data</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">LIVE</span><span class="p">])</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span>
         <span class="nb">set</span><span class="p">(</span><span class="n">field_data</span><span class="p">[</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">])</span>
     <span class="p">)</span>
     <span class="c1"># These pvs need to be configured with their SCAN fields set to 1 second. This is</span>
     <span class="c1"># different to the SCAN field in the LIVE pv, so we cant just caget it.</span>
-    <span class="n">scan_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SR-DI-EMIT-01:HEMIT&quot;</span><span class="p">,</span> <span class="s2">&quot;SR-DI-EMIT-01:VEMIT&quot;</span><span class="p">]</span>
+    <span class="n">scan_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"SR-DI-EMIT-01:HEMIT"</span><span class="p">,</span> <span class="s2">"SR-DI-EMIT-01:VEMIT"</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">lat_fields</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pytac_item</span><span class="o">.</span><span class="n">get_device</span><span class="p">(</span><span class="n">field</span><span class="p">),</span> <span class="n">pytac</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">SimpleDevice</span><span class="p">):</span>
             <span class="n">rb_pv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">pytac_item</span><span class="o">.</span><span class="n">get_pv_name</span><span class="p">(</span><span class="n">field</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">)</span>
@@ -625,7 +644,7 @@
                         <span class="n">ctrl</span><span class="o">.</span><span class="n">precision</span><span class="p">,</span>
                         <span class="n">ctrl</span><span class="o">.</span><span class="n">upper_disp_limit</span><span class="p">,</span>
                         <span class="n">ctrl</span><span class="o">.</span><span class="n">lower_disp_limit</span><span class="p">,</span>
-                        <span class="s2">&quot;1 second&quot;</span> <span class="k">if</span> <span class="n">rb_pv</span> <span class="ow">in</span> <span class="n">scan_pvs</span> <span class="k">else</span> <span class="s2">&quot;I/O Intr&quot;</span><span class="p">,</span>
+                        <span class="s2">"1 second"</span> <span class="k">if</span> <span class="n">rb_pv</span> <span class="ow">in</span> <span class="n">scan_pvs</span> <span class="k">else</span> <span class="s2">"I/O Intr"</span><span class="p">,</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
@@ -643,7 +662,7 @@
                                 <span class="n">ctrl</span><span class="o">.</span><span class="n">precision</span><span class="p">,</span>
                                 <span class="n">ctrl</span><span class="o">.</span><span class="n">upper_disp_limit</span><span class="p">,</span>
                                 <span class="n">ctrl</span><span class="o">.</span><span class="n">lower_disp_limit</span><span class="p">,</span>
-                                <span class="s2">&quot;1 second&quot;</span> <span class="k">if</span> <span class="n">sp_pv</span> <span class="ow">in</span> <span class="n">scan_pvs</span> <span class="k">else</span> <span class="s2">&quot;Passive&quot;</span><span class="p">,</span>
+                                <span class="s2">"1 second"</span> <span class="k">if</span> <span class="n">sp_pv</span> <span class="ow">in</span> <span class="n">scan_pvs</span> <span class="k">else</span> <span class="s2">"Passive"</span><span class="p">,</span>
                             <span class="p">)</span>
                         <span class="p">)</span></div>
 
@@ -652,7 +671,7 @@
 <div class="viewcode-block" id="generate_pv_limits">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_pv_limits">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_pv_limits</span><span class="p">(</span><span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loop through each element in the lattice and spawn a cothread which will then</span>
+<span class="w">    </span><span class="sd">"""Loop through each element in the lattice and spawn a cothread which will then</span>
 <span class="sd">    do a caget to get pv data for the element.</span>
 
 <span class="sd">    Args:</span>
@@ -660,9 +679,9 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Data to be written to csv.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="s2">&quot;pv&quot;</span><span class="p">,</span> <span class="s2">&quot;upper&quot;</span><span class="p">,</span> <span class="s2">&quot;lower&quot;</span><span class="p">,</span> <span class="s2">&quot;precision&quot;</span><span class="p">,</span> <span class="s2">&quot;drive_high&quot;</span><span class="p">,</span> <span class="s2">&quot;drive_low&quot;</span><span class="p">,</span> <span class="s2">&quot;scan&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="s2">"pv"</span><span class="p">,</span> <span class="s2">"upper"</span><span class="p">,</span> <span class="s2">"lower"</span><span class="p">,</span> <span class="s2">"precision"</span><span class="p">,</span> <span class="s2">"drive_high"</span><span class="p">,</span> <span class="s2">"drive_low"</span><span class="p">,</span> <span class="s2">"scan"</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="n">pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">caget_handles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">cothread</span><span class="o">.</span><span class="n">Spawn</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -680,12 +699,12 @@
 <div class="viewcode-block" id="generate_mirrored_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_mirrored_pvs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_mirrored_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Structure of data:</span>
+<span class="w">    </span><span class="sd">"""Structure of data:</span>
 
 <span class="sd">    output_type:</span>
-<span class="sd">        The type of output record to create, only &#39;ai&#39;, &#39;longIn&#39;,</span>
-<span class="sd">        &#39;Waveform&#39; types are currently supported; if &#39;&#39; then output to an</span>
-<span class="sd">        existing in record already created in VirtacServer, &#39;caput&#39; is also a</span>
+<span class="sd">        The type of output record to create, only 'ai', 'longIn',</span>
+<span class="sd">        'Waveform' types are currently supported; if '' then output to an</span>
+<span class="sd">        existing in record already created in VirtacServer, 'caput' is also a</span>
 <span class="sd">        special case it creates a mask for cothread.catools.caput calling</span>
 <span class="sd">        set(value) on this mask will call caput with the output PV and the</span>
 <span class="sd">        passed value.</span>
@@ -697,125 +716,125 @@
 <span class="sd">        - collate: create a Waveform record from the values of the input PVs.</span>
 <span class="sd">        - transform: apply the specified transformation function to the value</span>
 <span class="sd">            of the input record and set the result to the output record. N.B.</span>
-<span class="sd">            the only transformation type currently supported is &#39;inverse&#39;.</span>
+<span class="sd">            the only transformation type currently supported is 'inverse'.</span>
 
 <span class="sd">    in_pv:</span>
 <span class="sd">        The PV(s) to be monitored, on change mirror is updated, if multiple</span>
 <span class="sd">        then the PVs should be separated by a comma and one space.</span>
 
 <span class="sd">    out_pv:</span>
-<span class="sd">        The single PV to output to, if a &#39;record type&#39; is spcified then a new</span>
+<span class="sd">        The single PV to output to, if a 'record type' is spcified then a new</span>
 <span class="sd">        record will be created and so must not exist already.</span>
 
 <span class="sd">    value:</span>
 <span class="sd">        The inital value of the output record.</span>
 
 <span class="sd">    refresh:</span>
-<span class="sd">        Whether the out_pv should have its softioc record&#39;s SCAN field set to</span>
-<span class="sd">        &#39;1 second&#39; which will cause it to process every second.</span>
+<span class="sd">        Whether the out_pv should have its softioc record's SCAN field set to</span>
+<span class="sd">        '1 second' which will cause it to process every second.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        lattice: The pytac lattice being used by the virtual machine.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Data to be written to csv.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;output_type&quot;</span><span class="p">,</span> <span class="s2">&quot;mirror_type&quot;</span><span class="p">,</span> <span class="s2">&quot;in_pv&quot;</span><span class="p">,</span> <span class="s2">&quot;out_pv&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;scan&quot;</span><span class="p">)]</span>
+<span class="sd">    """</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"output_type"</span><span class="p">,</span> <span class="s2">"mirror_type"</span><span class="p">,</span> <span class="s2">"in_pv"</span><span class="p">,</span> <span class="s2">"out_pv"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="s2">"scan"</span><span class="p">)]</span>
     <span class="c1"># Tune PV aliases.</span>
     <span class="n">tune</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;tune_x&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
-        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;tune_y&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"tune_x"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"tune_y"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="s2">&quot;ai&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR23C-DI-TMBF-01:X:TUNE:TUNE&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR23C-DI-TMBF-01:TUNE:TUNE&quot;</span><span class="p">,</span>
+            <span class="s2">"ai"</span><span class="p">,</span>
+            <span class="s2">"basic"</span><span class="p">,</span>
+            <span class="s2">"SR23C-DI-TMBF-01:X:TUNE:TUNE"</span><span class="p">,</span>
+            <span class="s2">"SR23C-DI-TMBF-01:TUNE:TUNE"</span><span class="p">,</span>
             <span class="n">tune</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="s2">&quot;1 second&quot;</span><span class="p">,</span>
+            <span class="s2">"1 second"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="s2">&quot;ai&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR23C-DI-TMBF-01:Y:TUNE:TUNE&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR23C-DI-TMBF-02:TUNE:TUNE&quot;</span><span class="p">,</span>
+            <span class="s2">"ai"</span><span class="p">,</span>
+            <span class="s2">"basic"</span><span class="p">,</span>
+            <span class="s2">"SR23C-DI-TMBF-01:Y:TUNE:TUNE"</span><span class="p">,</span>
+            <span class="s2">"SR23C-DI-TMBF-02:TUNE:TUNE"</span><span class="p">,</span>
             <span class="n">tune</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-            <span class="s2">&quot;1 second&quot;</span><span class="p">,</span>
+            <span class="s2">"1 second"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># Combined emittance and average emittance PVs.</span>
     <span class="n">emit</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;emittance_x&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
-        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">&quot;emittance_y&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"emittance_x"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
+        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"emittance_y"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="s2">&quot;ai&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR-DI-EMIT-01:HEMIT&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR-DI-EMIT-01:HEMIT_MEAN&quot;</span><span class="p">,</span>
+            <span class="s2">"ai"</span><span class="p">,</span>
+            <span class="s2">"basic"</span><span class="p">,</span>
+            <span class="s2">"SR-DI-EMIT-01:HEMIT"</span><span class="p">,</span>
+            <span class="s2">"SR-DI-EMIT-01:HEMIT_MEAN"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">emit</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-            <span class="s2">&quot;I/O Intr&quot;</span><span class="p">,</span>
+            <span class="s2">"I/O Intr"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="s2">&quot;ai&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;basic&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR-DI-EMIT-01:VEMIT&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR-DI-EMIT-01:VEMIT_MEAN&quot;</span><span class="p">,</span>
+            <span class="s2">"ai"</span><span class="p">,</span>
+            <span class="s2">"basic"</span><span class="p">,</span>
+            <span class="s2">"SR-DI-EMIT-01:VEMIT"</span><span class="p">,</span>
+            <span class="s2">"SR-DI-EMIT-01:VEMIT_MEAN"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">emit</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
-            <span class="s2">&quot;I/O Intr&quot;</span><span class="p">,</span>
+            <span class="s2">"I/O Intr"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="s2">&quot;ai&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;summate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR-DI-EMIT-01:HEMIT, SR-DI-EMIT-01:VEMIT&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;SR-DI-EMIT-01:EMITTANCE&quot;</span><span class="p">,</span>
+            <span class="s2">"ai"</span><span class="p">,</span>
+            <span class="s2">"summate"</span><span class="p">,</span>
+            <span class="s2">"SR-DI-EMIT-01:HEMIT, SR-DI-EMIT-01:VEMIT"</span><span class="p">,</span>
+            <span class="s2">"SR-DI-EMIT-01:EMITTANCE"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">emit</span><span class="p">)),</span>
-            <span class="s2">&quot;I/O Intr&quot;</span><span class="p">,</span>
+            <span class="s2">"I/O Intr"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># Electron BPMs enabled.</span>
     <span class="n">bpm_enabled_pvs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-        <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">)</span>
+        <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">"BPM"</span><span class="p">,</span> <span class="s2">"enabled"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="s2">&quot;wfmi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;inverse&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bpm_enabled_pvs</span><span class="p">),</span>
-            <span class="s2">&quot;SR-DI-EBPM-01:ENABLED&quot;</span><span class="p">,</span>
+            <span class="s2">"wfmi"</span><span class="p">,</span>
+            <span class="s2">"inverse"</span><span class="p">,</span>
+            <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bpm_enabled_pvs</span><span class="p">),</span>
+            <span class="s2">"SR-DI-EBPM-01:ENABLED"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bpm_enabled_pvs</span><span class="p">))),</span>
-            <span class="s2">&quot;I/O Intr&quot;</span><span class="p">,</span>
+            <span class="s2">"I/O Intr"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># BPM x positions for display on diagnostics screen.</span>
-    <span class="n">bpm_x_pvs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">))</span>
+    <span class="n">bpm_x_pvs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">"BPM"</span><span class="p">,</span> <span class="s2">"x"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">))</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="s2">&quot;wfmi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;collate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bpm_x_pvs</span><span class="p">),</span>
-            <span class="s2">&quot;SR-DI-EBPM-01:SA:X&quot;</span><span class="p">,</span>
+            <span class="s2">"wfmi"</span><span class="p">,</span>
+            <span class="s2">"collate"</span><span class="p">,</span>
+            <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bpm_x_pvs</span><span class="p">),</span>
+            <span class="s2">"SR-DI-EBPM-01:SA:X"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bpm_x_pvs</span><span class="p">))),</span>
-            <span class="s2">&quot;I/O Intr&quot;</span><span class="p">,</span>
+            <span class="s2">"I/O Intr"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="c1"># BPM y positions for display on diagnostics screen.</span>
-    <span class="n">bpm_y_pvs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">&quot;BPM&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">))</span>
+    <span class="n">bpm_y_pvs</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="s2">"BPM"</span><span class="p">,</span> <span class="s2">"y"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">))</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
-            <span class="s2">&quot;wfmi&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;collate&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bpm_y_pvs</span><span class="p">),</span>
-            <span class="s2">&quot;SR-DI-EBPM-01:SA:Y&quot;</span><span class="p">,</span>
+            <span class="s2">"wfmi"</span><span class="p">,</span>
+            <span class="s2">"collate"</span><span class="p">,</span>
+            <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bpm_y_pvs</span><span class="p">),</span>
+            <span class="s2">"SR-DI-EBPM-01:SA:Y"</span><span class="p">,</span>
             <span class="nb">str</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bpm_y_pvs</span><span class="p">))),</span>
-            <span class="s2">&quot;I/O Intr&quot;</span><span class="p">,</span>
+            <span class="s2">"I/O Intr"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span></div>
@@ -825,7 +844,7 @@
 <div class="viewcode-block" id="generate_tune_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_tune_pvs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_tune_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the PVs associated with the tune feedback system, the structure of</span>
+<span class="w">    </span><span class="sd">"""Get the PVs associated with the tune feedback system, the structure of</span>
 <span class="sd">    data is:</span>
 
 <span class="sd">    set_pv:</span>
@@ -841,17 +860,17 @@
 <span class="sd">        lattice: The pytac lattice being used by the virtual machine.</span>
 <span class="sd">    Returns:</span>
 <span class="sd">        Data to be written to csv.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;set_pv&quot;</span><span class="p">,</span> <span class="s2">&quot;offset_pv&quot;</span><span class="p">,</span> <span class="s2">&quot;delta_pv&quot;</span><span class="p">)]</span>
+<span class="sd">    """</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"set_pv"</span><span class="p">,</span> <span class="s2">"offset_pv"</span><span class="p">,</span> <span class="s2">"delta_pv"</span><span class="p">)]</span>
     <span class="c1"># Offset PV for quadrupoles in tune feedback.</span>
     <span class="n">tune_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">offset_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">delta_pvs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">family</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Q1D&quot;</span><span class="p">,</span> <span class="s2">&quot;Q2D&quot;</span><span class="p">,</span> <span class="s2">&quot;Q3D&quot;</span><span class="p">,</span> <span class="s2">&quot;Q3B&quot;</span><span class="p">,</span> <span class="s2">&quot;Q2B&quot;</span><span class="p">,</span> <span class="s2">&quot;Q1B&quot;</span><span class="p">]:</span>
-        <span class="n">tune_pvs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="s2">&quot;b1&quot;</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">SP</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">family</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Q1D"</span><span class="p">,</span> <span class="s2">"Q2D"</span><span class="p">,</span> <span class="s2">"Q3D"</span><span class="p">,</span> <span class="s2">"Q3B"</span><span class="p">,</span> <span class="s2">"Q2B"</span><span class="p">,</span> <span class="s2">"Q1B"</span><span class="p">]:</span>
+        <span class="n">tune_pvs</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lattice</span><span class="o">.</span><span class="n">get_element_pv_names</span><span class="p">(</span><span class="n">family</span><span class="p">,</span> <span class="s2">"b1"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">SP</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">pv</span> <span class="ow">in</span> <span class="n">tune_pvs</span><span class="p">:</span>
-        <span class="n">offset_pvs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">pv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;OFFSET1&quot;</span><span class="p">]))</span>
-        <span class="n">delta_pvs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SR-CS-TFB-01:</span><span class="si">{</span><span class="n">pv</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="si">}{</span><span class="n">pv</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span><span class="si">}{</span><span class="n">pv</span><span class="p">[</span><span class="mi">13</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="si">}</span><span class="s2">:I&quot;</span><span class="p">)</span>
+        <span class="n">offset_pvs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">":"</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">pv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">":"</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">"OFFSET1"</span><span class="p">]))</span>
+        <span class="n">delta_pvs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"SR-CS-TFB-01:</span><span class="si">{</span><span class="n">pv</span><span class="p">[</span><span class="mi">2</span><span class="p">:</span><span class="mi">4</span><span class="p">]</span><span class="si">}{</span><span class="n">pv</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">]</span><span class="si">}{</span><span class="n">pv</span><span class="p">[</span><span class="mi">13</span><span class="p">:</span><span class="mi">15</span><span class="p">]</span><span class="si">}</span><span class="s2">:I"</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">tune_pv</span><span class="p">,</span> <span class="n">offset_pv</span><span class="p">,</span> <span class="n">delta_pv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
         <span class="n">tune_pvs</span><span class="p">,</span> <span class="n">offset_pvs</span><span class="p">,</span> <span class="n">delta_pvs</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">):</span>
@@ -863,21 +882,21 @@
 <div class="viewcode-block" id="write_data_to_file">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.write_data_to_file">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">ring_mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write the collected data to a .csv file with the given name. If the file</span>
+<span class="w">    </span><span class="sd">"""Write the collected data to a .csv file with the given name. If the file</span>
 <span class="sd">    already exists it will be overwritten.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        data: A list of tuples, the data to write to the .csv file.</span>
 <span class="sd">        filename: The name of the .csv file to write the data to.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.csv&quot;</span><span class="p">):</span>
-        <span class="n">filename</span> <span class="o">+=</span> <span class="s2">&quot;.csv&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">filename</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".csv"</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">+=</span> <span class="s2">".csv"</span>
     <span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">ring_mode</span><span class="p">,</span> <span class="n">filename</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)),</span> <span class="s2">"data"</span><span class="p">,</span> <span class="n">ring_mode</span><span class="p">,</span> <span class="n">filename</span>
     <span class="p">)</span>
     <span class="n">column_titles</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">sorted_data</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="n">csv_writer</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         <span class="n">csv_writer</span><span class="o">.</span><span class="n">writerows</span><span class="p">([</span><span class="n">column_titles</span><span class="p">]</span> <span class="o">+</span> <span class="n">sorted_data</span><span class="p">)</span></div>
 
@@ -886,42 +905,42 @@
 <div class="viewcode-block" id="parse_arguments">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.parse_arguments">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">parse_arguments</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The arguments passed to this script to configure how the csv is to be created&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The arguments passed to this script to configure how the csv is to be created"""</span>
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Generate CSV file to define the PVs served by the &quot;</span>
-        <span class="s2">&quot;virtual accelerator IOC.&quot;</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Generate CSV file to define the PVs served by the "</span>
+        <span class="s2">"virtual accelerator IOC."</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;ring_mode&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span>
+        <span class="s2">"ring_mode"</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="s2">"?"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Ring mode name&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;I04&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Ring mode name"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"I04"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--feedback&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename for output feedback PVs CSV file&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;feedback.csv&quot;</span><span class="p">,</span>
+        <span class="s2">"--feedback"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Filename for output feedback PVs CSV file"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"feedback.csv"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--limits&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename for output PV limits CSV file&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;limits.csv&quot;</span><span class="p">,</span>
+        <span class="s2">"--limits"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Filename for output PV limits CSV file"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"limits.csv"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--mirrored&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename for output mirrored PVs CSV file&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;mirrored.csv&quot;</span><span class="p">,</span>
+        <span class="s2">"--mirrored"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Filename for output mirrored PVs CSV file"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"mirrored.csv"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--tune&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename for output tune feedback offset PVs CSV file&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;tunefb.csv&quot;</span><span class="p">,</span>
+        <span class="s2">"--tune"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Filename for output tune feedback offset PVs CSV file"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"tunefb.csv"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bba&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filename for output beam-based-alignment PVs CSV file&quot;</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;bba.csv&quot;</span><span class="p">,</span>
+        <span class="s2">"--bba"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Filename for output beam-based-alignment PVs CSV file"</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"bba.csv"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span></div>
 
@@ -936,24 +955,24 @@
         <span class="c1"># all_elements is a class with an attribute for each element family, where</span>
         <span class="c1"># that attribute is a list of all elements of that family.</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="n">atip</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">preload</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating feedback PVs CSV file.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating feedback PVs CSV file."</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">generate_feedback_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">feedback</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating BBA PVs CSV file.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating BBA PVs CSV file."</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">generate_bba_pvs</span><span class="p">(</span><span class="n">all_elements</span><span class="p">,</span> <span class="n">cast</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">symmetry</span><span class="p">))</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bba</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating limits PVs CSV file.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating limits PVs CSV file."</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">generate_pv_limits</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">limits</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating mirrored PVs CSV file.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating mirrored PVs CSV file."</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">generate_mirrored_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">mirrored</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Creating tune PVs CSV file.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating tune PVs CSV file."</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">generate_tune_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">tune</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 
@@ -984,8 +1003,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=cb8930eaaf36d9849b67"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=cb8930eaaf36d9849b67"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -997,7 +1016,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.21.0.
 </p></div>
       
     </div>
