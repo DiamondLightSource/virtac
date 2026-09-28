@@ -41,6 +41,7 @@ class RecordData:
     zrvl: str | None = None
     zrst: str | None = None
     scan: str = "I/O Intr"
+    mdel: str | None = None
     pini: str = "YES"
     always_update: bool = False
     initial_value: RecordValueType = 0
@@ -132,6 +133,7 @@ class BasePV:
                 HOPR=record_data.upper,
                 LOPR=record_data.lower,
                 SCAN=record_data.scan,
+                MDEL=record_data.mdel,
                 initial_value=record_data.initial_value,
             )
         elif record_data.record_type == RecordTypes.AO:
@@ -312,10 +314,10 @@ class ReadWriteSimPV(ReadSimPV):
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
         if offset is not None:
-            logging.debug("Adding offset of: %s new value is: %s", offset, value)
             value += offset
+            logging.debug("Adding offset of: %s new value is: %s", offset, value)
 
-        # Some PVs such as the bend magnet PV have multiple pytac elements which
+        # Some PVs such as the LI-RF-MOSC-01:FREQ PV have multiple pytac elements which
         # are all updated from the same PV value.
 
         # TODO: This could be a target for future improvement by supporting pairing
