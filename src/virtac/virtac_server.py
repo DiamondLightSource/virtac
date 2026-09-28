@@ -165,14 +165,10 @@ class VirtacServer:
     def _create_element_pvs(self, limits_dict: LimitsDictType) -> None:
         """Create a PV for each simulated field on each pytac lattice element.
 
-        .. note::  One exception to the rule of one PV per field is the RF cavities.
-                Currently there are 7 RF cavities and 1 harmonic RF cavity in the D2
-                lattice, we set their working frequency to be that of the master
-                oscillator (MOSC) frequency, meaning they all share a single PV. Really,
-                the HRF cavity should be about 3x the MOSC frequency, but the HRF isnt
-                simulated anyway, so it doesnt matter that we set the wrong value to it.
-                In the future it should either have its own PV, or we should add a way
-                to apply a scaling factor to the value we get/set.
+        .. note::  There are currently two exceptions of the rule of one PV per lattice
+            field. These are for the rf cavities and for the bend magnets where one (SP)
+            PV controls many lattice elements and one (RB) PV monitors these same
+            elements.
 
         .. note:: For fields which have an in type record (RB) and an out type record
             (SP)we create SetpointPVs (or a derivative). SetpointPVs are used to set the
