@@ -176,55 +176,71 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
     return data
 
 
-def get_d1_dummy_limits():
+def get_d1_dummy_limits() -> dict[str, tuple[str | int]]:
+    """Returns a dictionary of {family: tuple(PV snippet, upper_limit, lower_limit)}
+
+    The PV snippet is used to aid in matching pytac elements with multiple families to
+    the correct PV."""
+
     data = {
-        "vstr": (5, -5),  # A
-        "hstr": (5, -5),  # A
-        "vtrim": (5, -5),  # A
-        "htrim": (5, -5),  # A
-        "squad": (5, -5),  # A
+        "vstr": ("VSTR", 5, -5),  # A
+        "hstr": ("HSTR", 5, -5),  # A
+        "vtrim": ("", 5, -5),  # A
+        "htrim": ("", 5, -5),  # A
+        "squad": ("SQUAD", 5, -5),  # A
+        "emittance_x": ("", 50, -50),  # nm · rad
+        "emittance_y": ("", 50, -50),  # pm · rad
+        "tune_x": ("", 1, 0),  # unitless
+        "tune_y": ("", 1, 0),  # unitless
         # Generic families/family groups at the end so they dont overwrite subfamilies
-        "rf": (499687000.0, 499677000.0),  # Hz
-        "bend": (1400, 10),
-        "quadrupole": (200, 0),  # A
-        "sextupole": (110, 0),  # A
-        "bpm": (10, -10),  # mm
+        "rf": ("", 499687000.0, 499677000.0),  # Hz
+        "bend": ("", 1400, 10),
+        "quadrupole": ("", 200, 0),  # A
+        "sextupole": ("-S", 110, 0),  # A
+        "bpm": ("", 10, -10),  # mm
     }
     return data
 
 
-def get_d2_dummy_limits():
+def get_d2_dummy_limits() -> dict[str, tuple[str | int]]:
+    """Returns a dictionary of {family: tuple(PV snippet, upper_limit, lower_limit)}
+
+    The PV snippet is used to aid in matching pytac elements with multiple families to
+    the correct PV."""
+
     data = {
-        "vstr": (5, -5),  # A
-        "hstr": (5, -5),  # A
-        "vtrim": (5, -5),  # A
-        "htrim": (5, -5),  # A
-        "squad": (5, -5),  # A
-        "a1n": (200, 0),  # A
-        "a2n": (200, 0),  # A
-        "a1l": (200, 0),  # A
-        "a2l": (200, 0),  # A
-        "dq1": (200, 0),  # A
-        "emittance_x": (50, -50),  # nm · rad
-        "emittance_y": (50, -50),  # pm · rad
-        "tune_x": (1, 0),  # unitless
-        "tune_y": (1, 0),  # unitless
+        "vstr": ("VSTR", 5, -5),  # A
+        "hstr": ("HSTR", 5, -5),  # A
+        "vtrim": ("", 5, -5),  # A
+        "htrim": ("", 5, -5),  # A
+        "squad": ("SQUAD", 5, -5),  # A
+        "a1n": ("", 200, 0),  # A
+        "a2n": ("", 200, 0),  # A
+        "a1l": ("", 200, 0),  # A
+        "a2l": ("", 200, 0),  # A
+        "dq1": ("", 200, 0),  # A
+        "emittance_x": ("", 50, -50),  # nm · rad
+        "emittance_y": ("", 50, -50),  # pm · rad
+        "tune_x": ("", 1, 0),  # unitless
+        "tune_y": ("", 1, 0),  # unitless
         # Generic families/family groups at the end so they dont overwrite subfamilies.
-        "bpm": (10, -10),  # mm
-        "rf": (499520639.8, 499500639.8),  # Hz
-        # Theses remaining bends are the DL permanent magnets, so dont actually have a
+        "bpm": ("", 10, -10),  # mm
+        "rf": ("", 499520639.8, 499500639.8),  # Hz
+        # These remaining bends are the DL permanent magnets, so dont actually have a
         # current
-        "bend": (0.166785, 0.166785),  # A
+        "bend": ("", 0.166785, 0.166785),  # A
         # TODO: The QUADS should be between 200 and 0, but for some reason some QUADS
         # currently require an impossible negative current at startup
-        "quadrupole": (200, -200),  # A
-        "sextupole": (50, 0),  # A
-        "multipole": (5, -5),  # A
+        "quadrupole": ("-QUAD-", 200, -200),  # A
+        "sextupole": ("SEXT", 50, 0),  # A
+        "multipole": ("OCT", 5, -5),  # A
     }
     return data
 
 
-def get_dummy_ctrl_data(families, ringmode):
+def get_dummy_ctrl_data(
+    pv_name: str, families: set[str], ringmode: str
+) -> cothread.dbr.dbr_ctrl_double:
     """If running in offline mode, instead of getting limits data from live PVs, we
     create some dummy data."""
 
@@ -235,11 +251,12 @@ def get_dummy_ctrl_data(families, ringmode):
     )
     for ref_fam, limits in limits_data.items():
         for fam in families:
-            if fam == ref_fam:
-                dummy_ctrl_data.upper_ctrl_limit = limits[0]
-                dummy_ctrl_data.lower_ctrl_limit = limits[1]
-                dummy_ctrl_data.upper_disp_limit = limits[0]
-                dummy_ctrl_data.lower_disp_limit = limits[1]
+            # Check we have a matching family and PV
+            if fam == ref_fam and limits[0] in pv_name:
+                dummy_ctrl_data.upper_ctrl_limit = limits[1]
+                dummy_ctrl_data.lower_ctrl_limit = limits[2]
+                dummy_ctrl_data.upper_disp_limit = limits[1]
+                dummy_ctrl_data.lower_disp_limit = limits[2]
                 dummy_ctrl_data.precision = 3
                 return dummy_ctrl_data
     print(f"Could not find PV limits data for families: {families}")
@@ -278,7 +295,9 @@ def get_element_pv_data(
                 if not offline:
                     ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
                 else:
-                    ctrl = get_dummy_ctrl_data({field} if not fams else fams, ringmode)
+                    ctrl = get_dummy_ctrl_data(
+                        rb_pv, {field} if not fams else fams, ringmode
+                    )
                 pvs.append(rb_pv)
                 data.append(
                     (
@@ -302,7 +321,7 @@ def get_element_pv_data(
                             ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
                         else:
                             ctrl = get_dummy_ctrl_data(
-                                {field} if not fams else fams, ringmode
+                                sp_pv, {field} if not fams else fams, ringmode
                             )
                         data.append(
                             (
