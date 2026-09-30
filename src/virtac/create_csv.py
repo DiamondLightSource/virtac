@@ -176,15 +176,73 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
     return data
 
 
-def create_dummy_limits_data():
+def get_d1_dummy_limits():
+    data = {
+        "vstr": (5, -5),  # A
+        "hstr": (5, -5),  # A
+        "vtrim": (5, -5),  # A
+        "htrim": (5, -5),  # A
+        "squad": (5, -5),  # A
+        # Generic families/family groups at the end so they dont overwrite subfamilies
+        "rf": (499687000.0, 499677000.0),  # Hz
+        "bend": (1400, 10),
+        "quadrupole": (200, 0),  # A
+        "sextupole": (110, 0),  # A
+        "bpm": (10, -10),  # mm
+    }
+    return data
+
+
+def get_d2_dummy_limits():
+    data = {
+        "vstr": (5, -5),  # A
+        "hstr": (5, -5),  # A
+        "vtrim": (5, -5),  # A
+        "htrim": (5, -5),  # A
+        "squad": (5, -5),  # A
+        "a1n": (200, 0),  # A
+        "a2n": (200, 0),  # A
+        "a1l": (200, 0),  # A
+        "a2l": (200, 0),  # A
+        "dq1": (200, 0),  # A
+        "emittance_x": (50, -50),  # nm · rad
+        "emittance_y": (50, -50),  # pm · rad
+        "tune_x": (1, 0),  # unitless
+        "tune_y": (1, 0),  # unitless
+        # Generic families/family groups at the end so they dont overwrite subfamilies.
+        "bpm": (10, -10),  # mm
+        "rf": (499520639.8, 499500639.8),  # Hz
+        # Theses remaining bends are the DL permanent magnets, so dont actually have a
+        # current
+        "bend": (0.166785, 0.166785),  # A
+        # TODO: The QUADS should be between 200 and 0, but for some reason some QUADS
+        # currently require an impossible negative current at startup
+        "quadrupole": (200, -200),  # A
+        "sextupole": (50, 0),  # A
+        "multipole": (5, -5),  # A
+    }
+    return data
+
+
+def get_dummy_ctrl_data(families, ringmode):
     """If running in offline mode, instead of getting limits data from live PVs, we
     create some dummy data."""
+
     dummy_ctrl_data = cothread.dbr.dbr_ctrl_double()
-    dummy_ctrl_data.upper_ctrl_limit = 1500
-    dummy_ctrl_data.lower_ctrl_limit = -1500
-    dummy_ctrl_data.precision = 3
-    dummy_ctrl_data.upper_disp_limit = 1500
-    dummy_ctrl_data.lower_disp_limit = -1500
+    # Special cases for TUNE and EMIT PVs
+    limits_data = (
+        get_d2_dummy_limits() if ringmode in D2_RING_MODES else get_d1_dummy_limits()
+    )
+    for ref_fam, limits in limits_data.items():
+        for fam in families:
+            if fam == ref_fam:
+                dummy_ctrl_data.upper_ctrl_limit = limits[0]
+                dummy_ctrl_data.lower_ctrl_limit = limits[1]
+                dummy_ctrl_data.upper_disp_limit = limits[0]
+                dummy_ctrl_data.lower_disp_limit = limits[1]
+                dummy_ctrl_data.precision = 3
+                return dummy_ctrl_data
+    print(f"Could not find PV limits data for families: {families}")
     return dummy_ctrl_data
 
 
@@ -192,6 +250,7 @@ def get_element_pv_data(
     pytac_item: pytac.lattice.Lattice | pytac.element.Element,
     pvs: list[str],
     data: CSVData,
+    ringmode: str,
     offline: bool = False,
 ) -> None:
     """Get the control limits and precision values from the live machine for
@@ -206,6 +265,7 @@ def get_element_pv_data(
     lat_fields: set[str] = set(field_data[pytac.LIVE]).intersection(
         set(field_data[pytac.SIM])
     )
+    fams = pytac_item.families if isinstance(pytac_item, pytac.lattice.Element) else {}
     # These pvs need to be configured with their SCAN fields set to 1 second. This is
     # different to the SCAN field in the LIVE pv, so we cant just caget it.
     scan_pvs: list[str] = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
@@ -216,7 +276,7 @@ def get_element_pv_data(
                 if not offline:
                     ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
                 else:
-                    ctrl = create_dummy_limits_data()
+                    ctrl = get_dummy_ctrl_data({field} if not fams else fams, ringmode)
                 pvs.append(rb_pv)
                 data.append(
                     (
@@ -239,7 +299,9 @@ def get_element_pv_data(
                         if not offline:
                             ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
                         else:
-                            ctrl = create_dummy_limits_data()
+                            ctrl = get_dummy_ctrl_data(
+                                {field} if not fams else fams, ringmode
+                            )
                         data.append(
                             (
                                 sp_pv,
@@ -276,7 +338,7 @@ def generate_pv_limits(
     pytac_items.insert(0, lattice)
     for item in pytac_items:
         caget_handles.append(
-            cothread.Spawn(get_element_pv_data, item, pvs, data, offline)
+            cothread.Spawn(get_element_pv_data, item, pvs, data, lattice.name, offline)
         )
     for caget_handle in caget_handles:
         caget_handle.Wait()
