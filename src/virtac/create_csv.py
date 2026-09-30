@@ -265,7 +265,9 @@ def get_element_pv_data(
     lat_fields: set[str] = set(field_data[pytac.LIVE]).intersection(
         set(field_data[pytac.SIM])
     )
-    fams = pytac_item.families if isinstance(pytac_item, pytac.lattice.Element) else {}
+    fams = (
+        pytac_item.families if isinstance(pytac_item, pytac.lattice.Element) else set()
+    )
     # These pvs need to be configured with their SCAN fields set to 1 second. This is
     # different to the SCAN field in the LIVE pv, so we cant just caget it.
     scan_pvs: list[str] = ["SR-DI-EMIT-01:HEMIT", "SR-DI-EMIT-01:VEMIT"]
