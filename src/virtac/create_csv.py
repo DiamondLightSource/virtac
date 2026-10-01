@@ -245,7 +245,6 @@ def get_dummy_ctrl_data(
     create some dummy data."""
 
     dummy_ctrl_data = cothread.dbr.dbr_ctrl_double()
-    # Special cases for TUNE and EMIT PVs
     limits_data = (
         get_d2_dummy_limits() if ringmode in D2_RING_MODES else get_d1_dummy_limits()
     )
