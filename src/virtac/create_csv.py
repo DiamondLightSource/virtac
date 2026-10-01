@@ -176,7 +176,7 @@ def generate_bba_pvs(all_elements, symmetry: int) -> CSVData:
     return data
 
 
-def get_d1_dummy_limits() -> dict[str, tuple[str | int]]:
+def get_d1_dummy_limits() -> dict[str, tuple[str, float, float]]:
     """Returns a dictionary of {family: tuple(PV snippet, upper_limit, lower_limit)}
 
     The PV snippet is used to aid in matching pytac elements with multiple families to
@@ -202,7 +202,7 @@ def get_d1_dummy_limits() -> dict[str, tuple[str | int]]:
     return data
 
 
-def get_d2_dummy_limits() -> dict[str, tuple[str | int]]:
+def get_d2_dummy_limits() -> dict[str, tuple[str, float, float]]:
     """Returns a dictionary of {family: tuple(PV snippet, upper_limit, lower_limit)}
 
     The PV snippet is used to aid in matching pytac elements with multiple families to
