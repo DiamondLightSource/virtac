@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>virtac.create_csv &#8212; virtac 0.4.0 documentation</title>
+    <title>virtac.create_csv &#8212; virtac 0.4.1.dev6+g6d50298c3 documentation</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=6c02275b"></script>
+    <script src="../_static/documentation_options.js?v=f90be832"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,7 +50,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '0.4.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
@@ -62,7 +62,7 @@
     <link rel="prev" title="virtac.virtac_server" href="virtac.virtac_server.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="0.4.0" />
+  <meta name="docsearch:version" content="main" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -479,23 +479,29 @@ using CA port 5064 whenever the csv files need updating.</p>
 <p class="rubric">Members</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.create_dummy_limits_data" title="virtac.create_csv.create_dummy_limits_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_dummy_limits_data</span></code></a></p></td>
-<td><p>If running in offline mode, instead of getting limits data from live PVs, we create some dummy data.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#virtac.create_csv.generate_bba_pvs" title="virtac.create_csv.generate_bba_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_bba_pvs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.generate_bba_pvs" title="virtac.create_csv.generate_bba_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_bba_pvs</span></code></a></p></td>
 <td><p>Data to be written is stored as a list of tuples each with structure: element index (int), field (str), pv (str), value (int), record_type (str).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.generate_feedback_pvs" title="virtac.create_csv.generate_feedback_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_feedback_pvs</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.create_csv.generate_feedback_pvs" title="virtac.create_csv.generate_feedback_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_feedback_pvs</span></code></a></p></td>
 <td><p>Get feedback pvs. Also get families for tune feedback.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#virtac.create_csv.generate_mirrored_pvs" title="virtac.create_csv.generate_mirrored_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_mirrored_pvs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.generate_mirrored_pvs" title="virtac.create_csv.generate_mirrored_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_mirrored_pvs</span></code></a></p></td>
 <td><p>Structure of data:</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.generate_pv_limits" title="virtac.create_csv.generate_pv_limits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_pv_limits</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.create_csv.generate_pv_limits" title="virtac.create_csv.generate_pv_limits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_pv_limits</span></code></a></p></td>
 <td><p>Loop through each element in the lattice and spawn a cothread which will then do a caget to get pv data for the element.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#virtac.create_csv.generate_tune_pvs" title="virtac.create_csv.generate_tune_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_tune_pvs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.generate_tune_pvs" title="virtac.create_csv.generate_tune_pvs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_tune_pvs</span></code></a></p></td>
 <td><p>Get the PVs associated with the tune feedback system, the structure of data is:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.create_csv.get_d1_dummy_limits" title="virtac.create_csv.get_d1_dummy_limits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_d1_dummy_limits</span></code></a></p></td>
+<td><p>Returns a dictionary of {family: tuple(PV snippet, upper_limit, lower_limit)}</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.get_d2_dummy_limits" title="virtac.create_csv.get_d2_dummy_limits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_d2_dummy_limits</span></code></a></p></td>
+<td><p>Returns a dictionary of {family: tuple(PV snippet, upper_limit, lower_limit)}</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#virtac.create_csv.get_dummy_ctrl_data" title="virtac.create_csv.get_dummy_ctrl_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dummy_ctrl_data</span></code></a></p></td>
+<td><p>If running in offline mode, instead of getting limits data from live PVs, we create some dummy data.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#virtac.create_csv.get_element_pv_data" title="virtac.create_csv.get_element_pv_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_element_pv_data</span></code></a></p></td>
 <td><p>Get the control limits and precision values from the live machine for all normal PVS.</p></td>
@@ -548,15 +554,31 @@ element index (int), field (str), pv (str), value (int), record_type (str).</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="virtac.create_csv.create_dummy_limits_data">
-<span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">create_dummy_limits_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/virtac/create_csv.html#create_dummy_limits_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.create_dummy_limits_data" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="virtac.create_csv.get_d1_dummy_limits">
+<span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">get_d1_dummy_limits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/virtac/create_csv.html#get_d1_dummy_limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.get_d1_dummy_limits" title="Link to this definition">#</a></dt>
+<dd><p>Returns a dictionary of {family: tuple(PV snippet, upper_limit, lower_limit)}</p>
+<p>The PV snippet is used to aid in matching pytac elements with multiple families to
+the correct PV.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="virtac.create_csv.get_d2_dummy_limits">
+<span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">get_d2_dummy_limits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/virtac/create_csv.html#get_d2_dummy_limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.get_d2_dummy_limits" title="Link to this definition">#</a></dt>
+<dd><p>Returns a dictionary of {family: tuple(PV snippet, upper_limit, lower_limit)}</p>
+<p>The PV snippet is used to aid in matching pytac elements with multiple families to
+the correct PV.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="virtac.create_csv.get_dummy_ctrl_data">
+<span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">get_dummy_ctrl_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pv_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">families</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ringmode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dbr_ctrl_double</span></span></span><a class="reference internal" href="../_modules/virtac/create_csv.html#get_dummy_ctrl_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.get_dummy_ctrl_data" title="Link to this definition">#</a></dt>
 <dd><p>If running in offline mode, instead of getting limits data from live PVs, we
 create some dummy data.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="virtac.create_csv.get_element_pv_data">
-<span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">get_element_pv_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pytac_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Lattice</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pvs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/create_csv.html#get_element_pv_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.get_element_pv_data" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">virtac.create_csv.</span></span><span class="sig-name descname"><span class="pre">get_element_pv_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pytac_item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Lattice</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pvs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ringmode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/virtac/create_csv.html#get_element_pv_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#virtac.create_csv.get_element_pv_data" title="Link to this definition">#</a></dt>
 <dd><p>Get the control limits and precision values from the live machine for
 all normal PVS.</p>
 <dl class="field-list simple">
@@ -730,7 +752,9 @@ already exists it will be overwritten.</p>
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.generate_feedback_pvs"><code class="docutils literal notranslate"><span class="pre">generate_feedback_pvs()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.generate_bba_pvs"><code class="docutils literal notranslate"><span class="pre">generate_bba_pvs()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.create_dummy_limits_data"><code class="docutils literal notranslate"><span class="pre">create_dummy_limits_data()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.get_d1_dummy_limits"><code class="docutils literal notranslate"><span class="pre">get_d1_dummy_limits()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.get_d2_dummy_limits"><code class="docutils literal notranslate"><span class="pre">get_d2_dummy_limits()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.get_dummy_ctrl_data"><code class="docutils literal notranslate"><span class="pre">get_dummy_ctrl_data()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.get_element_pv_data"><code class="docutils literal notranslate"><span class="pre">get_element_pv_data()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.generate_pv_limits"><code class="docutils literal notranslate"><span class="pre">generate_pv_limits()</span></code></a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#virtac.create_csv.generate_mirrored_pvs"><code class="docutils literal notranslate"><span class="pre">generate_mirrored_pvs()</span></code></a></li>
@@ -744,7 +768,7 @@ already exists it will be overwritten.</p>
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/DiamondLightSource/virtac/edit/0.4.0/docs/_api/virtac.create_csv.rst">
+    <a href="https://github.com/DiamondLightSource/virtac/edit/main/docs/_api/virtac.create_csv.rst">
       <i class="fa-solid fa-pencil"></i>
       
       
