@@ -83,39 +83,41 @@ class VirtacServer:
                 simulation parameters to use.
             disable_tunefb: Whether tune feedback should be disabled.
         """
-        self = cls()
+        virtac = cls()
 
         if sim_params is None:
             sim_params = atip.simulator.SimParams()
-        self._sim_params: atip.simulator.SimParams = sim_params
-        self._pv_monitoring: bool = True
+        virtac._sim_params: atip.simulator.SimParams = sim_params
+        virtac._pv_monitoring: bool = True
 
-        self.lattice: pytac.lattice.EpicsLattice = await atip.utils.loader(
+        virtac.lattice: pytac.lattice.EpicsLattice = await atip.utils.loader(
             ring_mode,
             sim_params,
-            self.update_pvs,
+            virtac.update_pvs,
         )
-        self.lattice.set_default_data_source(pytac.SIM)
+        virtac.lattice.set_default_data_source(pytac.SIM)
 
         # Holding dictionary for all PVs
-        self._pv_dict: dict[str, BasePV] = {}
+        virtac._pv_dict: dict[str, BasePV] = {}
         # Dictionary for the PVs which need to be automatically updated when the
         # simulation data is recalculated
-        self._readback_pvs_dict: dict[str, ReadSimPV] = {}
+        virtac._readback_pvs_dict: dict[str, ReadSimPV] = {}
 
         print("Starting PV creation.")
-        await self._create_core_pvs(limits_csv)
+        await virtac._create_core_pvs(limits_csv)
 
         if bba_csv is not None:
-            self._create_bba_records(bba_csv)
+            virtac._create_bba_records(bba_csv)
         if feedback_csv is not None:
-            self._create_feedback_records(feedback_csv)
+            virtac._create_feedback_records(feedback_csv)
         if mirror_csv is not None:
-            self._create_mirror_records(mirror_csv)
+            virtac._create_mirror_records(mirror_csv)
         if not disable_tunefb and tune_csv is not None:
-            self._setup_tune_feedback(tune_csv)
+            virtac._setup_tune_feedback(tune_csv)
 
-        self.print_virtac_stats()
+        virtac.print_virtac_stats()
+
+        return virtac
 
     async def update_pvs(self) -> None:
         """The callback function passed to ATSimulator during lattice creation,
