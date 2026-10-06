@@ -2,14 +2,16 @@ import asyncio
 import logging
 import os
 import socket
-from argparse import ArgumentParser
+import threading
+from argparse import ArgumentError, ArgumentParser
+from concurrent.futures import Future
 from pathlib import Path
 from typing import cast
 from warnings import warn
 
+from aioca import CANothing, caget
 from atip.simulator import SimParams
-from cothread.catools import ca_nothing, caget
-from softioc import builder, softioc
+from softioc import asyncio_dispatcher, builder, softioc
 
 from virtac import virtac_server
 
@@ -120,11 +122,14 @@ def configure_ca():
         os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
 
 
-async def async_main() -> None:
+async def async_main(
+    server_ready: Future[virtac_server.VirtacServer],
+    stop_requested: threading.Event,
+) -> None:
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
 
-    # Create an asyncio dispatcher
-    loop = asyncio.get_running_loop()
+    # Create the asyncio dispatcher for the IOC
+    dispatcher = asyncio_dispatcher.AsyncioDispatcher()
 
     args = parse_arguments()
     if args.verbose >= 2:
@@ -162,7 +167,7 @@ async def async_main() -> None:
                 ring_mode = "I04"
                 logging.warning(f"Ring mode not specified, using default: {ring_mode}")
 
-    # Create PVs.
+    # Create Virtac server
     logging.debug("Creating ATIP server")
     server = await virtac_server.VirtacServer.create(
         ring_mode,
@@ -176,20 +181,39 @@ async def async_main() -> None:
     )
 
     # Start the IOC.
-    dispatcher = asyncio_dispatcher.AsyncioDispatcher(loop=loop)
     builder.LoadDatabase()
-    softioc.iocInit(dispatcher)
+    softioc.iocInit(dispatcher, enable_pva=False)
 
-    # context = globals() | {"server": server}
-    # softioc.interactive_ioc(context)
+    # Allow the main thread to continue and return server
+    server_ready.set_result(server)
 
-    while True:
-        # logging.info("Sleeping")
-        await asyncio.sleep(10)
+    # Keep this asyncio loop alive while the main thread runs the shell.
+    while not stop_requested.is_set():
+        await asyncio.sleep(1)
 
 
 def main() -> None:
-    asyncio.run(async_main())
+    server_ready: Future[virtac_server.VirtacServer] = Future()
+    stop_requested = threading.Event()
+
+    def run_async_app() -> None:
+        asyncio.run(async_main(server_ready, stop_requested))
+
+    # We start the IOC in its own thread, which allows the main thread to be
+    # used for the interactive shell
+    worker = threading.Thread(target=run_async_app, name="virtac-asyncio")
+    worker.start()
+
+    # Wait for the server to be initialised so we can pass it to the interactive
+    # shell
+    server = server_ready.result()
+
+    context = globals() | {"server": server}
+    softioc.interactive_ioc(context, call_exit=False)
+
+    # Cleanup after exit
+    stop_requested.set()
+    worker.join()
 
 
 if __name__ == "__main__":
