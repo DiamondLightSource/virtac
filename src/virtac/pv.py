@@ -2,20 +2,22 @@
 the softioc records and the simulation."""
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TypeAlias, cast
+from typing import Any, TypeAlias, cast
 
 import numpy
 import pytac
-from cothread.catools import _Subscription, camonitor
+from aioca import Subscription, camonitor
 from softioc import builder
 from softioc.pythonSoftIoc import RecordWrapper
 
 RecordValueType: TypeAlias = int | float | numpy.ndarray
 PytacItemType: TypeAlias = pytac.lattice.EpicsLattice | pytac.element.Element
-CallbackType: TypeAlias = Callable[[RecordValueType, int | None], None]
+CallbackType: TypeAlias = Callable[
+    [RecordValueType, int | None], Coroutine[Any, Any, None]
+]
 
 
 class RecordTypes(StrEnum):
@@ -88,7 +90,7 @@ class BasePV:
 
         self.__record = new_record
 
-    def _on_update(self, value: RecordValueType, name: str) -> None:
+    async def _on_update(self, value: RecordValueType, name: str) -> None:
         """The callback function called when the softioc record updates.
 
         This function and any overrides need to be kept FAST as they can be called
@@ -186,7 +188,7 @@ class BasePV:
         """
         return self._record
 
-    def get_value(self) -> RecordValueType:
+    async def get_value(self) -> RecordValueType:
         """Get the value stored in this PVs softioc record.
 
         Returns:
@@ -194,7 +196,7 @@ class BasePV:
         """
         return self._record.get()
 
-    def set_value(self, value: RecordValueType) -> None:
+    async def set_value(self, value: RecordValueType) -> None:
         """Set a value to this PVs softioc record.
 
         Args:
@@ -236,17 +238,17 @@ class ReadSimPV(BasePV):
         """
         self._pytac_items.append(pytac_item)
 
-    def update_from_sim(self) -> None:
+    async def update_from_sim(self) -> None:
         """Read a value from the simulation and set it to this PVs softioc record."""
         logging.debug(f"Updating pv {self.name}")
         try:
             value = cast(
                 RecordValueType,
-                self._pytac_items[0].get_value(
+                await self._pytac_items[0].get_value(
                     self._pytac_field, units=pytac.ENG, data_source=pytac.SIM
                 ),
             )
-            self.set_value(value)
+            await self.set_value(value)
         except pytac.exceptions.FieldException as e:
             logging.exception("PV is missing an expected pytac field")
             raise (e)
@@ -285,7 +287,7 @@ class ReadWriteSimPV(ReadSimPV):
         self._read_pv = read_pv
         self._offset_record: BasePV | None = offset_pv
 
-    def _on_update(self, value: RecordValueType, name: str) -> None:
+    async def _on_update(self, value: RecordValueType, name: str) -> None:
         """This function sets the passed value to self._pv_to_update._record by calling
         its set method. The set also sets value (with an additional offset from
         self._offset_pv) to the pytac item and field configured for self._pv_to_update.
@@ -296,12 +298,12 @@ class ReadWriteSimPV(ReadSimPV):
         """
         logging.debug("Read value %s on pv %s", value, name)
         if self._offset_record is not None:
-            offset = self._offset_record.get_value()
-            self.set_value(value, offset)
+            offset = await self._offset_record.get_value()
+            await self.set_value(value, offset)
         else:
-            self.set_value(value, None)
+            await self.set_value(value, None)
 
-    def set_value(
+    async def set_value(
         self, value: RecordValueType, offset: RecordValueType | None = None
     ) -> None:
         """Set a value to this PVs softioc record, update its pytac element(s)
@@ -331,7 +333,7 @@ class ReadWriteSimPV(ReadSimPV):
                 self.name,
                 value,
             )
-            item.set_value(
+            await item.set_value(
                 self._pytac_field,
                 value,
                 units=pytac.ENG,
@@ -341,7 +343,7 @@ class ReadWriteSimPV(ReadSimPV):
         # We set our new value to the _read_pv directly, rather than triggering
         # the _read_pv to read the updated value from the simulation. This is
         # faster and gives the same result as we do not simulate hardware ramping.
-        self._read_pv.set_value(value)
+        await self._read_pv.set_value(value)
 
     def attach_offset_record(self, offset_pv: BasePV) -> None:
         """Used to configure this PV with an offset PV in situations where the offset
@@ -363,7 +365,7 @@ class MonitorPV(BasePV):
         _monitor_data ((list[tuple[list[str], list[CallbackType]]])): Used to keep track
             of which PVs we are monitoring and which functions the camonitor calls when
             they change value.
-        _camonitor_handles (list[_Subscription]): Used to close camonitors if a
+        _camonitor_handles (list[Subscription]): Used to close camonitors if a
             command is sent to pause monitoring.
     """
 
@@ -384,7 +386,7 @@ class MonitorPV(BasePV):
         """
         super().__init__(name, record_data)
         self._monitor_data: list[tuple[list[str], list[CallbackType]]] = []
-        self._camonitor_handles: list[_Subscription] = []
+        self._camonitor_handles: list[Subscription] = []
         self._setup_pv_monitoring(monitored_pv_names, callbacks)
 
     def _setup_pv_monitoring(
@@ -453,14 +455,14 @@ class MonitorPV(BasePV):
             handle.close()
         self._camonitor_handles.clear()
 
-    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
+    async def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Set a value to this PVs softioc record.
 
         For the MonitorPV, the set function is called when a camonitor returns, if we
         are monitoring a list of PVs then an index is passed to this function.
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
-        self.set_value(value)
+        await self.set_value(value)
 
 
 class RefreshPV(MonitorPV):
@@ -504,7 +506,7 @@ class RefreshPV(MonitorPV):
         self._record_to_refresh: BasePV = record_to_refresh
         self._record: RecordWrapper = pv_to_cannibalise.get_record()
 
-    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
+    async def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Set the value returned from the monitored PV to this PVs _record and then
         force an update of _record_to_refresh.
         """
@@ -544,7 +546,7 @@ class InversionPV(MonitorPV):
         )
         self._invert_pvs: list[BasePV] = invert_pvs
 
-    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
+    async def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Triggers this PV to caget the boolean values of all of its _invert_pv(s) and
         then invert them and set the result to _record.
         """
@@ -582,10 +584,10 @@ class SummationPV(MonitorPV):
         )
         self._summate_pvs: list[BasePV] = summate_pvs
 
-    def _callback(
-        self, value: RecordValueType | None = None, index: int | None = None
+    async def _callback(
+        self, _: RecordValueType | None = None, index: int | None = None
     ) -> None:
-        value = sum([pv.get_value() for pv in self._summate_pvs])
+        value = sum([await pv.get_value() for pv in self._summate_pvs])
         self._record.set(value)
         logging.debug(f"SummationPV: {self.name} summing data. New value: {value}")
 
@@ -613,7 +615,7 @@ class CollationPV(MonitorPV):
         )
         self._collate_pvs: list[BasePV] = collate_pvs
 
-    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
+    async def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         if index is None:
             record_data = value
         else:
