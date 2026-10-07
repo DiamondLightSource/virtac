@@ -221,7 +221,7 @@ def main() -> None:
     server = server_ready.result()
 
     context = globals() | {"server": server}
-    softioc.interactive_ioc(context, call_exit=False)
+    softioc.interactive_ioc(context, call_exit=True)
 
     # Cleanup after exit
     stop_requested.set()
