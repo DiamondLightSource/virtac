@@ -83,24 +83,24 @@ def parse_arguments():
     return parser.parse_args()
 
 
-async def configure_ringmode(ring_mode: str) -> None:
+async def configure_ringmode(ring_mode: str) -> str:
     # Determine the ring mode
     if ring_mode is not None:
-        ring_mode = ring_mode
-    else:
+        return ring_mode
+
+    try:
+        ring_mode = str(os.environ["RINGMODE"])
+    except KeyError:
         try:
-            ring_mode = str(os.environ["RINGMODE"])
-        except KeyError:
-            try:
-                value = await caget("SR-CS-RING-01:MODE", timeout=1, format=2)
-                ring_mode = cast(str, value.enums[int(value)])
-                logging.warning(
-                    "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
-                    f"as the default: {ring_mode}"
-                )
-            except CANothing:
-                ring_mode = DEFAULT_RING_MODE
-                logging.warning(f"Ring mode not specified, using default: {ring_mode}")
+            value = await caget("SR-CS-RING-01:MODE", timeout=1, format=2)
+            ring_mode = cast(str, value.enums[int(value)])
+            logging.warning(
+                "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
+                f"as the default: {ring_mode}"
+            )
+        except CANothing:
+            ring_mode = DEFAULT_RING_MODE
+            logging.warning(f"Ring mode not specified, using default: {ring_mode}")
     return ring_mode
 
 
