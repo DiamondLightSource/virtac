@@ -550,10 +550,6 @@ class VirtacServer:
             pv_type_count[type(pv)] += 1
 
         print("Virtac stats:")
-        print(
-            "\t Tune feedbacks is "
-            f"{('disabled' if self._disable_tunefb else 'enabled')}"
-        )
         print(f"\t Linear optics function is {self._sim_params.linopt}")
         print(
             "\t Emittance calculations are "
