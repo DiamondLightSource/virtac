@@ -128,8 +128,9 @@ async def async_main(
 ) -> None:
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
 
-    # Create the asyncio dispatcher for the IOC
-    dispatcher = asyncio_dispatcher.AsyncioDispatcher()
+    # Create the asyncio dispatcher for the IOC using the running loop
+    loop = asyncio.get_running_loop()
+    dispatcher = asyncio_dispatcher.AsyncioDispatcher(loop)
 
     args = parse_arguments()
     if args.verbose >= 2:
@@ -187,7 +188,7 @@ async def async_main(
     # Allow the main thread to continue and return server
     server_ready.set_result(server)
 
-    # Keep this asyncio loop alive while the main thread runs the shell.
+    # Keep this asyncio loop alive otherwise the IOC will die
     while not stop_requested.is_set():
         await asyncio.sleep(1)
 
