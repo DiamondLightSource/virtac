@@ -13,7 +13,8 @@ from aioca import CANothing, caget
 from atip.simulator import SimParams
 from softioc import asyncio_dispatcher, builder, softioc
 
-from virtac import virtac_server
+import virtac
+from virtac.virtac_server import VirtacServer
 
 __all__ = ["main"]
 
@@ -77,7 +78,7 @@ def parse_arguments():
     parser.add_argument(
         "--version",
         action="version",
-        version="__version__",
+        version=virtac.__version__,
     )
     return parser.parse_args()
 
@@ -155,16 +156,15 @@ def configure_ca() -> None:
 
 
 async def start_ioc(
-    server_ready: Future[virtac_server.VirtacServer],
+    server_ready: Future[VirtacServer],
     stop_requested: threading.Event,
+    args,
 ) -> None:
     """Main entrypoint for virtac. Executed when running the 'virtac' command"""
 
     # Create the asyncio dispatcher for the IOC using the running loop
     loop = asyncio.get_running_loop()
     dispatcher = asyncio_dispatcher.AsyncioDispatcher(loop)
-
-    args = parse_arguments()
 
     configure_logging(args.verbose)
 
@@ -181,7 +181,7 @@ async def start_ioc(
 
     # Create Virtac server
     logging.debug("Creating ATIP server")
-    server = await virtac_server.VirtacServer.create(
+    server = await VirtacServer.create(
         ring_mode,
         DATADIR / ring_mode / "limits.csv",
         DATADIR / ring_mode / "bba.csv",
@@ -205,11 +205,13 @@ async def start_ioc(
 
 
 def main() -> None:
-    server_ready: Future[virtac_server.VirtacServer] = Future()
+    server_ready: Future[VirtacServer] = Future()
     stop_requested = threading.Event()
 
+    args = parse_arguments()
+
     def run_async_app() -> None:
-        asyncio.run(start_ioc(server_ready, stop_requested))
+        asyncio.run(start_ioc(server_ready, stop_requested, args))
 
     # We start the IOC in its own thread, which allows the main thread to be
     # used for the interactive shell
