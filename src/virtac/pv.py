@@ -5,7 +5,7 @@ import logging
 from collections.abc import Callable
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import TypeAlias, cast
+from typing import Any, Coroutine, TypeAlias, cast
 
 import numpy
 import pytac
@@ -15,7 +15,9 @@ from softioc.pythonSoftIoc import RecordWrapper
 
 RecordValueType: TypeAlias = int | float | numpy.ndarray
 PytacItemType: TypeAlias = pytac.lattice.EpicsLattice | pytac.element.Element
-CallbackType: TypeAlias = Callable[[RecordValueType, int | None], None]
+CallbackType: TypeAlias = Callable[
+    [RecordValueType, int | None], Coroutine[Any, Any, None]
+]
 
 
 class RecordTypes(StrEnum):
@@ -453,14 +455,14 @@ class MonitorPV(BasePV):
             handle.close()
         self._camonitor_handles.clear()
 
-    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
+    async def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Set a value to this PVs softioc record.
 
         For the MonitorPV, the set function is called when a camonitor returns, if we
         are monitoring a list of PVs then an index is passed to this function.
         """
         logging.debug(f"PV: {self.name} changed to: {value}")
-        self.set_value(value)
+        await self.set_value(value)
 
 
 class RefreshPV(MonitorPV):
@@ -504,7 +506,7 @@ class RefreshPV(MonitorPV):
         self._record_to_refresh: BasePV = record_to_refresh
         self._record: RecordWrapper = pv_to_cannibalise.get_record()
 
-    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
+    async def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Set the value returned from the monitored PV to this PVs _record and then
         force an update of _record_to_refresh.
         """
@@ -544,7 +546,7 @@ class InversionPV(MonitorPV):
         )
         self._invert_pvs: list[BasePV] = invert_pvs
 
-    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
+    async def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         """Triggers this PV to caget the boolean values of all of its _invert_pv(s) and
         then invert them and set the result to _record.
         """
@@ -582,10 +584,10 @@ class SummationPV(MonitorPV):
         )
         self._summate_pvs: list[BasePV] = summate_pvs
 
-    def _callback(
-        self, value: RecordValueType | None = None, index: int | None = None
+    async def _callback(
+        self, _: RecordValueType | None = None, index: int | None = None
     ) -> None:
-        value = sum([pv.get_value() for pv in self._summate_pvs])
+        value = sum([await pv.get_value() for pv in self._summate_pvs])
         self._record.set(value)
         logging.debug(f"SummationPV: {self.name} summing data. New value: {value}")
 
@@ -613,7 +615,7 @@ class CollationPV(MonitorPV):
         )
         self._collate_pvs: list[BasePV] = collate_pvs
 
-    def _callback(self, value: RecordValueType, index: int | None = None) -> None:
+    async def _callback(self, value: RecordValueType, index: int | None = None) -> None:
         if index is None:
             record_data = value
         else:
