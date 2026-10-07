@@ -3,7 +3,7 @@ import logging
 import os
 import socket
 import threading
-from argparse import ArgumentError, ArgumentParser
+from argparse import ArgumentParser
 from concurrent.futures import Future
 from pathlib import Path
 from typing import cast
@@ -19,6 +19,7 @@ __all__ = ["main"]
 
 LOG_FORMAT = "%(asctime)s %(message)s"
 DATADIR = Path(__file__).absolute().parent / "data"
+DEFAULT_RING_MODE = "I04"
 
 
 def parse_arguments():
@@ -81,7 +82,38 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def configure_ca():
+async def configure_ringmode(ring_mode: str) -> None:
+    # Determine the ring mode
+    if ring_mode is not None:
+        ring_mode = ring_mode
+    else:
+        try:
+            ring_mode = str(os.environ["RINGMODE"])
+        except KeyError:
+            try:
+                value = await caget("SR-CS-RING-01:MODE", timeout=1, format=2)
+                ring_mode = cast(str, value.enums[int(value)])
+                logging.warning(
+                    "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
+                    f"as the default: {ring_mode}"
+                )
+            except CANothing:
+                ring_mode = DEFAULT_RING_MODE
+                logging.warning(f"Ring mode not specified, using default: {ring_mode}")
+    return ring_mode
+
+
+def configure_logging(verbosity: int) -> None:
+    if verbosity >= 2:
+        log_level = logging.DEBUG
+    elif verbosity == 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
+    logging.basicConfig(level=log_level, format=LOG_FORMAT)
+
+
+def configure_ca() -> None:
     """Setup channel access settings for our CA server and for accessing PVs
     from other IOCs. We will be creating a python softioc IOC which automatically
     creates a CA server to serve our PVs.
@@ -122,7 +154,7 @@ def configure_ca():
         os.environ["EPICS_CAS_AUTO_BEACON_ADDR_LIST"] = "NO"
 
 
-async def async_main(
+async def start_ioc(
     server_ready: Future[virtac_server.VirtacServer],
     stop_requested: threading.Event,
 ) -> None:
@@ -133,15 +165,12 @@ async def async_main(
     dispatcher = asyncio_dispatcher.AsyncioDispatcher(loop)
 
     args = parse_arguments()
-    if args.verbose >= 2:
-        log_level = logging.DEBUG
-    elif args.verbose == 1:
-        log_level = logging.INFO
-    else:
-        log_level = logging.WARNING
-    logging.basicConfig(level=log_level, format=LOG_FORMAT)
+
+    configure_logging(args.verbose)
 
     configure_ca()
+
+    ring_mode = await configure_ringmode(args.ring_mode)
 
     sim_params = SimParams(
         args.linopt_function,
@@ -149,24 +178,6 @@ async def async_main(
         not args.disable_chromaticity,
         not args.disable_radiation,
     )
-
-    # Determine the ring mode
-    if args.ring_mode is not None:
-        ring_mode = args.ring_mode
-    else:
-        try:
-            ring_mode = str(os.environ["RINGMODE"])
-        except KeyError:
-            try:
-                value = await caget("SR-CS-RING-01:MODE", timeout=1, format=2)
-                ring_mode = cast(str, value.enums[int(value)])
-                logging.warning(
-                    "Ring mode not specified, using value stored in SR-CS-RING-01:MODE "
-                    f"as the default: {ring_mode}"
-                )
-            except CANothing:
-                ring_mode = "I04"
-                logging.warning(f"Ring mode not specified, using default: {ring_mode}")
 
     # Create Virtac server
     logging.debug("Creating ATIP server")
@@ -198,7 +209,7 @@ def main() -> None:
     stop_requested = threading.Event()
 
     def run_async_app() -> None:
-        asyncio.run(async_main(server_ready, stop_requested))
+        asyncio.run(start_ioc(server_ready, stop_requested))
 
     # We start the IOC in its own thread, which allows the main thread to be
     # used for the interactive shell
