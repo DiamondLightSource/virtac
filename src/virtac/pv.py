@@ -2,10 +2,10 @@
 the softioc records and the simulation."""
 
 import logging
-from collections.abc import Callable
+from collections.abc import Callable, Coroutine
 from dataclasses import dataclass
 from enum import StrEnum
-from typing import Any, Coroutine, TypeAlias, cast
+from typing import Any, TypeAlias, cast
 
 import numpy
 import pytac
@@ -90,7 +90,7 @@ class BasePV:
 
         self.__record = new_record
 
-    def _on_update(self, value: RecordValueType, name: str) -> None:
+    async def _on_update(self, value: RecordValueType, name: str) -> None:
         """The callback function called when the softioc record updates.
 
         This function and any overrides need to be kept FAST as they can be called
@@ -188,7 +188,7 @@ class BasePV:
         """
         return self._record
 
-    def get_value(self) -> RecordValueType:
+    async def get_value(self) -> RecordValueType:
         """Get the value stored in this PVs softioc record.
 
         Returns:
@@ -196,7 +196,7 @@ class BasePV:
         """
         return self._record.get()
 
-    def set_value(self, value: RecordValueType) -> None:
+    async def set_value(self, value: RecordValueType) -> None:
         """Set a value to this PVs softioc record.
 
         Args:
@@ -248,7 +248,7 @@ class ReadSimPV(BasePV):
                     self._pytac_field, units=pytac.ENG, data_source=pytac.SIM
                 ),
             )
-            self.set_value(value)
+            await self.set_value(value)
         except pytac.exceptions.FieldException as e:
             logging.exception("PV is missing an expected pytac field")
             raise (e)
@@ -298,7 +298,7 @@ class ReadWriteSimPV(ReadSimPV):
         """
         logging.debug("Read value %s on pv %s", value, name)
         if self._offset_record is not None:
-            offset = self._offset_record.get_value()
+            offset = await self._offset_record.get_value()
             await self.set_value(value, offset)
         else:
             await self.set_value(value, None)
@@ -343,7 +343,7 @@ class ReadWriteSimPV(ReadSimPV):
         # We set our new value to the _read_pv directly, rather than triggering
         # the _read_pv to read the updated value from the simulation. This is
         # faster and gives the same result as we do not simulate hardware ramping.
-        self._read_pv.set_value(value)
+        await self._read_pv.set_value(value)
 
     def attach_offset_record(self, offset_pv: BasePV) -> None:
         """Used to configure this PV with an offset PV in situations where the offset

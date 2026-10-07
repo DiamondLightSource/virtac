@@ -7,7 +7,7 @@ import typing
 from collections import defaultdict
 from enum import StrEnum
 from pathlib import Path
-from typing import cast
+from typing import Self, cast
 
 import atip
 import numpy
@@ -54,6 +54,12 @@ class VirtacServer:
             simulator data source derived from pyAT.
     """
 
+    _sim_params: atip.simulator.SimParams
+    _pv_monitoring: bool
+    lattice: pytac.lattice.EpicsLattice
+    _pv_dict: dict[str, BasePV]
+    _readback_pvs_dict: dict[str, ReadSimPV]
+
     @classmethod
     async def create(
         cls,
@@ -65,7 +71,7 @@ class VirtacServer:
         tune_csv: Path | None = None,
         sim_params: atip.simulator.SimParams | None = None,
         disable_tunefb: bool = False,
-    ) -> None:
+    ) -> Self:
         """
         Args:
             ring_mode: The ring mode to create the lattice in.
@@ -87,10 +93,10 @@ class VirtacServer:
 
         if sim_params is None:
             sim_params = atip.simulator.SimParams()
-        virtac._sim_params: atip.simulator.SimParams = sim_params
-        virtac._pv_monitoring: bool = True
+        virtac._sim_params = sim_params
+        virtac._pv_monitoring = True
 
-        virtac.lattice: pytac.lattice.EpicsLattice = await atip.utils.loader(
+        virtac.lattice = await atip.utils.loader(
             ring_mode,
             sim_params,
             virtac.update_pvs,
@@ -98,10 +104,10 @@ class VirtacServer:
         virtac.lattice.set_default_data_source(pytac.SIM)
 
         # Holding dictionary for all PVs
-        virtac._pv_dict: dict[str, BasePV] = {}
+        virtac._pv_dict = {}
         # Dictionary for the PVs which need to be automatically updated when the
         # simulation data is recalculated
-        virtac._readback_pvs_dict: dict[str, ReadSimPV] = {}
+        virtac._readback_pvs_dict = {}
 
         print("Starting PV creation.")
         await virtac._create_core_pvs(limits_csv)
