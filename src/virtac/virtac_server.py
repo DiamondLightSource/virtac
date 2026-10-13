@@ -56,6 +56,7 @@ class VirtacServer:
 
     _sim_params: atip.simulator.SimParams
     _pv_monitoring: bool
+    _disable_tunefb: bool
     lattice: pytac.lattice.EpicsLattice
     _pv_dict: dict[str, BasePV]
     _readback_pvs_dict: dict[str, ReadSimPV]
@@ -120,6 +121,9 @@ class VirtacServer:
             virtac._create_mirror_records(mirror_csv)
         if not disable_tunefb and tune_csv is not None:
             virtac._setup_tune_feedback(tune_csv)
+            virtac._disable_tunefb = False
+        else:
+            virtac._disable_tunefb = True
 
         virtac.print_virtac_stats()
 
@@ -556,6 +560,10 @@ class VirtacServer:
             pv_type_count[type(pv)] += 1
 
         print("Virtac stats:")
+        print(
+            "\t Tune feedbacks is "
+            f"{('disabled' if self._disable_tunefb else 'enabled')}"
+        )
         print(f"\t Linear optics function is {self._sim_params.linopt}")
         print(
             "\t Emittance calculations are "
