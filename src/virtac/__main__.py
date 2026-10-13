@@ -227,7 +227,7 @@ def main() -> None:
 
     # Cleanup after exit
     stop_requested.set()
-    worker.join()
+    worker.join(timeout=10)
 
 
 if __name__ == "__main__":
