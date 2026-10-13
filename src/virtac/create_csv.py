@@ -262,7 +262,7 @@ def get_dummy_ctrl_data(
     return dummy_ctrl_data
 
 
-def get_element_pv_data(
+async def get_element_pv_data(
     pytac_item: pytac.lattice.Lattice | pytac.element.Element,
     pvs: list[str],
     data: CSVData,
@@ -292,7 +292,7 @@ def get_element_pv_data(
             rb_pv: str = pytac_item.get_pv_name(field, pytac.RB)
             if rb_pv not in pvs:
                 if not offline:
-                    ctrl = caget(rb_pv, format=FORMAT_CTRL, timeout=10)
+                    ctrl = await caget(rb_pv, format=FORMAT_CTRL, timeout=10)
                 else:
                     ctrl = get_dummy_ctrl_data(
                         rb_pv, {field} if not fams else fams, ringmode
@@ -317,7 +317,7 @@ def get_element_pv_data(
                 else:
                     if sp_pv not in pvs:
                         if not offline:
-                            ctrl = caget(sp_pv, format=FORMAT_CTRL, timeout=10)
+                            ctrl = await caget(sp_pv, format=FORMAT_CTRL, timeout=10)
                         else:
                             ctrl = get_dummy_ctrl_data(
                                 sp_pv, {field} if not fams else fams, ringmode
