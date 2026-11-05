@@ -230,9 +230,7 @@ def get_d2_dummy_limits() -> dict[str, tuple[str, float, float]]:
         # These remaining bends are the DL permanent magnets, so dont actually have a
         # current
         "bend": ("", 0.166785, 0.166785),  # A
-        # TODO: The QUADS should be between 200 and 0, but for some reason some QUADS
-        # currently require an impossible negative current at startup
-        "quadrupole": ("-QUAD-", 200, -200),  # A
+        "quadrupole": ("-QUAD-", 200, 0),  # A
         "sextupole": ("SEXT", 50, 0),  # A
         "multipole": ("OCT", 5, -5),  # A
     }
