@@ -5,6 +5,7 @@ using CA port 5064 whenever the csv files need updating.
 """
 
 import argparse
+import asyncio
 import csv
 import os
 import sys
@@ -229,9 +230,7 @@ def get_d2_dummy_limits() -> dict[str, tuple[str, float, float]]:
         # These remaining bends are the DL permanent magnets, so dont actually have a
         # current
         "bend": ("", 0.166785, 0.166785),  # A
-        # TODO: The QUADS should be between 200 and 0, but for some reason some QUADS
-        # currently require an impossible negative current at startup
-        "quadrupole": ("-QUAD-", 200, -200),  # A
+        "quadrupole": ("-QUAD-", 200, 0),  # A
         "sextupole": ("SEXT", 50, 0),  # A
         "multipole": ("OCT", 5, -5),  # A
     }
@@ -336,7 +335,7 @@ async def get_element_pv_data(
                         )
 
 
-def generate_pv_limits(
+async def generate_pv_limits(
     lattice: pytac.lattice.Lattice, offline: bool = False
 ) -> CSVData:
     """Loop through each element in the lattice and spawn a cothread which will then
@@ -358,14 +357,16 @@ def generate_pv_limits(
     pytac_items.insert(0, lattice)
     for item in pytac_items:
         caget_handles.append(
-            cothread.Spawn(get_element_pv_data, item, pvs, data, lattice.name, offline)
+            asyncio.create_task(
+                get_element_pv_data(item, pvs, data, lattice.name, offline)
+            )
         )
     for caget_handle in caget_handles:
-        caget_handle.Wait()
+        await caget_handle
     return data
 
 
-def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
+async def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     """Structure of data:
 
     output_type:
@@ -408,8 +409,8 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     data: CSVData = [("output_type", "mirror_type", "in_pv", "out_pv", "value", "scan")]
     # Tune PV aliases.
     tune: list[str] = [
-        lattice.get_value("tune_x", pytac.RB, data_source=pytac.SIM),
-        lattice.get_value("tune_y", pytac.RB, data_source=pytac.SIM),
+        await lattice.get_value("tune_x", pytac.RB, data_source=pytac.SIM),
+        await lattice.get_value("tune_y", pytac.RB, data_source=pytac.SIM),
     ]
     data.append(
         (
@@ -433,8 +434,8 @@ def generate_mirrored_pvs(lattice: pytac.lattice.Lattice) -> CSVData:
     )
     # Combined emittance and average emittance PVs.
     emit: list[float] = [
-        lattice.get_value("emittance_x", pytac.RB, data_source=pytac.SIM),
-        lattice.get_value("emittance_y", pytac.RB, data_source=pytac.SIM),
+        await lattice.get_value("emittance_x", pytac.RB, data_source=pytac.SIM),
+        await lattice.get_value("emittance_y", pytac.RB, data_source=pytac.SIM),
     ]
     data.append(
         (
@@ -622,12 +623,12 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main():
+async def async_main():
     # Set the default string printing options for numpy arrays so that they are properly
     # formatted when outputting them to the csv file
     with numpy.printoptions(threshold=sys.maxsize, linewidth=100000):
         args = parse_arguments()
-        lattice = atip.utils.loader(args.ring_mode)
+        lattice = await atip.utils.loader(args.ring_mode)
         # all_elements is a class with an attribute for each element family, where
         # that attribute is a list of all elements of that family.
         all_elements = atip.utils.preload(lattice)
@@ -641,19 +642,23 @@ def main():
         write_data_to_file(data, args.bba, args.ring_mode)
 
         print("Creating limits PVs CSV file.")
-        data = generate_pv_limits(lattice, offline=args.offline)
+        data = await generate_pv_limits(lattice, offline=args.offline)
         if len(data) <= 1:
             print("No limits data found, limits.csv will not be updated.")
         else:
             write_data_to_file(data, args.limits, args.ring_mode)
 
         print("Creating mirrored PVs CSV file.")
-        data = generate_mirrored_pvs(lattice)
+        data = await generate_mirrored_pvs(lattice)
         write_data_to_file(data, args.mirrored, args.ring_mode)
 
         print("Creating tune PVs CSV file.")
         data = generate_tune_pvs(lattice)
         write_data_to_file(data, args.tune, args.ring_mode)
+
+
+def main():
+    asyncio.run(async_main())
 
 
 if __name__ == "__main__":
