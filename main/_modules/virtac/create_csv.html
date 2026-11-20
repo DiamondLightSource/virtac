@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>virtac.create_csv &#8212; virtac 0.4.1.dev22+gc052217da documentation</title>
+    <title>virtac.create_csv &#8212; virtac 0.5.1.dev4+g97a46ef14 documentation</title>
   
   
   
@@ -25,29 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=75c7c72ae941e8b558d8" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=6a604523" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=75c7c72ae941e8b558d8"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8" />
 
-    <script src="../../_static/documentation_options.js?v=c560c3f9"></script>
+    <script src="../../_static/documentation_options.js?v=cf6213bf"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=30646c52"></script>
-    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script data-sd-tabs-storage-prefix="sphinx-design-tab-id-" src="../../_static/design-tabs.js?v=fcb327ea"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/virtac/create_csv';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.24.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://DiamondLightSource.github.io/virtac/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'main';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -108,7 +108,7 @@
   
     <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation" aria-expanded="false" aria-controls="pst-primary-sidebar-modal">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -200,14 +200,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
       
@@ -274,7 +274,7 @@
       
         
       
-      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <dialog id="pst-primary-sidebar-modal" tabindex="-1"></dialog>
       <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
         
 
@@ -331,14 +331,14 @@
 
 <div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
   <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
-    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
-    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
-    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto" title="System Settings"></i>
   </button>
   <ul class="dropdown-menu dropdown-menu-end">
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
-    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg me-1"></i>Dark</button></li>
   </ul>
 </div></div>
         
@@ -413,7 +413,7 @@
     
     <li class="breadcrumb-item breadcrumb-home">
       <a href="../../index.html" class="nav-link" aria-label="Home">
-        <i class="fa-solid fa-home"></i>
+        <i class="fa-solid fa-house"></i>
       </a>
     </li>
     
@@ -444,6 +444,7 @@
 <span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">csv</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
@@ -679,9 +680,7 @@
         <span class="c1"># These remaining bends are the DL permanent magnets, so dont actually have a</span>
         <span class="c1"># current</span>
         <span class="s2">"bend"</span><span class="p">:</span> <span class="p">(</span><span class="s2">""</span><span class="p">,</span> <span class="mf">0.166785</span><span class="p">,</span> <span class="mf">0.166785</span><span class="p">),</span>  <span class="c1"># A</span>
-        <span class="c1"># TODO: The QUADS should be between 200 and 0, but for some reason some QUADS</span>
-        <span class="c1"># currently require an impossible negative current at startup</span>
-        <span class="s2">"quadrupole"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"-QUAD-"</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="o">-</span><span class="mi">200</span><span class="p">),</span>  <span class="c1"># A</span>
+        <span class="s2">"quadrupole"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"-QUAD-"</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># A</span>
         <span class="s2">"sextupole"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"SEXT"</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>  <span class="c1"># A</span>
         <span class="s2">"multipole"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"OCT"</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">),</span>  <span class="c1"># A</span>
     <span class="p">}</span>
@@ -795,7 +794,7 @@
 
 <div class="viewcode-block" id="generate_pv_limits">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_pv_limits">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_pv_limits</span><span class="p">(</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_pv_limits</span><span class="p">(</span>
     <span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">,</span> <span class="n">offline</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Loop through each element in the lattice and spawn a cothread which will then</span>
@@ -817,17 +816,19 @@
     <span class="n">pytac_items</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lattice</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">pytac_items</span><span class="p">:</span>
         <span class="n">caget_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="n">cothread</span><span class="o">.</span><span class="n">Spawn</span><span class="p">(</span><span class="n">get_element_pv_data</span><span class="p">,</span> <span class="n">item</span><span class="p">,</span> <span class="n">pvs</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">offline</span><span class="p">)</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="n">get_element_pv_data</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">pvs</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">lattice</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">offline</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="p">)</span>
     <span class="k">for</span> <span class="n">caget_handle</span> <span class="ow">in</span> <span class="n">caget_handles</span><span class="p">:</span>
-        <span class="n">caget_handle</span><span class="o">.</span><span class="n">Wait</span><span class="p">()</span>
+        <span class="k">await</span> <span class="n">caget_handle</span>
     <span class="k">return</span> <span class="n">data</span></div>
 
 
 
 <div class="viewcode-block" id="generate_mirrored_pvs">
 <a class="viewcode-back" href="../../_api/virtac.create_csv.html#virtac.create_csv.generate_mirrored_pvs">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_mirrored_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate_mirrored_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">:</span> <span class="n">pytac</span><span class="o">.</span><span class="n">lattice</span><span class="o">.</span><span class="n">Lattice</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CSVData</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""Structure of data:</span>
 
 <span class="sd">    output_type:</span>
@@ -870,8 +871,8 @@
     <span class="n">data</span><span class="p">:</span> <span class="n">CSVData</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">"output_type"</span><span class="p">,</span> <span class="s2">"mirror_type"</span><span class="p">,</span> <span class="s2">"in_pv"</span><span class="p">,</span> <span class="s2">"out_pv"</span><span class="p">,</span> <span class="s2">"value"</span><span class="p">,</span> <span class="s2">"scan"</span><span class="p">)]</span>
     <span class="c1"># Tune PV aliases.</span>
     <span class="n">tune</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"tune_x"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
-        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"tune_y"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
+        <span class="k">await</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"tune_x"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
+        <span class="k">await</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"tune_y"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
@@ -895,8 +896,8 @@
     <span class="p">)</span>
     <span class="c1"># Combined emittance and average emittance PVs.</span>
     <span class="n">emit</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"emittance_x"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
-        <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"emittance_y"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
+        <span class="k">await</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"emittance_x"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
+        <span class="k">await</span> <span class="n">lattice</span><span class="o">.</span><span class="n">get_value</span><span class="p">(</span><span class="s2">"emittance_y"</span><span class="p">,</span> <span class="n">pytac</span><span class="o">.</span><span class="n">RB</span><span class="p">,</span> <span class="n">data_source</span><span class="o">=</span><span class="n">pytac</span><span class="o">.</span><span class="n">SIM</span><span class="p">),</span>
     <span class="p">]</span>
     <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="p">(</span>
@@ -1094,12 +1095,12 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">async_main</span><span class="p">():</span>
     <span class="c1"># Set the default string printing options for numpy arrays so that they are properly</span>
     <span class="c1"># formatted when outputting them to the csv file</span>
     <span class="k">with</span> <span class="n">numpy</span><span class="o">.</span><span class="n">printoptions</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">maxsize</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">100000</span><span class="p">):</span>
         <span class="n">args</span> <span class="o">=</span> <span class="n">parse_arguments</span><span class="p">()</span>
-        <span class="n">lattice</span> <span class="o">=</span> <span class="n">atip</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">loader</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
+        <span class="n">lattice</span> <span class="o">=</span> <span class="k">await</span> <span class="n">atip</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">loader</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
         <span class="c1"># all_elements is a class with an attribute for each element family, where</span>
         <span class="c1"># that attribute is a list of all elements of that family.</span>
         <span class="n">all_elements</span> <span class="o">=</span> <span class="n">atip</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">preload</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
@@ -1113,19 +1114,23 @@
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">bba</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating limits PVs CSV file."</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">generate_pv_limits</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">offline</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">generate_pv_limits</span><span class="p">(</span><span class="n">lattice</span><span class="p">,</span> <span class="n">offline</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">offline</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="s2">"No limits data found, limits.csv will not be updated."</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">limits</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating mirrored PVs CSV file."</span><span class="p">)</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">generate_mirrored_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">generate_mirrored_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">mirrored</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">"Creating tune PVs CSV file."</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">generate_tune_pvs</span><span class="p">(</span><span class="n">lattice</span><span class="p">)</span>
         <span class="n">write_data_to_file</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">tune</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">ring_mode</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">async_main</span><span class="p">())</span>
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
@@ -1159,8 +1164,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=75c7c72ae941e8b558d8"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=75c7c72ae941e8b558d8"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1172,7 +1177,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.24.0.
 </p></div>
       
     </div>
